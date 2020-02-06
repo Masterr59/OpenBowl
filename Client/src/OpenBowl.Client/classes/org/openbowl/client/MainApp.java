@@ -27,12 +27,14 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import org.openbowl.common.AboutOpenBowl;
 
 /**
  *
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
 public class MainApp extends Application {
+
     private final String ApplicationName = "Open Bowl - Client";
 
     @Override
@@ -74,7 +76,8 @@ public class MainApp extends Application {
     }
 
     private void onAbout() {
-
+        AboutOpenBowl about = new AboutOpenBowl();
+        about.onAbout(ApplicationName);
     }
 }
 

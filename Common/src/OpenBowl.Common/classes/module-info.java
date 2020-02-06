@@ -16,5 +16,7 @@
  */
 
 module OpenBowl.Common {
+    requires javafx.controls;
+    
     exports org.openbowl.common;
 }

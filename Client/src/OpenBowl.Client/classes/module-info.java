@@ -6,6 +6,7 @@
 
 module OpenBowl.Client {
     requires javafx.controls;
+    requires OpenBowl.Common;
     
     exports org.openbowl.client;
 }

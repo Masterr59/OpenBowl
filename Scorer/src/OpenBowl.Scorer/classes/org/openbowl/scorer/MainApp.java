@@ -27,6 +27,7 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import org.openbowl.common.AboutOpenBowl;
 
 /**
  *
@@ -74,6 +75,7 @@ public class MainApp extends Application {
     }
 
     private void onAbout() {
-
+        AboutOpenBowl about = new AboutOpenBowl();
+        about.onAbout(ApplicationName);
     }
 }

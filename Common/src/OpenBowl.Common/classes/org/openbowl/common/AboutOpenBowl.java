@@ -14,11 +14,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.openbowl.common;
 
-module OpenBowl.Scorer {
-    requires javafx.controls;
-    requires OpenBowl.Common;
-    
-    exports org.openbowl.scorer;
-    
+import java.util.Calendar;
+import javafx.scene.control.Alert;
+
+
+/**
+ *
+ * @author Open Bowl <http://www.openbowlscoring.org/>
+ */
+public class AboutOpenBowl {
+    public void onAbout(String ApplicationName){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        int year = Calendar.getInstance().get(Calendar.YEAR);
+        String msg = ApplicationName + "\n";
+        msg += "Copyright (C) " + year + " Open Bowl <http://www.openbowlscoring.org/>";
+        
+        alert.setTitle("About");
+        alert.setHeaderText(msg);
+        alert.showAndWait();
+        
+    }
 }
