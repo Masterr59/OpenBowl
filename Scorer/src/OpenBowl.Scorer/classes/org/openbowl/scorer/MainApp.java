@@ -16,6 +16,8 @@
  */
 package org.openbowl.scorer;
 
+import com.pi4j.io.gpio.GpioController;
+import com.pi4j.io.gpio.GpioFactory;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -34,10 +36,22 @@ import org.openbowl.common.AboutOpenBowl;
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
 public class MainApp extends Application {
+
     private final String ApplicationName = "Open Bowl - Scorer";
+    private Detector BallDetector;
+    private Detector FoulDetector;
+    private PinSetter pinSetter;
 
     @Override
     public void start(Stage stage) throws Exception {
+        BallDetector = new BasicDetector("Ball_Detector");
+                
+        BallDetector.addEventHandler(DetectedEvent.DETECTION, notUsed -> onBallDetected());
+        
+        FoulDetector = new BasicDetector("Foul_Detector");
+        
+        pinSetter = new BasicPinSetter("OddPinSetter");
+        
         BorderPane root = new BorderPane();
         root.setTop(buildMenuBar());
 
@@ -51,7 +65,6 @@ public class MainApp extends Application {
     }
 
     private MenuBar buildMenuBar() {
-        // from pdf provided
         // build a menu bar
         MenuBar menuBar = new MenuBar();
         // File menu with just a quit item for now
@@ -59,14 +72,27 @@ public class MainApp extends Application {
         MenuItem quitMenuItem = new MenuItem("_Quit");
         quitMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.Q,
                 KeyCombination.CONTROL_DOWN));
-        quitMenuItem.setOnAction(actionEvent -> Platform.exit());
+        quitMenuItem.setOnAction(notUsed -> onQuit());
         fileMenu.getItems().add(quitMenuItem);
+        
+        Menu testMenu = new Menu("_Test");
+        MenuItem testBallDetect = new MenuItem("Test Ball Detect");
+        testBallDetect.setOnAction(notUsed -> testBallDetect());
+        
+        testMenu.getItems().addAll(testBallDetect);
+        
+        Menu configMenu = new Menu("_Configure");
+        MenuItem pinSetterConfig = new MenuItem("PinSetter");
+        pinSetterConfig.setOnAction(notUsed -> pinSetter.configureDialog());
+        
+        configMenu.getItems().addAll(pinSetterConfig);
+        
 
         Menu helpMenu = new Menu("_Help");
         MenuItem aboutMenuItem = new MenuItem("_About");
         aboutMenuItem.setOnAction(actionEvent -> onAbout());
         helpMenu.getItems().add(aboutMenuItem);
-        menuBar.getMenus().addAll(fileMenu, helpMenu);
+        menuBar.getMenus().addAll(fileMenu, configMenu, testMenu, helpMenu);
         return menuBar;
     }
 
@@ -77,5 +103,22 @@ public class MainApp extends Application {
     private void onAbout() {
         AboutOpenBowl about = new AboutOpenBowl();
         about.onAbout(ApplicationName);
+    }
+
+    private void onBallDetected() {
+        System.out.println("Ball Detected");
+    }
+
+    private void testBallDetect() {
+        BallDetector.configureDialog();
+    }
+    
+    private void onQuit(){
+        if(RaspberryPiDetect.isPi()){
+            GpioController gpioController = GpioFactory.getInstance();
+            gpioController.shutdown();
+        }
+        
+        Platform.exit();
     }
 }

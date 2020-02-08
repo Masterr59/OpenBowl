@@ -14,17 +14,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.openbowl.scorer;
 
-module OpenBowl.Scorer {
-    requires javafx.controls;
-    requires javafx.fxml;
-    requires OpenBowl.Common;
-    requires pi4j.core;
-    requires pi4j.device;
-    requires pi4j.gpio.extension;
-    requires java.prefs;
+import java.util.Map;
+import javafx.scene.Node;
+
+/**
+ *
+ * @author Open Bowl <http://www.openbowlscoring.org/>
+ */
+public abstract class Detector extends Node {
+
+    public abstract void configureDialog();
+
+    public abstract void setConfiguration(Map<String, Object> configuration);
+
+    public abstract Map<String, Object> getConfiguration();
     
-    opens org.openbowl.scorer to javafx.fxml;
-    exports org.openbowl.scorer;
-    
+    protected void fireDetectedEvent(){
+        DetectedEvent event = new DetectedEvent();
+        fireEvent(event);
+    }
+
 }

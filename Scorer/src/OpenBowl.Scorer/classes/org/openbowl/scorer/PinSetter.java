@@ -14,17 +14,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.openbowl.scorer;
 
-module OpenBowl.Scorer {
-    requires javafx.controls;
-    requires javafx.fxml;
-    requires OpenBowl.Common;
-    requires pi4j.core;
-    requires pi4j.device;
-    requires pi4j.gpio.extension;
-    requires java.prefs;
-    
-    opens org.openbowl.scorer to javafx.fxml;
-    exports org.openbowl.scorer;
-    
+import java.util.Map;
+
+/**
+ *
+ * @author Open Bowl <http://www.openbowlscoring.org/>
+ */
+public interface PinSetter {
+
+    public void configureDialog();
+
+    public void setConfiguration(Map<String, Object> configuration);
+
+    public Map<String, Object> getConfiguration();
+
+    public void setPower(boolean state);
+
+    public boolean getPowerState();
+
+    public void cycle();
 }

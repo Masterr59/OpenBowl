@@ -14,17 +14,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.openbowl.scorer;
 
-module OpenBowl.Scorer {
-    requires javafx.controls;
-    requires javafx.fxml;
-    requires OpenBowl.Common;
-    requires pi4j.core;
-    requires pi4j.device;
-    requires pi4j.gpio.extension;
-    requires java.prefs;
-    
-    opens org.openbowl.scorer to javafx.fxml;
-    exports org.openbowl.scorer;
-    
+/**
+ *
+ * @author Open Bowl <http://www.openbowlscoring.org/>
+ */
+public class RaspberryPiDetect {
+        public static boolean isPi() {
+        if (System.getProperty("os.name").equals("Linux")) {
+            if (System.getProperty("os.arch").equals("x86") || System.getProperty("os.arch").equals("amd64")) {
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
 }
