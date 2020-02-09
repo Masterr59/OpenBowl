@@ -16,10 +16,18 @@
  */
 package org.openbowl.scorer;
 
+import com.pi4j.io.gpio.Pin;
+import com.pi4j.io.gpio.PinState;
+import com.pi4j.io.gpio.RaspiPin;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.ResourceBundle;
+import java.util.prefs.Preferences;
 import javafx.beans.binding.Bindings;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Dialog;
 import javafx.fxml.FXML;
@@ -31,6 +39,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
 
 /**
  *
@@ -43,29 +52,32 @@ public class BasicPinSetterOptionsController extends Dialog<Void> implements Ini
 
     @FXML
     private Spinner<String> PowerStateSpinner;
-    
+
     @FXML
     private Spinner<String> CycleGPIOSpinner;
-    
+
     @FXML
     private Spinner<String> CycleStateSpinner;
-    
+
     @FXML
     private Slider CycleDelaySlider;
-    
+
     @FXML
     private Label CycleLabel;
 
-    private ButtonType okButton;
+    private final ButtonType okButton;
+    private final String name;
+    private final Preferences prefs;
 
-    public BasicPinSetterOptionsController() throws IOException {
+    public BasicPinSetterOptionsController(String name) throws IOException {
         super();
+        this.name = name;
+        prefs = Preferences.userNodeForPackage(this.getClass());
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/openbowl/scorer/BasicPinsetterOptionsDialog.fxml"));
         loader.setController(this);
         Parent root = loader.load();
+        
         getDialogPane().setContent(root);
-        
-        
 
         okButton = new ButtonType("Apply", ButtonData.APPLY);
         ButtonType cancel = new ButtonType("Close", ButtonData.CANCEL_CLOSE);
@@ -76,11 +88,55 @@ public class BasicPinSetterOptionsController extends Dialog<Void> implements Ini
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        ArrayList<String> pins = new ArrayList<>();
+        ArrayList<String> states = new ArrayList<>();
+
+        Pin[] allPins = RaspiPin.allPins();
+        for (Pin p : allPins) {
+            pins.add(p.getName());
+        }
+        Collections.sort(pins);
+        PinState[] allStates = PinState.allStates();
+        for (PinState p : allStates) {
+            states.add(p.getName());
+        }
+        
+
         CycleLabel.textProperty().bind(Bindings.format("%.0f", CycleDelaySlider.valueProperty()));
+        ObservableList<String> gpioPins = FXCollections.observableArrayList(pins);
+        SpinnerValueFactory<String> powerGPIOPinFactory = new SpinnerValueFactory.ListSpinnerValueFactory<>(gpioPins);
+        SpinnerValueFactory<String> cycleGPIOPinFactory = new SpinnerValueFactory.ListSpinnerValueFactory<>(gpioPins);
+
+        ObservableList<String> gpioStates = FXCollections.observableArrayList(states);
+        SpinnerValueFactory<String> powerGPIOStateFactory = new SpinnerValueFactory.ListSpinnerValueFactory<>(gpioStates);
+        SpinnerValueFactory<String> cycleGPIOStateFactory = new SpinnerValueFactory.ListSpinnerValueFactory<>(gpioStates);
+
+        String powerPinName = prefs.get(name + "PowerName", "GPIO 7");
+        String powerPinState = prefs.get(name + "PowerState", "HIGH");
+
+        String cyclePinName = prefs.get(name + "cycleName", "GPIO 0");
+        String cyclePinState = prefs.get(name + "cycleState", "HIGH");
+        powerGPIOStateFactory.setValue(powerPinState);
+        powerGPIOPinFactory.setValue(powerPinName);
+        
+        cycleGPIOStateFactory.setValue(cyclePinState);
+        cycleGPIOPinFactory.setValue(cyclePinName);
+
+        PowerGPIOSpinner.setValueFactory(powerGPIOPinFactory);
+        PowerStateSpinner.setValueFactory(powerGPIOStateFactory);
+        CycleGPIOSpinner.setValueFactory(cycleGPIOPinFactory);
+        CycleStateSpinner.setValueFactory(cycleGPIOStateFactory);
+        long delay = prefs.getLong(name + "CycleDelay", 100);
+        CycleDelaySlider.setValue(delay);
+        
     }
 
     private void onOK(ActionEvent eh) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        prefs.put(name + "PowerName", PowerGPIOSpinner.getValue());
+        prefs.put(name + "PowerState", PowerStateSpinner.getValue());
+        prefs.put(name + "cycleName", CycleGPIOSpinner.getValue());
+        prefs.put(name + "cycleState", CycleStateSpinner.getValue());
+        prefs.putLong(name + "CycleDelay", (long)CycleDelaySlider.getValue());
     }
 
 }

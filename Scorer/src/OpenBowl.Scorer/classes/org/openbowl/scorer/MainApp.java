@@ -18,6 +18,7 @@ package org.openbowl.scorer;
 
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
+import java.io.IOException;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -28,6 +29,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.openbowl.common.AboutOpenBowl;
 
@@ -40,7 +42,7 @@ public class MainApp extends Application {
     private final String ApplicationName = "Open Bowl - Scorer";
     private Detector BallDetector;
     private Detector FoulDetector;
-    private PinSetter pinSetter;
+    private PinSetter oddPinSetter, evenPinSetter;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -50,7 +52,8 @@ public class MainApp extends Application {
         
         FoulDetector = new BasicDetector("Foul_Detector");
         
-        pinSetter = new BasicPinSetter("OddPinSetter");
+        oddPinSetter = new BasicPinSetter("OddPinSetter");
+        evenPinSetter = new BasicPinSetter("EvenPinSetter");
         
         BorderPane root = new BorderPane();
         root.setTop(buildMenuBar());
@@ -82,17 +85,28 @@ public class MainApp extends Application {
         testMenu.getItems().addAll(testBallDetect);
         
         Menu configMenu = new Menu("_Configure");
-        MenuItem pinSetterConfig = new MenuItem("PinSetter");
-        pinSetterConfig.setOnAction(notUsed -> pinSetter.configureDialog());
+        MenuItem oddPinSetterConfig = new MenuItem("OddPinSetter");
+        oddPinSetterConfig.setOnAction(notUsed -> oddPinSetter.configureDialog());
         
-        configMenu.getItems().addAll(pinSetterConfig);
+        MenuItem evenPinSetterConfig = new MenuItem("EvenPinSetter");
+        evenPinSetterConfig.setOnAction(notUsed -> evenPinSetter.configureDialog());
         
+        configMenu.getItems().addAll(oddPinSetterConfig, evenPinSetterConfig);
+        
+        Menu maintMenu = new Menu("_Maintenance");
+        MenuItem oddPinSetterMaint = new MenuItem("OddPinSetter");
+        oddPinSetterMaint.setOnAction(notUsed -> onPinSetterMaint(oddPinSetter, "OddPinSetter"));
+        
+        MenuItem evenPinSetterMaint = new MenuItem("EvenPinSetter");
+        evenPinSetterMaint.setOnAction(notUsed -> onPinSetterMaint(evenPinSetter, "EvenPinSetter"));
+        
+        maintMenu.getItems().addAll(oddPinSetterMaint, evenPinSetterMaint);
 
         Menu helpMenu = new Menu("_Help");
         MenuItem aboutMenuItem = new MenuItem("_About");
         aboutMenuItem.setOnAction(actionEvent -> onAbout());
         helpMenu.getItems().add(aboutMenuItem);
-        menuBar.getMenus().addAll(fileMenu, configMenu, testMenu, helpMenu);
+        menuBar.getMenus().addAll(fileMenu, configMenu, maintMenu, testMenu, helpMenu);
         return menuBar;
     }
 
@@ -114,11 +128,26 @@ public class MainApp extends Application {
     }
     
     private void onQuit(){
+        
         if(RaspberryPiDetect.isPi()){
+            oddPinSetter.setPower(false);
+            evenPinSetter.setPower(false);
             GpioController gpioController = GpioFactory.getInstance();
             gpioController.shutdown();
         }
         
         Platform.exit();
+    }
+
+    private void onPinSetterMaint(PinSetter p, String n) {
+        try {
+            PinSetterMaintenanceController dialog = new PinSetterMaintenanceController(p, n);
+            dialog.setTitle(n);
+            dialog.initModality(Modality.NONE);
+            dialog.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Error showing dialog " + e.toString());
+        }
     }
 }

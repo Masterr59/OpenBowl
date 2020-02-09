@@ -42,15 +42,18 @@ public class BasicDetector extends Detector {
         name = detectorName;
         prefs = Preferences.userNodeForPackage(this.getClass());
         if (isPi) {
-             gpio = GpioFactory.getInstance();
-             
-             String gpioPinName = prefs.get(name + "PinName", "GPIO_07");
-             Pin gpioPinNumber = RaspiPin.getPinByName(gpioPinName);
-             
-             String gpioResistance = prefs.get(name + "PinResistance", "PULL_DOWN");
-             PinPullResistance resistance = PinPullResistance.valueOf(gpioResistance);
-             
-             pin = gpio.provisionDigitalInputPin(gpioPinNumber, resistance);
+            gpio = GpioFactory.getInstance();
+
+            String gpioPinName = prefs.get(name + "PinName", "GPIO 31");
+            Pin gpioPinNumber = RaspiPin.getPinByName(gpioPinName);
+
+            String gpioResistance = prefs.get(name + "PinResistance", "PULL_UP");
+            PinPullResistance resistance = PinPullResistance.valueOf(gpioResistance);
+            try {
+                pin = gpio.provisionDigitalInputPin(gpioPinNumber, resistance);
+            } catch (Exception e) {
+                System.out.println(e.toString());
+            }
         } else {
             gpio = null;
             pin = null;
@@ -61,7 +64,7 @@ public class BasicDetector extends Detector {
     @Override
     public void configureDialog() {
         fireDetectedEvent();
-       //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override

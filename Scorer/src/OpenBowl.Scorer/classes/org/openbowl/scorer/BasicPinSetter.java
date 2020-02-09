@@ -24,7 +24,6 @@ import com.pi4j.io.gpio.RaspiPin;
 import java.io.IOException;
 import java.util.Map;
 import java.util.prefs.Preferences;
-import javafx.stage.Modality;
 
 /**
  *
@@ -35,30 +34,32 @@ public class BasicPinSetter implements PinSetter {
     private GpioController gpioController;
     private GpioPinDigitalOutput powerPin, cyclePin;
     private PinState defaultPowerState, defaultCycleState;
-    private boolean isPi;
-    private String name;
-    private Preferences prefs;
+    private final boolean isPi;
+    private final String name;
+    private final Preferences prefs;
 
     public BasicPinSetter(String name) {
         this.name = name;
         isPi = RaspberryPiDetect.isPi();
         prefs = Preferences.userNodeForPackage(this.getClass());
+        String powerPinState = prefs.get(name + "PowerState", "HIGH");
+        defaultPowerState = PinState.valueOf(powerPinState);
+        String cyclePinState = prefs.get(name + "cycleState", "HIGH");
+        defaultCycleState = PinState.valueOf(cyclePinState);
 
         if (isPi) {
             gpioController = GpioFactory.getInstance();
 
-            String powerPinName = prefs.get(name + "PinName", "GPIO_07");
-            String powerPinState = prefs.get(name + "PowerState", "HIGH");
-            defaultPowerState = PinState.valueOf(powerPinState);
+            String powerPinName = prefs.get(name + "PowerName", "GPIO 7");
+            try {
+                powerPin = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByName(powerPinName), "PowerPin", defaultPowerState);
 
-            powerPin = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByName(powerPinName), "PowerPin", defaultPowerState);
+                String cyclePinName = prefs.get(name + "cycleName", "GPIO 0");
 
-            String cyclePinName = prefs.get(name + "cycleName", "GPIO_00");
-            String cyclePinState = prefs.get(name + "cycleState", "HIGH");
-            defaultCycleState = PinState.valueOf(cyclePinState);
-
-            cyclePin = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByName(cyclePinName), "CyclePin", defaultCycleState);
-
+                cyclePin = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByName(cyclePinName), "CyclePin", defaultCycleState);
+            } catch (Exception e) {
+                System.out.println(e.toString());
+            }
         } else {
 
         }
@@ -68,7 +69,8 @@ public class BasicPinSetter implements PinSetter {
     @Override
     public void configureDialog() {
         try {
-            BasicPinSetterOptionsController dialog = new BasicPinSetterOptionsController();
+            BasicPinSetterOptionsController dialog = new BasicPinSetterOptionsController(name);
+            dialog.setTitle(name);
             dialog.showAndWait();
         } catch (IOException e) {
             System.out.println("Error showing dialog " + e.toString());
@@ -87,12 +89,20 @@ public class BasicPinSetter implements PinSetter {
 
     @Override
     public void setPower(boolean state) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        //System.out.println("Power OldState: "  + powerPin.getState().getName() + " New State: " + PinState.getInverseState(defaultPowerState).toString());
+        if (state) {
+            powerPin.setState(PinState.getInverseState(defaultPowerState));
+        } else {
+            powerPin.setState(defaultPowerState);
+        }
     }
 
     @Override
     public boolean getPowerState() {
-        return powerPin.getState() != defaultPowerState;
+        if (isPi) {
+            return powerPin.getState() != defaultPowerState;
+        }
+        return false;
     }
 
     @Override
@@ -102,12 +112,17 @@ public class BasicPinSetter implements PinSetter {
 
         //seperate thread for sleep
         Thread t = new Thread() {
+            @Override
             public void run() {
                 try {
                     PinState onState = (defaultCycleState == PinState.HIGH) ? PinState.LOW : PinState.HIGH;
-                    cyclePin.setState(onState);
+                    if (isPi) {
+                        cyclePin.setState(onState);
+                    }
                     Thread.sleep(delay);
-                    cyclePin.setState(defaultCycleState);
+                    if (isPi) {
+                        cyclePin.setState(defaultCycleState);
+                    }
 
                 } catch (InterruptedException e) {
                     cyclePin.setState(defaultCycleState);

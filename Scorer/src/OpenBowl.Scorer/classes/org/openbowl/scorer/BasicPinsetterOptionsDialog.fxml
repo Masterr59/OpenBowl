@@ -13,9 +13,9 @@
       <HBox prefHeight="100.0" prefWidth="200.0">
          <children>
             <Label text="Pin" />
-            <Spinner fx:id="PowerGPIOSpinner" />
+            <Spinner fx:id="PowerGPIOSpinner" prefHeight="20.0" prefWidth="110.0" />
             <Label text="Default State" />
-            <Spinner fx:id="PowerStateSpinner" />
+            <Spinner fx:id="PowerStateSpinner" prefHeight="20.0" prefWidth="80.0" />
          </children>
       </HBox>
       <Line endX="499.29290771484375" endY="-2.263456106185913" startX="-100.0" />
@@ -23,9 +23,9 @@
       <HBox prefHeight="100.0" prefWidth="200.0">
          <children>
             <Label text="Pin" />
-            <Spinner fx:id="CycleGPIOSpinner" editable="true" />
+            <Spinner fx:id="CycleGPIOSpinner" editable="true" prefHeight="20.0" prefWidth="110.0" />
             <Label text="Default State" />
-            <Spinner fx:id="CycleStateSpinner" editable="true" />
+            <Spinner fx:id="CycleStateSpinner" editable="true" prefHeight="20.0" prefWidth="80.0" />
          </children>
       </HBox>
       <Line endX="499.29290771484375" endY="-5.3994951248168945" startX="-100.0" />
