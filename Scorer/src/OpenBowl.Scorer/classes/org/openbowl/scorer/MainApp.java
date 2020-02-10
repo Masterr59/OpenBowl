@@ -18,6 +18,7 @@ package org.openbowl.scorer;
 
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javafx.application.Application;
 import javafx.application.Platform;

@@ -14,21 +14,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.openbowl.scorer;
 
-module OpenBowl.Scorer {
-    requires javafx.controls;
-    requires javafx.fxml;
-    requires OpenBowl.Common;
-    requires pi4j.core;
-    requires pi4j.device;
-    requires pi4j.gpio.extension;
-    requires java.prefs;
-<<<<<<< HEAD
-=======
-    requires java.desktop;
->>>>>>> Added PinCounterTarget, BasicPinCounter, and LaneCamera classes, and implemented many of their methods
-    
-    opens org.openbowl.scorer to javafx.fxml;
-    exports org.openbowl.scorer;
-    
+import java.util.ResourceBundle;
+import javafx.fxml.Initializable;
+import java.net.URL;
+import javafx.scene.control.Dialog;
+
+/**
+ * @author Open Bowl <http://www.openbowlscoring.org/>
+ */
+public class BasicPinCounterOptionsController extends Dialog<Void> implements Initializable
+{
+    /**
+     * Sets the initial pin counter settings
+     * 
+     * @param url
+     * @param rb 
+     * 
+     * @throws UnsupportedOperationException Will be implemented in the near future
+     */
+    public void initialize(URL url, ResourceBundle rb)
+    {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }
