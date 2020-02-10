@@ -1,0 +1,154 @@
+/*
+ * Copyright (C) 2020 Open Bowl <http://www.openbowlscoring.org/>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package org.openbowl.scorer;
+
+import com.pi4j.io.gpio.GpioController;
+import com.pi4j.io.gpio.GpioFactory;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.scene.Scene;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.BorderPane;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import org.openbowl.common.AboutOpenBowl;
+
+/**
+ *
+ * @author Open Bowl <http://www.openbowlscoring.org/>
+ */
+public class MainApp extends Application {
+
+    private final String ApplicationName = "Open Bowl - Scorer";
+    private Detector BallDetector;
+    private Detector FoulDetector;
+    private PinSetter oddPinSetter, evenPinSetter;
+
+    @Override
+    public void start(Stage stage) throws Exception {
+        BallDetector = new BasicDetector("Ball_Detector");
+                
+        BallDetector.addEventHandler(DetectedEvent.DETECTION, notUsed -> onBallDetected());
+        
+        FoulDetector = new BasicDetector("Foul_Detector");
+        
+        oddPinSetter = new BasicPinSetter("OddPinSetter");
+        evenPinSetter = new BasicPinSetter("EvenPinSetter");
+        
+        BorderPane root = new BorderPane();
+        root.setTop(buildMenuBar());
+
+        stage.setTitle(ApplicationName);
+        root.setTop(buildMenuBar());
+
+        Scene scene = new Scene(root, 500, 440);
+        stage.setScene(scene);
+        stage.show();
+
+    }
+
+    private MenuBar buildMenuBar() {
+        // build a menu bar
+        MenuBar menuBar = new MenuBar();
+        // File menu with just a quit item for now
+        Menu fileMenu = new Menu("_File");
+        MenuItem quitMenuItem = new MenuItem("_Quit");
+        quitMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.Q,
+                KeyCombination.CONTROL_DOWN));
+        quitMenuItem.setOnAction(notUsed -> onQuit());
+        fileMenu.getItems().add(quitMenuItem);
+        
+        Menu testMenu = new Menu("_Test");
+        MenuItem testBallDetect = new MenuItem("Test Ball Detect");
+        testBallDetect.setOnAction(notUsed -> testBallDetect());
+        
+        testMenu.getItems().addAll(testBallDetect);
+        
+        Menu configMenu = new Menu("_Configure");
+        MenuItem oddPinSetterConfig = new MenuItem("OddPinSetter");
+        oddPinSetterConfig.setOnAction(notUsed -> oddPinSetter.configureDialog());
+        
+        MenuItem evenPinSetterConfig = new MenuItem("EvenPinSetter");
+        evenPinSetterConfig.setOnAction(notUsed -> evenPinSetter.configureDialog());
+        
+        configMenu.getItems().addAll(oddPinSetterConfig, evenPinSetterConfig);
+        
+        Menu maintMenu = new Menu("_Maintenance");
+        MenuItem oddPinSetterMaint = new MenuItem("OddPinSetter");
+        oddPinSetterMaint.setOnAction(notUsed -> onPinSetterMaint(oddPinSetter, "OddPinSetter"));
+        
+        MenuItem evenPinSetterMaint = new MenuItem("EvenPinSetter");
+        evenPinSetterMaint.setOnAction(notUsed -> onPinSetterMaint(evenPinSetter, "EvenPinSetter"));
+        
+        maintMenu.getItems().addAll(oddPinSetterMaint, evenPinSetterMaint);
+
+        Menu helpMenu = new Menu("_Help");
+        MenuItem aboutMenuItem = new MenuItem("_About");
+        aboutMenuItem.setOnAction(actionEvent -> onAbout());
+        helpMenu.getItems().add(aboutMenuItem);
+        menuBar.getMenus().addAll(fileMenu, configMenu, maintMenu, testMenu, helpMenu);
+        return menuBar;
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    private void onAbout() {
+        AboutOpenBowl about = new AboutOpenBowl();
+        about.onAbout(ApplicationName);
+    }
+
+    private void onBallDetected() {
+        System.out.println("Ball Detected");
+    }
+
+    private void testBallDetect() {
+        BallDetector.configureDialog();
+    }
+    
+    private void onQuit(){
+        
+        if(RaspberryPiDetect.isPi()){
+            oddPinSetter.setPower(false);
+            evenPinSetter.setPower(false);
+            GpioController gpioController = GpioFactory.getInstance();
+            gpioController.shutdown();
+        }
+        
+        Platform.exit();
+    }
+
+    private void onPinSetterMaint(PinSetter p, String n) {
+        try {
+            PinSetterMaintenanceController dialog = new PinSetterMaintenanceController(p, n);
+            dialog.setTitle(n);
+            dialog.initModality(Modality.NONE);
+            dialog.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Error showing dialog " + e.toString());
+        }
+    }
+}
