@@ -35,5 +35,9 @@ public abstract class Detector extends Node {
         DetectedEvent event = new DetectedEvent();
         fireEvent(event);
     }
+    
+    public abstract String setup();
+    
+    public abstract void teardown();
 
 }

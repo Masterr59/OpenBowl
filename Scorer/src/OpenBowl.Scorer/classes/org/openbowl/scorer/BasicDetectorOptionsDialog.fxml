@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="38.0" prefWidth="600.0">
+         <children>
+            <Label text="Pin Number" />
+            <Spinner fx:id="pinNumberSpinner" prefHeight="26.0" prefWidth="105.0" />
+            <Label text="Pull Direction" />
+            <Spinner fx:id="pullDirectionSpinner" prefHeight="26.0" prefWidth="98.0" />
+            <Label text="Trigger State" />
+            <Spinner fx:id="triggerStateSpinner" prefHeight="26.0" prefWidth="120.0" />
+         </children>
+      </HBox>
+      <Label fx:id="ErrorLabel" />
+   </children>
+</VBox>

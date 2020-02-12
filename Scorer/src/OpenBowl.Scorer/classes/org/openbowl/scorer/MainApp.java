@@ -25,6 +25,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -40,21 +41,26 @@ import org.openbowl.common.AboutOpenBowl;
 public class MainApp extends Application {
 
     private final String ApplicationName = "Open Bowl - Scorer";
-    private Detector BallDetector;
-    private Detector FoulDetector;
+    private Detector oddFoulDetector, evenFoulDetector, oddBallDetector, evenBallDetector;
     private PinSetter oddPinSetter, evenPinSetter;
 
     @Override
     public void start(Stage stage) throws Exception {
-        BallDetector = new BasicDetector("Ball_Detector");
-                
-        BallDetector.addEventHandler(DetectedEvent.DETECTION, notUsed -> onBallDetected());
-        
-        FoulDetector = new BasicDetector("Foul_Detector");
-        
+        oddBallDetector = new BasicDetector("Odd_Ball_Detector");
+        evenBallDetector = new BasicDetector("Even_Ball_Detector");
+
+        oddBallDetector.addEventHandler(DetectedEvent.DETECTION, notUsed -> onBallDetected("odd"));
+        evenBallDetector.addEventHandler(DetectedEvent.DETECTION, notUsed -> onBallDetected("even"));
+
+        oddFoulDetector = new BasicDetector("Odd_Foul_Detector");
+        evenFoulDetector = new BasicDetector("Even_Foul_Detector");
+
+        oddFoulDetector.addEventHandler(DetectedEvent.DETECTION, notUsed -> onFoulDetected("odd"));
+        evenFoulDetector.addEventHandler(DetectedEvent.DETECTION, notUsed -> onFoulDetected("even"));
+
         oddPinSetter = new BasicPinSetter("OddPinSetter");
         evenPinSetter = new BasicPinSetter("EvenPinSetter");
-        
+
         BorderPane root = new BorderPane();
         root.setTop(buildMenuBar());
 
@@ -77,29 +83,42 @@ public class MainApp extends Application {
                 KeyCombination.CONTROL_DOWN));
         quitMenuItem.setOnAction(notUsed -> onQuit());
         fileMenu.getItems().add(quitMenuItem);
-        
+
         Menu testMenu = new Menu("_Test");
         MenuItem testBallDetect = new MenuItem("Test Ball Detect");
-        testBallDetect.setOnAction(notUsed -> testBallDetect());
-        
+        //testBallDetect.setOnAction(notUsed -> testBallDetect());
+
         testMenu.getItems().addAll(testBallDetect);
-        
+
         Menu configMenu = new Menu("_Configure");
         MenuItem oddPinSetterConfig = new MenuItem("OddPinSetter");
         oddPinSetterConfig.setOnAction(notUsed -> oddPinSetter.configureDialog());
-        
+
         MenuItem evenPinSetterConfig = new MenuItem("EvenPinSetter");
         evenPinSetterConfig.setOnAction(notUsed -> evenPinSetter.configureDialog());
-        
-        configMenu.getItems().addAll(oddPinSetterConfig, evenPinSetterConfig);
-        
+
+        MenuItem oddFoulConf = new MenuItem("OddFoulDetect");
+        oddFoulConf.setOnAction(notUsed -> oddFoulDetector.configureDialog());
+
+        MenuItem evenFoulConf = new MenuItem("EvenFoulDetect");
+        evenFoulConf.setOnAction(notUsed -> evenFoulDetector.configureDialog());
+
+        MenuItem oddBallConf = new MenuItem("OddBallDetect");
+        oddBallConf.setOnAction(notUsed -> oddBallDetector.configureDialog());
+
+        MenuItem evenBallConf = new MenuItem("EvenBallDetect");
+        evenBallConf.setOnAction(notUsed -> evenBallDetector.configureDialog());
+
+        configMenu.getItems().addAll(oddPinSetterConfig, evenPinSetterConfig, new SeparatorMenuItem(),
+                oddFoulConf, evenFoulConf, new SeparatorMenuItem(), oddBallConf, evenBallConf);
+
         Menu maintMenu = new Menu("_Maintenance");
         MenuItem oddPinSetterMaint = new MenuItem("OddPinSetter");
         oddPinSetterMaint.setOnAction(notUsed -> onPinSetterMaint(oddPinSetter, "OddPinSetter"));
-        
+
         MenuItem evenPinSetterMaint = new MenuItem("EvenPinSetter");
         evenPinSetterMaint.setOnAction(notUsed -> onPinSetterMaint(evenPinSetter, "EvenPinSetter"));
-        
+
         maintMenu.getItems().addAll(oddPinSetterMaint, evenPinSetterMaint);
 
         Menu helpMenu = new Menu("_Help");
@@ -119,23 +138,23 @@ public class MainApp extends Application {
         about.onAbout(ApplicationName);
     }
 
-    private void onBallDetected() {
-        System.out.println("Ball Detected");
+    private void onBallDetected(String lane) {
+        System.out.println("Ball Detected on lane: " + lane);
     }
 
-    private void testBallDetect() {
-        BallDetector.configureDialog();
+    private void onFoulDetected(String lane) {
+        System.out.println("Foul detected on lane: " + lane);
     }
-    
-    private void onQuit(){
-        
-        if(RaspberryPiDetect.isPi()){
+
+    private void onQuit() {
+
+        if (RaspberryPiDetect.isPi()) {
             oddPinSetter.setPower(false);
             evenPinSetter.setPower(false);
             GpioController gpioController = GpioFactory.getInstance();
             gpioController.shutdown();
         }
-        
+
         Platform.exit();
     }
 
@@ -146,8 +165,8 @@ public class MainApp extends Application {
             dialog.initModality(Modality.NONE);
             dialog.show();
         } catch (IOException e) {
-            e.printStackTrace();
             System.out.println("Error showing dialog " + e.toString());
         }
     }
+
 }

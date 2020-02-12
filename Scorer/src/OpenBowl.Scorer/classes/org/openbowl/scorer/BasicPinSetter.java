@@ -46,32 +46,20 @@ public class BasicPinSetter implements PinSetter {
         defaultPowerState = PinState.valueOf(powerPinState);
         String cyclePinState = prefs.get(name + "cycleState", "HIGH");
         defaultCycleState = PinState.valueOf(cyclePinState);
-
-        if (isPi) {
-            gpioController = GpioFactory.getInstance();
-
-            String powerPinName = prefs.get(name + "PowerName", "GPIO 7");
-            try {
-                powerPin = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByName(powerPinName), "PowerPin", defaultPowerState);
-
-                String cyclePinName = prefs.get(name + "cycleName", "GPIO 0");
-
-                cyclePin = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByName(cyclePinName), "CyclePin", defaultCycleState);
-            } catch (Exception e) {
-                System.out.println(e.toString());
-            }
-        } else {
-
-        }
+        setup();
 
     }
 
     @Override
     public void configureDialog() {
         try {
-            BasicPinSetterOptionsController dialog = new BasicPinSetterOptionsController(name);
+            RaspberryPiDetect rpi = new RaspberryPiDetect();
+            rpi.onShowPinout("Raspberry Pi", 3);
+            BasicPinSetterOptionsController dialog = new BasicPinSetterOptionsController(name, this);
             dialog.setTitle(name);
             dialog.showAndWait();
+            rpi.closeAlert();
+
         } catch (IOException e) {
             System.out.println("Error showing dialog " + e.toString());
         }
@@ -131,6 +119,39 @@ public class BasicPinSetter implements PinSetter {
         };
         t.start();
 
+    }
+
+    @Override
+    public String setup() {
+        String ret = "";
+        if (isPi) {
+            gpioController = GpioFactory.getInstance();
+
+            String powerPinName = prefs.get(name + "PowerName", "GPIO 7");
+            try {
+                powerPin = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByName(powerPinName), "PowerPin", defaultPowerState);
+
+                String cyclePinName = prefs.get(name + "cycleName", "GPIO 0");
+
+                cyclePin = gpioController.provisionDigitalOutputPin(RaspiPin.getPinByName(cyclePinName), "CyclePin", defaultCycleState);
+            } catch (Exception e) {
+                ret = e.toString();
+                System.out.println(e.toString());
+            }
+        } else {
+            ret = "Not a pi";
+        }
+        return ret;
+    }
+
+    @Override
+    public void teardown() {
+        if (isPi && powerPin != null) {
+            gpioController.unprovisionPin(powerPin);
+        }
+        if (isPi && cyclePin != null) {
+            gpioController.unprovisionPin(cyclePin);
+        }
     }
 
 }

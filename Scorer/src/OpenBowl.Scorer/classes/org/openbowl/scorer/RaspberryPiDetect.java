@@ -16,12 +16,19 @@
  */
 package org.openbowl.scorer;
 
+import java.net.URI;
+import javafx.scene.control.Alert;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+
 /**
  *
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
 public class RaspberryPiDetect {
-        public static boolean isPi() {
+    private Alert alert;
+
+    public static boolean isPi() {
         if (System.getProperty("os.name").equals("Linux")) {
             if (System.getProperty("os.arch").equals("x86") || System.getProperty("os.arch").equals("amd64")) {
                 return false;
@@ -29,5 +36,20 @@ public class RaspberryPiDetect {
             return true;
         }
         return false;
+    }
+
+    public void onShowPinout(String SystemName, int version) {
+        alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(SystemName + " v" + version + " pinout");
+        alert.setHeaderText("");
+        Image image = new Image(getClass().getResource("/org/openbowl/scorer/images/j8header-3b-plus.png").toExternalForm());
+        ImageView imageView = new ImageView(image);
+        alert.setGraphic(imageView);
+        alert.show();
+
+    }
+    
+    public void closeAlert(){
+        alert.close();
     }
 }

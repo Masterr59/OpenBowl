@@ -21,7 +21,11 @@ import com.pi4j.io.gpio.GpioFactory;
 import com.pi4j.io.gpio.GpioPinDigitalInput;
 import com.pi4j.io.gpio.Pin;
 import com.pi4j.io.gpio.PinPullResistance;
+import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.RaspiPin;
+import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
+import com.pi4j.io.gpio.event.GpioPinListenerDigital;
+import java.io.IOException;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
@@ -31,40 +35,37 @@ import java.util.prefs.Preferences;
  */
 public class BasicDetector extends Detector {
 
+    private final String defaultPin = "GPIO 31";
+    private final String defaultResist = "PULL_UP";
+    private final String defaultTrigger = "HIGH";
+
     private GpioController gpio;
     private GpioPinDigitalInput pin;
-    private boolean isPi;
-    private String name;
-    private Preferences prefs;
+    private final boolean isPi;
+    private final String name;
+    private final Preferences prefs;
 
     public BasicDetector(String detectorName) {
         isPi = RaspberryPiDetect.isPi();
         name = detectorName;
         prefs = Preferences.userNodeForPackage(this.getClass());
-        if (isPi) {
-            gpio = GpioFactory.getInstance();
-
-            String gpioPinName = prefs.get(name + "PinName", "GPIO 31");
-            Pin gpioPinNumber = RaspiPin.getPinByName(gpioPinName);
-
-            String gpioResistance = prefs.get(name + "PinResistance", "PULL_UP");
-            PinPullResistance resistance = PinPullResistance.valueOf(gpioResistance);
-            try {
-                pin = gpio.provisionDigitalInputPin(gpioPinNumber, resistance);
-            } catch (Exception e) {
-                System.out.println(e.toString());
-            }
-        } else {
-            gpio = null;
-            pin = null;
-        }
+        setup();
 
     }
 
     @Override
     public void configureDialog() {
-        fireDetectedEvent();
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            RaspberryPiDetect rpi = new RaspberryPiDetect();
+            rpi.onShowPinout("Raspberry Pi", 3);
+            BasicDetectorOptionsController dialog = new BasicDetectorOptionsController(name, this);
+            dialog.setTitle(name);
+            dialog.showAndWait();
+            rpi.closeAlert();
+
+        } catch (IOException e) {
+            System.out.println("Error showing dialog " + e.toString());
+        }
     }
 
     @Override
@@ -77,4 +78,49 @@ public class BasicDetector extends Detector {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    public void onPinStateChange(GpioPinDigitalStateChangeEvent event) {
+        String PinTrigger = prefs.get(name + "TriggerState", defaultTrigger);
+        PinState pinState = PinState.valueOf(PinTrigger);
+        if (pinState == event.getState()) {
+            fireDetectedEvent();
+            //System.out.println(" --> GPIO PIN STATE CHANGE: " + event.getPin() + " = " + event.getState());
+            //System.out.println("Edge " + event.getEdge().getName());
+        }
+
+    }
+
+    @Override
+    public String setup() {
+        String ret = "";
+        if (isPi) {
+            gpio = GpioFactory.getInstance();
+
+            String gpioPinName = prefs.get(name + "PinName", defaultPin);
+            Pin gpioPinNumber = RaspiPin.getPinByName(gpioPinName);
+
+            String gpioResistance = prefs.get(name + "PinResistance", defaultResist);
+            PinPullResistance resistance = PinPullResistance.valueOf(gpioResistance);
+            try {
+                pin = gpio.provisionDigitalInputPin(gpioPinNumber, resistance);
+                pin.addListener((GpioPinListenerDigital) (GpioPinDigitalStateChangeEvent event) -> {
+                    onPinStateChange(event);
+                });
+            } catch (Exception e) {
+                ret = e.toString();
+                System.out.println(e.toString());
+            }
+        } else {
+            ret = "Not a pi";
+            gpio = null;
+            pin = null;
+        }
+        return ret;
+    }
+
+    @Override
+    public void teardown() {
+        if (isPi && pin != null) {
+            gpio.unprovisionPin(pin);
+        }
+    }
 }

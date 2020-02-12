@@ -17,25 +17,28 @@
 package org.openbowl.scorer;
 
 import com.pi4j.io.gpio.Pin;
+import com.pi4j.io.gpio.PinPullResistance;
 import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.RaspiPin;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.scene.control.Dialog;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
-import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Spinner;
@@ -45,56 +48,54 @@ import javafx.scene.control.SpinnerValueFactory;
  *
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
-public class BasicPinSetterOptionsController extends Dialog<Void> implements Initializable {
+public class BasicDetectorOptionsController extends Dialog<Void> implements Initializable {
+    private final String defaultPin = "GPIO 31";
+    private final String defaultResist = "PULL_UP";
+    private final String defaultTrigger = "HIGH";
 
     @FXML
-    private Spinner<String> PowerGPIOSpinner;
+    private Spinner<String> pinNumberSpinner;
 
     @FXML
-    private Spinner<String> PowerStateSpinner;
+    private Spinner<String> pullDirectionSpinner;
 
     @FXML
-    private Spinner<String> CycleGPIOSpinner;
+    private Spinner<String> triggerStateSpinner;
 
-    @FXML
-    private Spinner<String> CycleStateSpinner;
-
-    @FXML
-    private Slider CycleDelaySlider;
-
-    @FXML
-    private Label CycleLabel;
-    
     @FXML
     private Label ErrorLabel;
-
+    
     private final ButtonType okButton;
     private final String name;
     private final Preferences prefs;
-    private final PinSetter pinsetter;
+    private Detector detector;
 
-    public BasicPinSetterOptionsController(String name, PinSetter p) throws IOException {
+    public BasicDetectorOptionsController(String name, Detector d) throws IOException {
         super();
         this.name = name;
-        this.pinsetter = p;
+        this.detector = d;
+        
         prefs = Preferences.userNodeForPackage(this.getClass());
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/openbowl/scorer/BasicPinsetterOptionsDialog.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/openbowl/scorer/BasicDetectorOptionsDialog.fxml"));
         loader.setController(this);
         Parent root = loader.load();
         
         getDialogPane().setContent(root);
 
-        okButton = new ButtonType("Apply", ButtonData.APPLY);
-        ButtonType cancel = new ButtonType("Close", ButtonData.CANCEL_CLOSE);
+        okButton = new ButtonType("Apply", ButtonBar.ButtonData.APPLY);
+        ButtonType cancel = new ButtonType("Close", ButtonBar.ButtonData.CANCEL_CLOSE);
         getDialogPane().getButtonTypes().addAll(okButton, cancel);
 
         getDialogPane().lookupButton(okButton).addEventFilter(ActionEvent.ACTION, eh -> onOK(eh));
     }
+    
+    
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         ArrayList<String> pins = new ArrayList<>();
         ArrayList<String> states = new ArrayList<>();
+        ArrayList<String> resistances = new ArrayList<>();
 
         Pin[] allPins = RaspiPin.allPins();
         for (Pin p : allPins) {
@@ -105,49 +106,46 @@ public class BasicPinSetterOptionsController extends Dialog<Void> implements Ini
         for (PinState p : allStates) {
             states.add(p.getName());
         }
+        String[] allResitance = {"OFF", "PULL_DOWN", "PULL_UP"};
+        resistances.addAll(Arrays.asList(allResitance)); 
         
 
-        CycleLabel.textProperty().bind(Bindings.format("%.0f", CycleDelaySlider.valueProperty()));
         ObservableList<String> gpioPins = FXCollections.observableArrayList(pins);
-        SpinnerValueFactory<String> powerGPIOPinFactory = new SpinnerValueFactory.ListSpinnerValueFactory<>(gpioPins);
-        SpinnerValueFactory<String> cycleGPIOPinFactory = new SpinnerValueFactory.ListSpinnerValueFactory<>(gpioPins);
-
-        ObservableList<String> gpioStates = FXCollections.observableArrayList(states);
-        SpinnerValueFactory<String> powerGPIOStateFactory = new SpinnerValueFactory.ListSpinnerValueFactory<>(gpioStates);
-        SpinnerValueFactory<String> cycleGPIOStateFactory = new SpinnerValueFactory.ListSpinnerValueFactory<>(gpioStates);
-
-        String powerPinName = prefs.get(name + "PowerName", "GPIO 7");
-        String powerPinState = prefs.get(name + "PowerState", "HIGH");
-
-        String cyclePinName = prefs.get(name + "cycleName", "GPIO 0");
-        String cyclePinState = prefs.get(name + "cycleState", "HIGH");
-        powerGPIOStateFactory.setValue(powerPinState);
-        powerGPIOPinFactory.setValue(powerPinName);
+        SpinnerValueFactory<String> GPIOPinFactory = new SpinnerValueFactory.ListSpinnerValueFactory<>(gpioPins);
         
-        cycleGPIOStateFactory.setValue(cyclePinState);
-        cycleGPIOPinFactory.setValue(cyclePinName);
+        ObservableList<String> gpioStates = FXCollections.observableArrayList(states);
+        SpinnerValueFactory<String> GPIOStateFactory = new SpinnerValueFactory.ListSpinnerValueFactory<>(gpioStates);
+        
+        ObservableList<String> gpioRes = FXCollections.observableArrayList(resistances);
+        SpinnerValueFactory<String> GPIOResFactory = new SpinnerValueFactory.ListSpinnerValueFactory<>(gpioRes);
+        
+        
+        String PinName = prefs.get(name + "PinName", defaultPin);
+        String PinState = prefs.get(name + "TriggerState", defaultTrigger);
+        String PinDirection = prefs.get(name + "PinResistance", defaultResist);
 
-        PowerGPIOSpinner.setValueFactory(powerGPIOPinFactory);
-        PowerStateSpinner.setValueFactory(powerGPIOStateFactory);
-        CycleGPIOSpinner.setValueFactory(cycleGPIOPinFactory);
-        CycleStateSpinner.setValueFactory(cycleGPIOStateFactory);
-        long delay = prefs.getLong(name + "CycleDelay", 100);
-        CycleDelaySlider.setValue(delay);
+        GPIOStateFactory.setValue(PinState);
+        GPIOPinFactory.setValue(PinName);
+        GPIOResFactory.setValue(PinDirection);
+        
+       
+        pinNumberSpinner.setValueFactory(GPIOPinFactory);
+        triggerStateSpinner.setValueFactory(GPIOStateFactory);
+        pullDirectionSpinner.setValueFactory(GPIOResFactory);
         
     }
-
+    
     private void onOK(ActionEvent eh) {
-        pinsetter.teardown();
-        prefs.put(name + "PowerName", PowerGPIOSpinner.getValue());
-        prefs.put(name + "PowerState", PowerStateSpinner.getValue());
-        prefs.put(name + "cycleName", CycleGPIOSpinner.getValue());
-        prefs.put(name + "cycleState", CycleStateSpinner.getValue());
-        prefs.putLong(name + "CycleDelay", (long)CycleDelaySlider.getValue());
-        String results = pinsetter.setup();
+        detector.teardown();
+        prefs.put(name + "PinName", pinNumberSpinner.getValue());
+        prefs.put(name + "TriggerState", triggerStateSpinner.getValue());
+        prefs.put(name + "PinResistance", pullDirectionSpinner.getValue());
+        String results = detector.setup();
         if(!results.isBlank()){
             ErrorLabel.setText(results);
             eh.consume();
         }
     }
+    
 
 }

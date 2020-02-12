@@ -35,4 +35,8 @@ public interface PinSetter {
     public boolean getPowerState();
 
     public void cycle();
+    
+    public String setup();
+    
+    public void teardown();
 }

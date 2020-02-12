@@ -36,5 +36,6 @@
             <Label fx:id="CycleLabel" text="100" />
          </children>
       </HBox>
+      <Label fx:id="ErrorLabel" />
    </children>
 </VBox>
