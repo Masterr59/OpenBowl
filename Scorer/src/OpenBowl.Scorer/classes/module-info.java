@@ -23,10 +23,7 @@ module OpenBowl.Scorer {
     requires pi4j.device;
     requires pi4j.gpio.extension;
     requires java.prefs;
-<<<<<<< HEAD
-=======
     requires java.desktop;
->>>>>>> Added PinCounterTarget, BasicPinCounter, and LaneCamera classes, and implemented many of their methods
     
     opens org.openbowl.scorer to javafx.fxml;
     exports org.openbowl.scorer;
