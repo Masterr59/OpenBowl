@@ -55,6 +55,40 @@ public class PinCounterTarget
         setYPosition(yPosition);
     }
     
+    public PinCounterTarget(int averageDifferenceThreshold, int averageIntensitySetpoint, BowlingPins pin, int radius, int xPosition, int yPosition)
+    {
+        setRDifferenceThreshold(0);
+        setRIntensitySetpoint(0);
+        setGDifferenceThreshold(0);
+        setGIntensitySetpoint(0);
+        setBDifferenceThreshold(0);
+        setBIntensitySetpoint(0);
+        setColorDifferenceAveraged(true);
+        setAverageDifferenceThreshold(averageDifferenceThreshold);
+        setAverageIntensitySetpoint(averageIntensitySetpoint);
+        setPin(pin);
+        setRadius(radius);
+        setXPosition(xPosition);
+        setYPosition(yPosition);
+    }
+    
+    public PinCounterTarget(int rDifferenceThreshold, int rIntensitySetpoint, int gDifferenceThreshold, int gIntensitySetpoint, int bDifferenceThreshold, int bIntensitySetpoint, BowlingPins pin, int radius, int xPosition, int yPosition)
+    {
+        setRDifferenceThreshold(rDifferenceThreshold);
+        setRIntensitySetpoint(rIntensitySetpoint);
+        setGDifferenceThreshold(gDifferenceThreshold);
+        setGIntensitySetpoint(gIntensitySetpoint);
+        setBDifferenceThreshold(bDifferenceThreshold);
+        setBIntensitySetpoint(bIntensitySetpoint);
+        setColorDifferenceAveraged(false);
+        setAverageDifferenceThreshold(0);
+        setAverageIntensitySetpoint(0);
+        setPin(pin);
+        setRadius(radius);
+        setXPosition(xPosition);
+        setYPosition(yPosition);
+    }
+    
     /**
      * Gets the average difference threshold of the target
      * 
