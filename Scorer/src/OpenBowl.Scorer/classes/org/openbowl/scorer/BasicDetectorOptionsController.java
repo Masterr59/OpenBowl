@@ -17,7 +17,6 @@
 package org.openbowl.scorer;
 
 import com.pi4j.io.gpio.Pin;
-import com.pi4j.io.gpio.PinPullResistance;
 import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.RaspiPin;
 import java.io.IOException;
@@ -25,10 +24,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
-import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -40,7 +37,6 @@ import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
-import javafx.scene.control.Slider;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 
@@ -49,6 +45,7 @@ import javafx.scene.control.SpinnerValueFactory;
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
 public class BasicDetectorOptionsController extends Dialog<Void> implements Initializable {
+
     private final String defaultPin = "GPIO 31";
     private final String defaultResist = "PULL_UP";
     private final String defaultTrigger = "HIGH";
@@ -64,7 +61,7 @@ public class BasicDetectorOptionsController extends Dialog<Void> implements Init
 
     @FXML
     private Label ErrorLabel;
-    
+
     private final ButtonType okButton;
     private final String name;
     private final Preferences prefs;
@@ -74,12 +71,12 @@ public class BasicDetectorOptionsController extends Dialog<Void> implements Init
         super();
         this.name = name;
         this.detector = d;
-        
+
         prefs = Preferences.userNodeForPackage(this.getClass());
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/openbowl/scorer/BasicDetectorOptionsDialog.fxml"));
         loader.setController(this);
         Parent root = loader.load();
-        
+
         getDialogPane().setContent(root);
 
         okButton = new ButtonType("Apply", ButtonBar.ButtonData.APPLY);
@@ -88,8 +85,6 @@ public class BasicDetectorOptionsController extends Dialog<Void> implements Init
 
         getDialogPane().lookupButton(okButton).addEventFilter(ActionEvent.ACTION, eh -> onOK(eh));
     }
-    
-    
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -107,19 +102,17 @@ public class BasicDetectorOptionsController extends Dialog<Void> implements Init
             states.add(p.getName());
         }
         String[] allResitance = {"OFF", "PULL_DOWN", "PULL_UP"};
-        resistances.addAll(Arrays.asList(allResitance)); 
-        
+        resistances.addAll(Arrays.asList(allResitance));
 
         ObservableList<String> gpioPins = FXCollections.observableArrayList(pins);
         SpinnerValueFactory<String> GPIOPinFactory = new SpinnerValueFactory.ListSpinnerValueFactory<>(gpioPins);
-        
+
         ObservableList<String> gpioStates = FXCollections.observableArrayList(states);
         SpinnerValueFactory<String> GPIOStateFactory = new SpinnerValueFactory.ListSpinnerValueFactory<>(gpioStates);
-        
+
         ObservableList<String> gpioRes = FXCollections.observableArrayList(resistances);
         SpinnerValueFactory<String> GPIOResFactory = new SpinnerValueFactory.ListSpinnerValueFactory<>(gpioRes);
-        
-        
+
         String PinName = prefs.get(name + "PinName", defaultPin);
         String PinState = prefs.get(name + "TriggerState", defaultTrigger);
         String PinDirection = prefs.get(name + "PinResistance", defaultResist);
@@ -127,25 +120,23 @@ public class BasicDetectorOptionsController extends Dialog<Void> implements Init
         GPIOStateFactory.setValue(PinState);
         GPIOPinFactory.setValue(PinName);
         GPIOResFactory.setValue(PinDirection);
-        
-       
+
         pinNumberSpinner.setValueFactory(GPIOPinFactory);
         triggerStateSpinner.setValueFactory(GPIOStateFactory);
         pullDirectionSpinner.setValueFactory(GPIOResFactory);
-        
+
     }
-    
+
     private void onOK(ActionEvent eh) {
         detector.teardown();
         prefs.put(name + "PinName", pinNumberSpinner.getValue());
         prefs.put(name + "TriggerState", triggerStateSpinner.getValue());
         prefs.put(name + "PinResistance", pullDirectionSpinner.getValue());
         String results = detector.setup();
-        if(!results.isBlank()){
+        if (!results.isBlank()) {
             ErrorLabel.setText(results);
             eh.consume();
         }
     }
-    
 
 }

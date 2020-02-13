@@ -16,26 +16,242 @@
  */
 package org.openbowl.scorer;
 
+import javafx.scene.paint.Color;
+import java.io.IOException;
 import java.util.ResourceBundle;
 import javafx.fxml.Initializable;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.prefs.Preferences;
+import javafx.beans.binding.Bindings;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.StackPane;
+import org.openbowl.common.BowlingPins;
 
 /**
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
-public class BasicPinCounterOptionsController extends Dialog<Void> implements Initializable
-{
+public class BasicPinCounterOptionsController extends Dialog<Void> implements Initializable {
+
+    private final int defaultX = 1;
+    private final int defaultY = 1;
+    private final int defaultLevel = 100;
+    private final int defaultRadius = 10;
+    private final Color defaultColor = Color.WHITE;
+
+    @FXML
+    private Spinner<String> pinSpinner;
+
+    @FXML
+    private Label detectedPinLabel;
+
+    @FXML
+    private ColorPicker colorPicker;
+
+    @FXML
+    private Button testButton;
+
+    @FXML
+    private ImageView cameraView;
+
+    @FXML
+    private Canvas overlayCanvas;
+
+    @FXML
+    private Slider radiusSlider;
+
+    @FXML
+    private Slider levelSlider;
+
+    @FXML
+    private TextField radiusTextField;
+
+    @FXML
+    private TextField levelTextField;
+
+    @FXML
+    private Label xLabel;
+    @FXML
+
+    private Label yLabel;
+
+    private final ButtonType okButton;
+    private final String name;
+    private final Preferences prefs;
+    private final BasicPinCounter pinCounter;
+
+    public BasicPinCounterOptionsController(String name, BasicPinCounter pinCounter) throws IOException {
+        super();
+        this.name = name;
+        this.pinCounter = pinCounter;
+
+        prefs = Preferences.userNodeForPackage(this.getClass());
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/openbowl/scorer/BasicPinCounterOptionsDialog.fxml"));
+        loader.setController(this);
+        Parent root = loader.load();
+
+        getDialogPane().setContent(root);
+
+        okButton = new ButtonType("Apply", ButtonBar.ButtonData.APPLY);
+        ButtonType cancel = new ButtonType("Close", ButtonBar.ButtonData.CANCEL_CLOSE);
+        getDialogPane().getButtonTypes().addAll(okButton, cancel);
+
+        getDialogPane().lookupButton(okButton).addEventFilter(ActionEvent.ACTION, eh -> onOK(eh));
+    }
+
     /**
      * Sets the initial pin counter settings
-     * 
+     *
      * @param url
-     * @param rb 
-     * 
-     * @throws UnsupportedOperationException Will be implemented in the near future
+     * @param rb
+     *
      */
-    public void initialize(URL url, ResourceBundle rb)
-    {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void initialize(URL url, ResourceBundle rb) {
+        ArrayList<String> pins = new ArrayList<>();
+        BowlingPins[] allPins = BowlingPins.values();
+        for (BowlingPins p : allPins) {
+            pins.add(p.toString());
+        }
+        Collections.sort(pins);
+
+        ObservableList<String> bowlingPins = FXCollections.observableArrayList(pins);
+        SpinnerValueFactory<String> pinFactory = new SpinnerValueFactory.ListSpinnerValueFactory<>(bowlingPins);
+
+        pinSpinner.setValueFactory(pinFactory);
+        pinFactory.valueProperty().addListener((obs, oldValue, newValue) -> onSpinnerChanged(oldValue, newValue));
+        //pinSpinner.valueFactoryProperty().addListener((obs, oldValue, newValue) -> onSpinnerChanged(oldValue, newValue));
+
+        cameraView.setPreserveRatio(false);
+
+        cameraView.setImage(SwingFXUtils.toFXImage(pinCounter.getLastCameraImage(), null));
+        countPins();
+
+        radiusTextField.textProperty().bind(Bindings.format("%.0f", radiusSlider.valueProperty()));
+
+        levelTextField.textProperty().bind(Bindings.format("%.0f", levelSlider.valueProperty()));
+
+        testButton.setOnAction(notUsed -> countPins());
+
+        overlayCanvas.setOnMouseClicked(value -> onClickOverlay(value));
+        
+        radiusSlider.valueProperty().addListener(notUsed -> drawOverlay());
+
+        loadValues(pinFactory.getValue());
+
     }
+
+    private void onOK(ActionEvent eh) {
+        saveValues(pinSpinner.getValue());
+        loadValues(pinSpinner.getValue());
+        eh.consume();
+    }
+
+    private void countPins() {
+        ArrayList<BowlingPins> pins = pinCounter.countPins();
+        String msg = "";
+        for (BowlingPins p : pins) {
+            msg += p.toString() + ", ";
+        }
+        if (msg.isBlank()) {
+            msg = "No Pins Detected";
+        } else {
+            msg = msg.substring(0, msg.length() - 2);
+        }
+        detectedPinLabel.setText(msg);
+    }
+
+    private void onSpinnerChanged(String oldValue, String newValue) {
+        saveValues(oldValue);
+        loadValues(newValue);
+    }
+
+    private void loadValues(String pinName) {
+        int X, Y, R;
+        X = prefs.getInt(name + "-" + pinName + "-" + "X", defaultX);
+        Y = prefs.getInt(name + "-" + pinName + "-" + "Y", defaultY);
+        R = prefs.getInt(name + "-" + pinName + "-" + "Radius", defaultRadius);
+
+        xLabel.setText(String.format("%d", X));
+        yLabel.setText(String.format("%d", Y));
+        
+        radiusSlider.setValue(R);
+        levelSlider.setValue(prefs.getInt(name + "-" + pinName + "-" + "Level", defaultLevel));
+        double r, g, b;
+        r = prefs.getDouble(name + "-" + pinName + "-" + "Red", defaultColor.getRed());
+        g = prefs.getDouble(name + "-" + pinName + "-" + "Green", defaultColor.getGreen());
+        b = prefs.getDouble(name + "-" + pinName + "-" + "Blue", defaultColor.getBlue());
+        colorPicker.setValue(new Color(r, g, b, 1));
+
+        drawOverlay();
+
+    }
+
+    private void saveValues(String pinName) {
+        prefs.putInt(name + "-" + pinName + "-" + "X", Integer.parseInt(xLabel.getText()));
+        prefs.putInt(name + "-" + pinName + "-" + "Y", Integer.parseInt(yLabel.getText()));
+        prefs.putInt(name + "-" + pinName + "-" + "Radius", (int) radiusSlider.getValue());
+        prefs.putInt(name + "-" + pinName + "-" + "level", (int) levelSlider.getValue());
+        prefs.putDouble(name + "-" + pinName + "-" + "Red", colorPicker.getValue().getRed());
+        prefs.putDouble(name + "-" + pinName + "-" + "Green", colorPicker.getValue().getGreen());
+        prefs.putDouble(name + "-" + pinName + "-" + "Blue", colorPicker.getValue().getBlue());
+    }
+
+    private void drawOverlay() {
+        int X, Y, R;
+        double Xscale, Yscale;
+        X = Integer.parseInt(xLabel.getText());
+        Y = Integer.parseInt(yLabel.getText());
+        R = (int) radiusSlider.getValue();
+
+        Xscale = cameraView.getFitWidth() / cameraView.getImage().getWidth();
+        Yscale = cameraView.getFitHeight() / cameraView.getImage().getHeight();
+
+        GraphicsContext gc = overlayCanvas.getGraphicsContext2D();
+
+        gc.save();
+        //gc.setFill(Color.BLACK);
+        gc.clearRect(0, 0, overlayCanvas.getWidth(), overlayCanvas.getHeight());
+        //gc.fillRect(0, 0, overlayCanvas.getWidth(), overlayCanvas.getHeight());
+        gc.setStroke(Color.RED);
+        gc.setLineWidth(2);
+        //Need to invert Y because the slider goes 0 at the bottom
+        //however the canvas has zero at the top
+
+        gc.strokeRect((X - R) * Xscale, (Y - R) * Yscale, (2 * R), (2 * R));
+
+        gc.restore();
+    }
+
+    private void onClickOverlay(MouseEvent value) {
+        double X = value.getX();
+        double Y = value.getY();
+        double Xscale = cameraView.getImage().getWidth() / cameraView.getFitWidth();
+        double Yscale = cameraView.getImage().getHeight() / cameraView.getFitHeight();
+        xLabel.setText(String.format("%.0f", X * Xscale));
+        yLabel.setText(String.format("%.0f", Y * Yscale));
+        //System.out.println(value);
+        drawOverlay();
+    }
+
 }

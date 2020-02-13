@@ -18,6 +18,7 @@ package org.openbowl.scorer;
 
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 import org.openbowl.common.BowlingPins;
@@ -76,8 +77,15 @@ public class BasicPinCounter implements PinCounter {
      */
     @Override
     public void configureDialog() {
-        BasicPinCounterOptionsController dialog = new BasicPinCounterOptionsController();
-        dialog.showAndWait();
+        try {
+            BasicPinCounterOptionsController dialog = new BasicPinCounterOptionsController(name, this);
+            dialog.setTitle(name);
+            dialog.showAndWait();
+
+        } catch (IOException e) {
+            System.out.println("Error showing dialog " + e.toString());
+            e.printStackTrace();
+        }
     }
 
     /**

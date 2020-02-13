@@ -18,6 +18,7 @@
 module OpenBowl.Scorer {
     requires javafx.controls;
     requires javafx.fxml;
+    requires javafx.swing;
     requires OpenBowl.Common;
     requires pi4j.core;
     requires pi4j.device;
