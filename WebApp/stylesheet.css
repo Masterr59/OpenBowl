@@ -10,11 +10,15 @@ html {
   width: 150px;
   height: 100%;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 .separator
 {
   position: relative;
-  top: -3px;
+  top: -2px;
   left: -8px;
 }
 .separator .topline
@@ -50,7 +54,7 @@ html {
   vertical-align: center;
   position: relative;
   top: 0px;
-  left: 15px;
+  left: 47px;
   font-style: normal;
   font-weight: bold;
   font-size: 18px;
@@ -93,6 +97,10 @@ html {
   padding: 10px 25px 50px 25px;
   overflow: auto;
   color: white;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .pageBody h1
@@ -164,6 +172,8 @@ html {
   top: 0px;
   left: 0px;
   transition: background 0.3s;
+  background-color: #303030;
+  border-bottom: 1px solid #232323;
 }
 .logo:hover {
   background-color: #262626;
@@ -181,7 +191,7 @@ html {
 {
   position: relative;
   top: -2px;
-  left: px;
+  left: 0px;
   font-size: 12px;
   color: #9CFF9A;
   display: inline-block;
@@ -192,7 +202,7 @@ html {
   top: -2px;
   left: px;
   font-size: 12px;
-  color: #9CFF9A;
+  color: #00FFE0;
   display: inline-block;
 }
 .linksection #sect3
@@ -209,16 +219,22 @@ html {
   position: relative;
   top: -3px;
   left: -8px;
-  width: 140px;
-  height: 30px;
+  width: 150px;
+  height: 75px;
   display: inline-block;
-  padding: 14px 0px 0px 10px;
+  padding: 0px 0px 0px 0px;
   font-size: 14px;
   font-style: normal;
   font-weight: bold;
   color: #FFFFFF;
   transition: background 0.3s;
   text-decoration: none;
+  border-top: 1px solid #232323;
+  background-color: #3D3D3D;
+}
+.btnText {
+  text-align: center;
+  padding: 30px 0 0 0;
 }
 .linksection a:hover
 {
