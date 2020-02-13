@@ -26,14 +26,12 @@ import javax.imageio.ImageIO;
  *
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
-public class LaneCamera
-{
-    public static BufferedImage getCurrentCameraImage() throws InterruptedException
-    {
+public class LaneCamera {
+
+    public static BufferedImage getCurrentCameraImage() throws InterruptedException {
         BufferedImage currentCameraImage = new BufferedImage(1, 1, TYPE_INT_RGB);
-        
-        try
-        {   
+
+        try {
             /*
              * raspistillScript contains the command "raspistill -e png -o currentPinImage.png -t 1 -n".
              * This script must be manually placed into the correct directory, as LaneCamera will not do that for you.
@@ -56,14 +54,12 @@ public class LaneCamera
             ProcessBuilder raspistillProcessBuilder = new ProcessBuilder("./raspistillScript");
             Process raspistillProcess = raspistillProcessBuilder.start();
             raspistillProcess.waitFor(); // If the process never ends, then the program will hang. There is no simple way to make this time out.
-            
+
             currentCameraImage = ImageIO.read(new File("currentPinImage.png"));
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             e.printStackTrace(System.out);
         }
-        
+
         return currentCameraImage;
     }
 }

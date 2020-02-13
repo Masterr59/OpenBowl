@@ -43,6 +43,7 @@ public class MainApp extends Application {
     private final String ApplicationName = "Open Bowl - Scorer";
     private Detector oddFoulDetector, evenFoulDetector, oddBallDetector, evenBallDetector;
     private PinSetter oddPinSetter, evenPinSetter;
+    private PinCounter oddPinCounter, evenPinCounter;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -60,6 +61,9 @@ public class MainApp extends Application {
 
         oddPinSetter = new BasicPinSetter("OddPinSetter");
         evenPinSetter = new BasicPinSetter("EvenPinSetter");
+
+        oddPinCounter = new BasicPinCounter("oddPinCounter");
+        evenPinCounter = new BasicPinCounter("evenPinCounter");
 
         BorderPane root = new BorderPane();
         root.setTop(buildMenuBar());
@@ -85,10 +89,13 @@ public class MainApp extends Application {
         fileMenu.getItems().add(quitMenuItem);
 
         Menu testMenu = new Menu("_Test");
-        MenuItem testBallDetect = new MenuItem("Test Ball Detect");
-        //testBallDetect.setOnAction(notUsed -> testBallDetect());
+        MenuItem testOddPinCounter = new MenuItem("Test Odd Pin Detector");
+        testOddPinCounter.setOnAction(notUsed -> oddPinCounter.countPins());
+        
+         MenuItem testEvenPinCounter = new MenuItem("Test Even Pin Detector");
+        testEvenPinCounter.setOnAction(notUsed -> evenPinCounter.countPins());
 
-        testMenu.getItems().addAll(testBallDetect);
+        testMenu.getItems().addAll(testOddPinCounter, testEvenPinCounter);
 
         Menu configMenu = new Menu("_Configure");
         MenuItem oddPinSetterConfig = new MenuItem("OddPinSetter");
@@ -109,8 +116,14 @@ public class MainApp extends Application {
         MenuItem evenBallConf = new MenuItem("EvenBallDetect");
         evenBallConf.setOnAction(notUsed -> evenBallDetector.configureDialog());
 
-        configMenu.getItems().addAll(oddPinSetterConfig, evenPinSetterConfig, new SeparatorMenuItem(),
-                oddFoulConf, evenFoulConf, new SeparatorMenuItem(), oddBallConf, evenBallConf);
+        MenuItem oddPinCounterConfig = new MenuItem("OddPinCounter");
+        oddPinCounterConfig.setOnAction(notUsed -> oddPinCounter.configureDialog());
+
+        MenuItem evenPinCounterConfig = new MenuItem("EvenPinCounter");
+        evenPinCounterConfig.setOnAction(notUsed -> evenPinCounter.configureDialog());
+
+        configMenu.getItems().addAll(oddPinSetterConfig, oddFoulConf, oddBallConf, oddPinCounterConfig,
+                new SeparatorMenuItem(), evenPinSetterConfig, evenFoulConf, evenBallConf, evenPinCounterConfig);
 
         Menu maintMenu = new Menu("_Maintenance");
         MenuItem oddPinSetterMaint = new MenuItem("OddPinSetter");
