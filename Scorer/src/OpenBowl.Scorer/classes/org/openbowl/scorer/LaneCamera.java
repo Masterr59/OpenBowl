@@ -28,13 +28,16 @@ import javax.imageio.ImageIO;
  */
 public class LaneCamera
 {
-    public static BufferedImage getCurrentCameraImage()
+    public static BufferedImage getCurrentCameraImage() throws InterruptedException
     {
         BufferedImage currentCameraImage = new BufferedImage(1, 1, TYPE_INT_RGB);
         
         try
-        {
+        {   
             /*
+             * raspistillScript contains the command "raspistill -e png -o currentPinImage.png -t 1 -n".
+             * This script must be manually placed into the correct directory, as LaneCamera will not do that for you.
+             *
              * raspistill is a generic tool used for taking images with raspberry pi camera modules
              *
              *
@@ -48,9 +51,11 @@ public class LaneCamera
              *
              * "-n" disables the preview window (displays what is in front of the camera until the image is taken, and stays open until the file is written)
              *
-             * No shutter speed option is used - the default lasts quite a while, which isn't an issue for what is mostly a still image.
+             * No shutter speed option is used - the default lasts quite a while, which isn't an issue for what is mostly a still image. 
              */
-            Runtime.getRuntime().exec("raspistill -e png -o currentPinImage.png -t 1 -n");
+            ProcessBuilder raspistillProcessBuilder = new ProcessBuilder("./raspistillScript");
+            Process raspistillProcess = raspistillProcessBuilder.start();
+            raspistillProcess.waitFor(); // If the process never ends, then the program will hang. There is no simple way to make this time out.
             
             currentCameraImage = ImageIO.read(new File("currentPinImage.png"));
         }

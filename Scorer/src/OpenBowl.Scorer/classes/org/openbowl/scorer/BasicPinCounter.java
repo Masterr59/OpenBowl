@@ -34,7 +34,15 @@ public class BasicPinCounter implements PinCounter
     public BasicPinCounter()
     {
         targetList = new ArrayList<>(0);
-        lastCameraImage = LaneCamera.getCurrentCameraImage();
+        
+        try
+        {
+            lastCameraImage = LaneCamera.getCurrentCameraImage();
+        }
+        catch (InterruptedException e)
+        {
+            e.printStackTrace(System.out);
+        }
     }
     
     /**
@@ -86,7 +94,15 @@ public class BasicPinCounter implements PinCounter
     @Override
     public ArrayList<BowlingPins> countPins()
     {
-        lastCameraImage = LaneCamera.getCurrentCameraImage();
+        try
+        {
+            lastCameraImage = LaneCamera.getCurrentCameraImage();
+        }
+        catch (InterruptedException e)
+        {
+            e.printStackTrace(System.out);
+        }
+        
         Rectangle radiusBoundary = new Rectangle();
         ArrayList<BowlingPins> standingPinList = new ArrayList<>(0);
         
@@ -116,6 +132,11 @@ public class BasicPinCounter implements PinCounter
                 radiusBoundary.x = currentX - (currentRadius - 1);
                 radiusBoundary.width = ((2 * currentRadius) - 1) - ((currentX + (currentRadius - 1)) - lastCameraImage.getWidth());
             }
+            else
+            {
+                radiusBoundary.x = currentX - (currentRadius - 1);
+                radiusBoundary.width = (2 * currentRadius) - 1;
+            }
             
             if (currentY - (currentRadius - 1) < 0)
             {
@@ -126,6 +147,11 @@ public class BasicPinCounter implements PinCounter
             {
                 radiusBoundary.y = currentY - (currentRadius - 1);
                 radiusBoundary.height = ((2 * currentRadius) - 1) - ((currentY + (currentRadius - 1)) - lastCameraImage.getHeight());
+            }
+            else
+            {
+                radiusBoundary.y = currentY - (currentRadius - 1);
+                radiusBoundary.height = (2 * currentRadius) - 1;
             }
             
             for (int j = radiusBoundary.x; j < radiusBoundary.x + radiusBoundary.width; j++)
@@ -148,7 +174,7 @@ public class BasicPinCounter implements PinCounter
             {
                 pixelAverage = (pixelAverageRed + pixelAverageGreen + pixelAverageBlue) / 3;
                 
-                if (Math.abs(currentTarget.getAverageDifferenceThreshold() - pixelAverage) < currentTarget.getAverageIntensitySetpoint())
+                if (Math.abs(currentTarget.getAverageIntensitySetpoint() - pixelAverage) < currentTarget.getAverageDifferenceThreshold())
                 {
                     standingPinList.add(currentTarget.getPin());
                 }
