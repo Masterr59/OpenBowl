@@ -244,7 +244,7 @@ public class BasicPinCounterOptionsController extends Dialog<Void> implements In
         //Need to invert Y because the slider goes 0 at the bottom
         //however the canvas has zero at the top
 
-        gc.strokeRect((X - R) * Xscale, (Y - R) * Yscale, (2 * R), (2 * R));
+        gc.strokeRect((X - R) * Xscale, (Y - R) * Yscale, (2 * R * Xscale), (2 * R * Yscale));
 
         gc.restore();
     }
