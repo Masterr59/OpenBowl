@@ -55,6 +55,7 @@
                   <Label fx:id="yLabel" text="yLabel" />
                </children>
             </HBox>
+            <Button fx:id="getImageButton" mnemonicParsing="false" text="Get Image" />
          </children>
       </VBox>
       <Button fx:id="testButton" mnemonicParsing="false" text="Test Detection" GridPane.columnIndex="1" GridPane.rowIndex="2" />

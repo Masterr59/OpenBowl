@@ -70,6 +70,9 @@ public class BasicPinCounterOptionsController extends Dialog<Void> implements In
 
     @FXML
     private Button testButton;
+    
+    @FXML
+    private Button getImageButton;
 
     @FXML
     private ImageView cameraView;
@@ -144,7 +147,7 @@ public class BasicPinCounterOptionsController extends Dialog<Void> implements In
 
         cameraView.setPreserveRatio(false);
 
-        cameraView.setImage(SwingFXUtils.toFXImage(pinCounter.getLastCameraImage(), null));
+       onGetImage();
         countPins();
 
         radiusTextField.textProperty().bind(Bindings.format("%.0f", radiusSlider.valueProperty()));
@@ -152,6 +155,8 @@ public class BasicPinCounterOptionsController extends Dialog<Void> implements In
         levelTextField.textProperty().bind(Bindings.format("%.0f", levelSlider.valueProperty()));
 
         testButton.setOnAction(notUsed -> countPins());
+        
+        getImageButton.setOnAction(notUsed -> onGetImage());
 
         overlayCanvas.setOnMouseClicked(value -> onClickOverlay(value));
         
@@ -169,6 +174,7 @@ public class BasicPinCounterOptionsController extends Dialog<Void> implements In
 
     private void countPins() {
         ArrayList<BowlingPins> pins = pinCounter.countPins();
+        onGetImage();
         String msg = "";
         for (BowlingPins p : pins) {
             msg += p.toString() + ", ";
@@ -252,6 +258,10 @@ public class BasicPinCounterOptionsController extends Dialog<Void> implements In
         yLabel.setText(String.format("%.0f", Y * Yscale));
         //System.out.println(value);
         drawOverlay();
+    }
+
+    private void onGetImage() {
+         cameraView.setImage(SwingFXUtils.toFXImage(pinCounter.getLastCameraImage(), null));
     }
 
 }
