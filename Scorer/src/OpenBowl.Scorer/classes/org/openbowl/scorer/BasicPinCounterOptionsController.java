@@ -46,7 +46,6 @@ import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.StackPane;
 import org.openbowl.common.BowlingPins;
 
 /**
@@ -127,6 +126,7 @@ public class BasicPinCounterOptionsController extends Dialog<Void> implements In
      * @param rb
      *
      */
+    @Override
     public void initialize(URL url, ResourceBundle rb) {
         ArrayList<String> pins = new ArrayList<>();
         BowlingPins[] allPins = BowlingPins.values();
