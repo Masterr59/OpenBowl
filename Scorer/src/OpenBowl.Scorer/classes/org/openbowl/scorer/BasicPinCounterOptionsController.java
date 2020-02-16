@@ -70,7 +70,7 @@ public class BasicPinCounterOptionsController extends Dialog<Void> implements In
 
     @FXML
     private Button testButton;
-    
+
     @FXML
     private Button getImageButton;
 
@@ -147,22 +147,22 @@ public class BasicPinCounterOptionsController extends Dialog<Void> implements In
 
         cameraView.setPreserveRatio(false);
 
-       onGetImage();
-        countPins();
+        onGetImage();
 
         radiusTextField.textProperty().bind(Bindings.format("%.0f", radiusSlider.valueProperty()));
 
         levelTextField.textProperty().bind(Bindings.format("%.0f", levelSlider.valueProperty()));
 
         testButton.setOnAction(notUsed -> countPins());
-        
+
         getImageButton.setOnAction(notUsed -> onGetImage());
 
         overlayCanvas.setOnMouseClicked(value -> onClickOverlay(value));
-        
+
         radiusSlider.valueProperty().addListener(notUsed -> drawOverlay());
 
         loadValues(pinFactory.getValue());
+        countPins();
 
     }
 
@@ -173,17 +173,26 @@ public class BasicPinCounterOptionsController extends Dialog<Void> implements In
     }
 
     private void countPins() {
+        pinCounter.teardown();
+        saveValues(pinSpinner.getValue());
+        pinCounter.setup();
         ArrayList<BowlingPins> pins = pinCounter.countPins();
         onGetImage();
         String msg = "";
         for (BowlingPins p : pins) {
-            msg += p.toString() + ", ";
+            msg += p.toString();
+            if (msg.length() > 60 && !msg.contains("\n")) {
+                msg += "\n";
+            } else {
+                msg += ", ";
+            }
         }
         if (msg.isBlank()) {
             msg = "No Pins Detected";
-        } else {
+        } else if (msg.endsWith(", ")) {
             msg = msg.substring(0, msg.length() - 2);
         }
+
         detectedPinLabel.setText(msg);
     }
 
@@ -200,7 +209,7 @@ public class BasicPinCounterOptionsController extends Dialog<Void> implements In
 
         xLabel.setText(String.format("%d", X));
         yLabel.setText(String.format("%d", Y));
-        
+
         radiusSlider.setValue(R);
         levelSlider.setValue(prefs.getInt(name + "-" + pinName + "-" + "Level", defaultLevel));
         double r, g, b;
@@ -217,10 +226,11 @@ public class BasicPinCounterOptionsController extends Dialog<Void> implements In
         prefs.putInt(name + "-" + pinName + "-" + "X", Integer.parseInt(xLabel.getText()));
         prefs.putInt(name + "-" + pinName + "-" + "Y", Integer.parseInt(yLabel.getText()));
         prefs.putInt(name + "-" + pinName + "-" + "Radius", (int) radiusSlider.getValue());
-        prefs.putInt(name + "-" + pinName + "-" + "level", (int) levelSlider.getValue());
+        prefs.putInt(name + "-" + pinName + "-" + "Level", (int) levelSlider.getValue());
         prefs.putDouble(name + "-" + pinName + "-" + "Red", colorPicker.getValue().getRed());
         prefs.putDouble(name + "-" + pinName + "-" + "Green", colorPicker.getValue().getGreen());
         prefs.putDouble(name + "-" + pinName + "-" + "Blue", colorPicker.getValue().getBlue());
+
     }
 
     private void drawOverlay() {
@@ -261,7 +271,7 @@ public class BasicPinCounterOptionsController extends Dialog<Void> implements In
     }
 
     private void onGetImage() {
-         cameraView.setImage(SwingFXUtils.toFXImage(pinCounter.getLastCameraImage(), null));
+        cameraView.setImage(SwingFXUtils.toFXImage(pinCounter.getLastCameraImage(), null));
     }
 
 }

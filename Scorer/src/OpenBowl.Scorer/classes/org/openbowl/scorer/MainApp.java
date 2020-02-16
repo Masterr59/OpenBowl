@@ -164,6 +164,12 @@ public class MainApp extends Application {
         if (RaspberryPiDetect.isPi()) {
             oddPinSetter.setPower(false);
             evenPinSetter.setPower(false);
+            oddPinSetter.teardown();
+            evenPinSetter.teardown();
+            oddFoulDetector.teardown();
+            evenFoulDetector.teardown();
+            oddBallDetector.teardown();
+            evenBallDetector.teardown();
             GpioController gpioController = GpioFactory.getInstance();
             gpioController.shutdown();
         }

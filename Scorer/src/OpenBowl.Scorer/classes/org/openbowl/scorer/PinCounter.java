@@ -33,5 +33,9 @@ public interface PinCounter {
     public Map<String, Object> getConfiguration();
     
     public ArrayList<BowlingPins> countPins();
+    
+    public String setup();
+    
+    public void teardown();
 
 }
