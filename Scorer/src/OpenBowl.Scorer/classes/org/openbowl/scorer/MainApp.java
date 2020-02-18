@@ -18,7 +18,9 @@ package org.openbowl.scorer;
 
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
+import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -33,6 +35,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.openbowl.common.AboutOpenBowl;
+import org.openbowl.scorer.remote.PinSetterHandler;
 
 /**
  *
@@ -44,6 +47,7 @@ public class MainApp extends Application {
     private Detector oddFoulDetector, evenFoulDetector, oddBallDetector, evenBallDetector;
     private PinSetter oddPinSetter, evenPinSetter;
     private PinCounter oddPinCounter, evenPinCounter;
+    private HttpServer remoteControl;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -70,6 +74,14 @@ public class MainApp extends Application {
 
         stage.setTitle(ApplicationName);
         root.setTop(buildMenuBar());
+        
+        remoteControl = HttpServer.create(new InetSocketAddress(8000), 0);
+        remoteControl.createContext("/pinsetter/odd/", new PinSetterHandler(oddPinSetter, 1));
+        remoteControl.createContext("/pinsetter/even/", new PinSetterHandler(evenPinSetter, 2));
+        //default executor
+        remoteControl.setExecutor(null);
+        
+        remoteControl.start();
 
         Scene scene = new Scene(root, 500, 440);
         stage.setScene(scene);
@@ -173,7 +185,7 @@ public class MainApp extends Application {
             GpioController gpioController = GpioFactory.getInstance();
             gpioController.shutdown();
         }
-
+        remoteControl.stop(0);
         Platform.exit();
     }
 

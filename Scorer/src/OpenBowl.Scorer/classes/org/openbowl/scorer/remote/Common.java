@@ -14,22 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.openbowl.scorer.remote;
 
-module OpenBowl.Scorer {
-    requires javafx.controls;
-    requires javafx.fxml;
-    requires javafx.swing;
-    requires OpenBowl.Common;
-    requires pi4j.core;
-    requires pi4j.device;
-    requires pi4j.gpio.extension;
-    requires java.prefs;
-    requires java.desktop;
-    requires jdk.httpserver;
-    //required for Gson
-    requires java.sql;
-    
-    opens org.openbowl.scorer to javafx.fxml;
-    exports org.openbowl.scorer;
-    
+/**
+ *
+ * @author Open Bowl <http://www.openbowlscoring.org/>
+ */
+public class Common {
+    final static String GETMETHOD = "GET";
+    final static String POSTMETHOD = "POST";
+
 }

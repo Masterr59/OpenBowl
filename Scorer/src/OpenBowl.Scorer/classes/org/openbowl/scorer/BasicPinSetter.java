@@ -22,6 +22,7 @@ import com.pi4j.io.gpio.GpioPinDigitalOutput;
 import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.RaspiPin;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
@@ -72,7 +73,15 @@ public class BasicPinSetter implements PinSetter {
 
     @Override
     public Map<String, Object> getConfiguration() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Map<String, Object> ret = new HashMap<>();
+        String powerPinName = prefs.get(name + "PowerName", "GPIO 7");
+        String cyclePinName = prefs.get(name + "cycleName", "GPIO 0");
+        long delay = prefs.getLong(name + "CycleDelay", 100);
+        ret.put("PowerPin", powerPinName);
+        ret.put("CycleName", cyclePinName);
+        ret.put("CycleDelay", delay);
+        
+        return ret;
     }
 
     @Override
