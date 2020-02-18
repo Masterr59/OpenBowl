@@ -88,7 +88,7 @@ public class BasicPinSetter implements PinSetter {
             String cyclePinName = (String) newConfig.get(CYCLE_PIN_SETTING_NAME);
             String powerPinState = (String) newConfig.get(POWER_STATE_SETTING_NAME);
             String cyclePinState = (String) newConfig.get(CYCLE_STATE_SETTING_NAME);
-            long delay = (long) newConfig.get(CYCLE_DELAY_SETTING_NAME);
+            long delay = (new Double((double) newConfig.get(CYCLE_DELAY_SETTING_NAME))).longValue();
 
             if (type.equals(this.getClass().getName())) {
                 teardown();
@@ -103,6 +103,9 @@ public class BasicPinSetter implements PinSetter {
             }
         } catch (ClassCastException e) {
             results += e.getMessage();
+        }
+        catch (NullPointerException e){
+            results += "NullPointException: " + e.getMessage();
         }
 
         return results;

@@ -25,10 +25,15 @@ import java.util.List;
 import java.util.Map;
 import org.openbowl.scorer.PinSetter;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Iterator;
 import org.openbowl.common.AuthorizedUser;
+import org.openbowl.common.WebFunctions;
 
 /**
  *
@@ -36,6 +41,8 @@ import org.openbowl.common.AuthorizedUser;
  */
 public class PinSetterHandler implements HttpHandler {
 
+    private final String SUCCESS = "success";
+    private final String ERROR_MSG = "error message";
     private final PinSetter pinSetter;
     private final int lane;
     private final Gson gson;
@@ -50,8 +57,8 @@ public class PinSetterHandler implements HttpHandler {
         exp.add(Calendar.YEAR, 10);
         users.add(new AuthorizedUser("yZ9Ut95MG3xdf5gc6WgT", exp));
     }
-    
-    public void addAuthorizedUser(AuthorizedUser u){
+
+    public void addAuthorizedUser(AuthorizedUser u) {
         users.add(u);
     }
 
@@ -60,33 +67,33 @@ public class PinSetterHandler implements HttpHandler {
         Map<String, List<String>> headers = he.getRequestHeaders();
         String method = he.getRequestMethod();
         if (isAuthorized(headers)) {
+            Map<String, String> parms = WebFunctions.queryToMap(he.getRequestURI().getQuery());
+            he.getResponseHeaders().set("Content-Type", "application/json");
+            OutputStream os = he.getResponseBody();
+            Map<String, Object> response = new HashMap<>();
+            switch (method) {
+                case WebFunctions.GET_METHOD: {
+                    response.putAll(onGet(parms));
+                    break;
+                }
+                case WebFunctions.POST_METHOD: {
+                    String body = new String(he.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+                    response.putAll(onPost(parms, body));
+                    break;
+                }
+                default: {
+                    response.put(SUCCESS, false);
+                    response.put(ERROR_MSG, "unsupported method");
+                    break;
+                }
 
-            if (method.equals(Common.GETMETHOD)) {
-                Map<String, Object> map = new HashMap<>();
-                map.put("Lane", lane);
-                map.put("Power", pinSetter.getPowerState());
-                map.put("CurentConfig", pinSetter.getConfiguration());
-                String resp = gson.toJson(map);
-                he.sendResponseHeaders(200, resp.length());
-                OutputStream os = he.getResponseBody();
-                os.write(resp.getBytes());
-                os.close();
-
-            } else if (method.equals(Common.POSTMETHOD)) {
-                String response = "This is the POST response";
-
-                he.sendResponseHeaders(200, response.length());
-                OutputStream os = he.getResponseBody();
-                os.write(response.getBytes());
-                os.close();
-            } else {
-                String response = "Unknown method type;";
-
-                he.sendResponseHeaders(200, response.length());
-                OutputStream os = he.getResponseBody();
-                os.write(response.getBytes());
-                os.close();
             }
+
+            String jsonResponse = gson.toJson(response);
+            he.sendResponseHeaders(200, jsonResponse.length());
+            os.write(jsonResponse.getBytes());
+            os.close();
+
         } else {
             //sends 403 Forbidden
             he.sendResponseHeaders(403, 0);
@@ -108,4 +115,66 @@ public class PinSetterHandler implements HttpHandler {
         return false;
     }
 
+    private Map<String, Object> onGet(Map<String, String> parms) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("Lane", lane);
+        switch (parms.getOrDefault("get", "none")) {
+            case "power":
+                map.put(SUCCESS, true);
+                map.put("Power", pinSetter.getPowerState());
+                break;
+            case "config":
+                map.put(SUCCESS, true);
+                map.put("CurentConfig", pinSetter.getConfiguration());
+                break;
+            default:
+                map.put(SUCCESS, false);
+                map.put(ERROR_MSG, "missing or unsupported request");
+                break;
+        }
+        return map;
+    }
+
+    private Map<String, Object> onPost(Map<String, String> parms, String body) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("Lane", lane);
+        //System.out.println(body);
+        Map<String, Object> requestBody = new HashMap<>();
+        try {
+            requestBody = gson.fromJson(body, Map.class);
+        } catch (JsonSyntaxException e) {
+            map.put(SUCCESS, false);
+            map.put(ERROR_MSG, e.getMessage());
+            return map;
+        }
+        //System.out.println(gson.toJson(requestBody));
+        try {
+            switch (parms.getOrDefault("set", "none")) {
+                case "power":
+                    boolean powerState = (boolean) requestBody.get("state");
+                    pinSetter.setPower(powerState);
+                    map.put(SUCCESS, true);
+                    map.put("Power", pinSetter.getPowerState());
+                    break;
+                case "config":
+                    String results = pinSetter.setConfiguration(requestBody);
+                    if (results.isBlank()) {
+                        map.put(SUCCESS, true);
+                        map.put("CurentConfig", pinSetter.getConfiguration());
+                    } else {
+                        map.put(SUCCESS, false);
+                        map.put(ERROR_MSG, results);
+                    }
+                    break;
+                default:
+                    map.put(SUCCESS, false);
+                    map.put(ERROR_MSG, "missing or unsupported request");
+                    break;
+            }
+        } catch (ClassCastException e) {
+            map.put(SUCCESS, false);
+            map.put(ERROR_MSG, "missing or unsupported request");
+        }
+        return map;
+    }
 }

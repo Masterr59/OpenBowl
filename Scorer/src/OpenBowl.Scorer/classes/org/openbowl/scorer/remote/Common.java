@@ -21,7 +21,5 @@ package org.openbowl.scorer.remote;
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
 public class Common {
-    final static String GETMETHOD = "GET";
-    final static String POSTMETHOD = "POST";
 
 }
