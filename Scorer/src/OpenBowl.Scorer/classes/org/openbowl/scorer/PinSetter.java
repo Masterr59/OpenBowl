@@ -26,7 +26,7 @@ public interface PinSetter {
 
     public void configureDialog();
 
-    public void setConfiguration(Map<String, Object> configuration);
+    public String setConfiguration(Map<String, Object> configuration);
 
     public Map<String, Object> getConfiguration();
 

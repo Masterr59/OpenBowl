@@ -31,7 +31,7 @@ import java.util.prefs.Preferences;
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
 public class BasicPinSetter implements PinSetter {
-    
+
     final static String POWER_PIN_SETTING_NAME = "PowerName";
     final static String CYCLE_PIN_SETTING_NAME = "CycleName";
     final static String POWER_STATE_SETTING_NAME = "PowerState";
@@ -41,7 +41,7 @@ public class BasicPinSetter implements PinSetter {
     final static String DEFAULT_SETTING_CYCLE_PIN = "GPIO 0";
     final static String DEFAULT_SETTING_POWER_STATE = "HIGH";
     final static String DEFAULT_SETTING_CYCLE_STATE = "HIGH";
-    final static long   DEFAULT_SETTING_CYCLE_DELAY = 100;
+    final static long DEFAULT_SETTING_CYCLE_DELAY = 100;
 
     private GpioController gpioController;
     private GpioPinDigitalOutput powerPin, cyclePin;
@@ -79,8 +79,33 @@ public class BasicPinSetter implements PinSetter {
     }
 
     @Override
-    public void setConfiguration(Map<String, Object> configuration) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public String setConfiguration(Map<String, Object> newConfig) {
+        String results = "";
+        Map<String, Object> oldConfig = getConfiguration();
+        try {
+            String type = (String) newConfig.get("Type");
+            String powerPinName = (String) newConfig.get(POWER_PIN_SETTING_NAME);
+            String cyclePinName = (String) newConfig.get(CYCLE_PIN_SETTING_NAME);
+            String powerPinState = (String) newConfig.get(POWER_STATE_SETTING_NAME);
+            String cyclePinState = (String) newConfig.get(CYCLE_STATE_SETTING_NAME);
+            long delay = (long) newConfig.get(CYCLE_DELAY_SETTING_NAME);
+
+            if (type.equals(this.getClass().getName())) {
+                teardown();
+                prefs.put(name + BasicPinSetter.POWER_PIN_SETTING_NAME, powerPinName);
+                prefs.put(name + BasicPinSetter.POWER_STATE_SETTING_NAME, powerPinState);
+                prefs.put(name + BasicPinSetter.CYCLE_PIN_SETTING_NAME, cyclePinName);
+                prefs.put(name + BasicPinSetter.CYCLE_STATE_SETTING_NAME, cyclePinState);
+                prefs.putLong(name + BasicPinSetter.CYCLE_DELAY_SETTING_NAME, delay);
+                results += setup();
+            } else {
+                results += "Incorrect pin setter type";
+            }
+        } catch (ClassCastException e) {
+            results += e.getMessage();
+        }
+
+        return results;
     }
 
     @Override
@@ -90,15 +115,15 @@ public class BasicPinSetter implements PinSetter {
         String powerPinState = prefs.get(name + POWER_STATE_SETTING_NAME, DEFAULT_SETTING_POWER_STATE);
         String cyclePinState = prefs.get(name + CYCLE_STATE_SETTING_NAME, DEFAULT_SETTING_CYCLE_STATE);
         long delay = prefs.getLong(name + CYCLE_DELAY_SETTING_NAME, DEFAULT_SETTING_CYCLE_DELAY);
-        
+
         Map<String, Object> ret = new HashMap<>();
-        ret.put("Type", "BasicPinSetter");
+        ret.put("Type", this.getClass().getName());
         ret.put(POWER_PIN_SETTING_NAME, powerPinName);
         ret.put(POWER_STATE_SETTING_NAME, powerPinState);
         ret.put(CYCLE_PIN_SETTING_NAME, cyclePinName);
         ret.put(CYCLE_STATE_SETTING_NAME, cyclePinState);
         ret.put(CYCLE_DELAY_SETTING_NAME, delay);
-        
+
         return ret;
     }
 
