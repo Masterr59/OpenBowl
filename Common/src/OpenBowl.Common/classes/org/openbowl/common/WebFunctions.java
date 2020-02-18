@@ -16,38 +16,31 @@
  */
 package org.openbowl.common;
 
-import java.util.Calendar;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  *
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
-public class AuthorizedUser {
+public class WebFunctions {
 
-    private final String AUTHKEYWORD = "x-auth-bearer";
-    private final String Token;
-    private final Calendar expire;
+    public final static String GET_METHOD = "GET";
+    public final static String POST_METHOD = "POST";
 
-    public AuthorizedUser(String Token, Calendar expire) {
-        this.Token = Token;
-        this.expire = expire;
-    }
-
-    public boolean isAuthorized(Map<String, List<String>> headers) {
-        if (headers.containsKey(AUTHKEYWORD)) {
-            List<String> values = headers.get(AUTHKEYWORD);
-            if (values.contains(Token)) {
-                isExpired();
+    //https://stackoverflow.com/questions/11640025/how-to-obtain-the-query-string-in-a-get-with-java-httpserver-httpexchange
+    public static Map<String, String> queryToMap(String query) {
+        Map<String, String> result = new HashMap<>();
+        if (query != null) {
+            for (String param : query.split("&")) {
+                String[] entry = param.split("=");
+                if (entry.length > 1) {
+                    result.put(entry[0], entry[1]);
+                } else {
+                    result.put(entry[0], "");
+                }
             }
         }
-        return true;
+        return result;
     }
-
-    public boolean isExpired() {
-        Calendar now = Calendar.getInstance();
-        return now.before(expire);
-    }
-
 }
