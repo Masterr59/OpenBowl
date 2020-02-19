@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Line?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="163.0" prefWidth="463.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Label text="Power GPIO" />
+      <HBox prefHeight="100.0" prefWidth="200.0">
+         <children>
+            <Label text="Pin" />
+            <Spinner fx:id="PowerGPIOSpinner" prefHeight="20.0" prefWidth="110.0" />
+            <Label text="Default State" />
+            <Spinner fx:id="PowerStateSpinner" prefHeight="20.0" prefWidth="80.0" />
+         </children>
+      </HBox>
+      <Line endX="499.29290771484375" endY="-2.263456106185913" startX="-100.0" />
+      <Label text="Cycle GPIO" />
+      <HBox prefHeight="100.0" prefWidth="200.0">
+         <children>
+            <Label text="Pin" />
+            <Spinner fx:id="CycleGPIOSpinner" editable="true" prefHeight="20.0" prefWidth="110.0" />
+            <Label text="Default State" />
+            <Spinner fx:id="CycleStateSpinner" editable="true" prefHeight="20.0" prefWidth="80.0" />
+         </children>
+      </HBox>
+      <Line endX="499.29290771484375" endY="-5.3994951248168945" startX="-100.0" />
+      <Label text="Cycle Delay" />
+      <HBox prefHeight="100.0" prefWidth="200.0">
+         <children>
+            <Slider fx:id="CycleDelaySlider" blockIncrement="1.0" max="2000.0" prefHeight="16.0" prefWidth="391.0" value="100.0" />
+            <Label fx:id="CycleLabel" text="100" />
+         </children>
+      </HBox>
+      <Label fx:id="ErrorLabel" />
+   </children>
+</VBox>

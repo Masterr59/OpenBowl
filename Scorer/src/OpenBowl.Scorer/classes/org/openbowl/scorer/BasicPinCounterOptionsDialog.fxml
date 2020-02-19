@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ColorPicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="461.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+  <columnConstraints>
+    <ColumnConstraints hgrow="SOMETIMES" maxWidth="450.0" minWidth="10.0" prefWidth="450.0" />
+      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+  </columnConstraints>
+  <rowConstraints>
+    <RowConstraints maxHeight="69.0" minHeight="0.0" prefHeight="41.0" vgrow="SOMETIMES" />
+    <RowConstraints maxHeight="370.0" minHeight="10.0" prefHeight="353.0" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="54.0" minHeight="7.0" prefHeight="25.0" vgrow="SOMETIMES" />
+  </rowConstraints>
+   <children>
+      <StackPane fx:id="imageStackPane" prefHeight="150.0" prefWidth="200.0" GridPane.rowIndex="1">
+         <children>
+            <ImageView fx:id="cameraView" fitHeight="350.0" fitWidth="450.0" pickOnBounds="true" />
+            <Canvas fx:id="overlayCanvas" height="350.0" width="450.0" />
+         </children>
+      </StackPane>
+      <HBox alignment="CENTER">
+         <children>
+            <Spinner fx:id="pinSpinner" />
+         </children>
+      </HBox>
+      <Label fx:id="detectedPinLabel" text="Label" GridPane.rowIndex="2" />
+      <VBox GridPane.columnIndex="1" GridPane.rowIndex="1">
+         <children>
+            <Label text="Color Offset" />
+            <ColorPicker fx:id="colorPicker" />
+            <Label text="Radius" />
+            <TextField fx:id="radiusTextField" editable="false" />
+            <Slider fx:id="radiusSlider" blockIncrement="1.0" min="1.0" value="10.0" />
+            <Label fx:id="sensitivity" text="Level Threshold" />
+            <TextField fx:id="levelTextField" editable="false" />
+            <Slider fx:id="levelSlider" max="255.0" min="1.0" value="100.0" />
+            <HBox prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <Label text="xLabel" fx:id="xLabel" />
+                  <Label text="," />
+                  <Label fx:id="yLabel" text="yLabel" />
+               </children>
+            </HBox>
+            <Button fx:id="getImageButton" mnemonicParsing="false" text="Get Image" />
+         </children>
+      </VBox>
+      <Button fx:id="testButton" mnemonicParsing="false" text="Test Detection" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+   </children>
+</GridPane>
