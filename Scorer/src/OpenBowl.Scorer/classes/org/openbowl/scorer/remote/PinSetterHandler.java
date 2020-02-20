@@ -166,6 +166,16 @@ public class PinSetterHandler implements HttpHandler {
                         map.put(ERROR_MSG, results);
                     }
                     break;
+                case "cycle":
+                    if(pinSetter.getPowerState()){
+                        pinSetter.cycle();
+                        map.put(SUCCESS, true);
+                    }
+                    else{
+                        map.put(SUCCESS, false);
+                        map.put(ERROR_MSG, "Pinsetter is off");
+                    }
+                    break;
                 default:
                     map.put(SUCCESS, false);
                     map.put(ERROR_MSG, "missing or unsupported request");
