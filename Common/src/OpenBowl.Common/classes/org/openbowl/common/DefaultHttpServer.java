@@ -14,10 +14,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.openbowl.common;
 
-module OpenBowl.Common {
-    requires javafx.controls;
-    requires jdk.httpserver;
+import com.sun.net.httpserver.HttpServer;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+
+/**
+ *
+ * @author Open Bowl <http://www.openbowlscoring.org/>
+ */
+public class DefaultHttpServer {
+    public static final int DefaultPort = 47687;
     
-    exports org.openbowl.common;
+    public static HttpServer create() throws IOException{
+        HttpServer server = HttpServer.create(new InetSocketAddress(DefaultPort), 0);
+        //default executor
+        server.setExecutor(null);
+        return server;
+    }
 }
