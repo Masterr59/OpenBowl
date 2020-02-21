@@ -23,11 +23,18 @@ import java.util.ArrayList;
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
 public class BowlingGame {
+
+    private String playerName;
+    private int playerID;
+    private int handycap;
     private ArrayList<BowlingFrame> frames;
     private int gameScore;
-    
-    public BowlingGame(){
+
+    public BowlingGame(String name, int id) {
+        this.playerName = name;
+        this.playerID = id;
         this.gameScore = 0;
+        this.handycap = 0;
         this.frames = new ArrayList<>();
     }
 
@@ -39,6 +46,10 @@ public class BowlingGame {
         this.frames = frames;
     }
 
+    public void addFrame(BowlingFrame f) {
+        this.frames.add(f);
+    }
+
     public int getGameScore() {
         return gameScore;
     }
@@ -46,6 +57,36 @@ public class BowlingGame {
     public void setGameScore(int gameScore) {
         this.gameScore = gameScore;
     }
-    
+
+    public int getHandycap() {
+        return handycap;
+    }
+
+    public void setHandycap(int handycap) {
+        this.handycap = handycap;
+    }
+
+    public String getPlayerName() {
+        return playerName;
+    }
+
+    public int getPlayerID() {
+        return playerID;
+    }
+
+    public void setPlayerName(String playerName) {
+        this.playerName = playerName;
+    }
+
+    public void setPlayerID(int playerID) {
+        this.playerID = playerID;
+    }
+
+    public void updateTo(BowlingGame game) {
+        this.playerName = game.getPlayerName();
+        this.playerID = game.getPlayerID();
+        this.handycap = game.getHandycap();
+        this.frames = game.getFrames();
+    }
 
 }

@@ -16,6 +16,9 @@
  */
 package org.openbowl.common;
 
+import com.sun.net.httpserver.HttpServer;
+import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,6 +30,7 @@ public class WebFunctions {
 
     public final static String GET_METHOD = "GET";
     public final static String POST_METHOD = "POST";
+    public static final int DefaultPort = 47687;
 
     //https://stackoverflow.com/questions/11640025/how-to-obtain-the-query-string-in-a-get-with-java-httpserver-httpexchange
     public static Map<String, String> queryToMap(String query) {
@@ -42,5 +46,12 @@ public class WebFunctions {
             }
         }
         return result;
+    }
+    
+    public static HttpServer createDefaultServer() throws IOException{
+        HttpServer server = HttpServer.create(new InetSocketAddress(DefaultPort), 0);
+        //default executor
+        server.setExecutor(null);
+        return server;
     }
 }

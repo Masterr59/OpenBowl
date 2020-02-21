@@ -22,29 +22,50 @@ import java.util.ArrayList;
  *
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
-public class BowlingFrame {
+public class BowlingFrame implements Comparable<BowlingFrame>{
 
-    private boolean isFoul;
+    private boolean isBallOneFoul;
+    private boolean isBallTwoFoul;
+    private boolean isBallThreeFoul;
     private ArrayList<BowlingPins> ballOne;
     private ArrayList<BowlingPins> ballTwo;
     private ArrayList<BowlingPins> bonusBall;
     private int frameScore;
 
     public BowlingFrame() {
-        this.isFoul = false;
+        this.isBallOneFoul = false;
+        this.isBallTwoFoul = false;
+        this.isBallThreeFoul = false;
         this.ballOne = new ArrayList<>();
         this.ballTwo = new ArrayList<>();
         this.bonusBall = new ArrayList<>();
         this.frameScore = 0;
     }
 
-    public boolean isIsFoul() {
-        return isFoul;
+    public boolean isBallOneFoul() {
+        return isBallOneFoul;
     }
 
-    public void setIsFoul(boolean isFoul) {
-        this.isFoul = isFoul;
+    public void setIsBallOneFoul(boolean isBallOneFoul) {
+        this.isBallOneFoul = isBallOneFoul;
     }
+
+    public boolean isBallTwoFoul() {
+        return isBallTwoFoul;
+    }
+
+    public void setIsBallTwoFoul(boolean isBallTwoFoul) {
+        this.isBallTwoFoul = isBallTwoFoul;
+    }
+
+    public boolean isBallThreeFoul() {
+        return isBallThreeFoul;
+    }
+
+    public void setIsBallThreeFoul(boolean isBallThreeFoul) {
+        this.isBallThreeFoul = isBallThreeFoul;
+    }
+
 
     public ArrayList<BowlingPins> getBallOne() {
         return ballOne;
@@ -76,6 +97,19 @@ public class BowlingFrame {
 
     public void setFrameScore(int frameScore) {
         this.frameScore = frameScore;
+    }
+
+    @Override
+    public int compareTo(BowlingFrame t) {
+        if(this.ballOne.equals(t.getBallOne()) 
+                && this.ballTwo.equals(t.getBallTwo()) 
+                && this.bonusBall.equals(t.getBonusBall()) 
+                && this.isBallOneFoul == t.isBallOneFoul()
+                && this.isBallTwoFoul == t.isBallTwoFoul()
+                && this.isBallThreeFoul == t.isBallTwoFoul()){
+            return 0;
+        }
+        return 1;
     }
 
 }
