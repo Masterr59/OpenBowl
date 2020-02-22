@@ -35,7 +35,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.openbowl.common.AboutOpenBowl;
-import org.openbowl.common.DefaultHttpServer;
+import org.openbowl.common.WebFunctions;
 import org.openbowl.scorer.remote.PinSetterHandler;
 
 /**
@@ -76,7 +76,7 @@ public class MainApp extends Application {
         stage.setTitle(ApplicationName);
         root.setTop(buildMenuBar());
         
-        remoteControl = DefaultHttpServer.create();
+        remoteControl = WebFunctions.createDefaultServer();
         remoteControl.createContext("/pinsetter/odd/", new PinSetterHandler(oddPinSetter, 1));
         remoteControl.createContext("/pinsetter/even/", new PinSetterHandler(evenPinSetter, 2));
         

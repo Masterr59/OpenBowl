@@ -28,6 +28,7 @@ module OpenBowl.Scorer {
     requires jdk.httpserver;
     //required for Gson
     requires java.sql;
+    requires gson;
     
     opens org.openbowl.scorer to javafx.fxml;
     exports org.openbowl.scorer;
