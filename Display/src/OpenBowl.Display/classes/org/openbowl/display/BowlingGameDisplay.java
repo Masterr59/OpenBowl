@@ -42,9 +42,19 @@ public class BowlingGameDisplay extends Region {
         games.add(newPlayer);
         draw();
     }
-    
-    public void updatePlater(int playerNumber, BowlingGame game){
-        if(playerNumber < games.size()){
+
+    public void reset() {
+        curentPlayer = 0;
+        games.clear();
+        draw();
+    }
+
+    public int getNumPlayers() {
+        return this.games.size();
+    }
+
+    public void updatePlater(int playerNumber, BowlingGame game) {
+        if (playerNumber < games.size()) {
             games.get(playerNumber).updateTo(game);
             draw();
         }
@@ -181,6 +191,14 @@ public class BowlingGameDisplay extends Region {
             nameText.setFont(new Font(gc.getFont().getName(), fontSize));
         }
         return fontSize;
+    }
+
+    public int getCurentPlayer() {
+        return curentPlayer;
+    }
+
+    public void setCurentPlayer(int curentPlayer) {
+        this.curentPlayer = curentPlayer;
     }
 
     @Override

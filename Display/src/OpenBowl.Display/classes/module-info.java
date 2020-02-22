@@ -13,6 +13,7 @@ module OpenBowl.Display {
     requires jdk.httpserver;
     //required for Gson
     requires java.sql;
+    requires gson;
     
     exports org.openbowl.display;
 }
