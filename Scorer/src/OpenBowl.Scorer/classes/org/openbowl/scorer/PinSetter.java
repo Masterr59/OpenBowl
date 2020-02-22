@@ -23,6 +23,7 @@ import java.util.Map;
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
 public interface PinSetter {
+    String desc = "PinSetter";
 
     public void configureDialog();
 
@@ -39,4 +40,8 @@ public interface PinSetter {
     public String setup();
     
     public void teardown();
+    
+    default public void log(String s) {
+        System.out.println(desc + " - " + s);
+    }
 }

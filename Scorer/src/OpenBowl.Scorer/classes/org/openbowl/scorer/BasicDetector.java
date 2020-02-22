@@ -69,7 +69,7 @@ public class BasicDetector extends Detector {
     }
 
     @Override
-    public void setConfiguration(Map<String, Object> configuration) {
+    public String setConfiguration(Map<String, Object> configuration) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

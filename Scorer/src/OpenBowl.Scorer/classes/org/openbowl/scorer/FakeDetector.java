@@ -16,20 +16,30 @@
  */
 package org.openbowl.scorer;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
+import javafx.stage.Modality;
 
 /**
  *
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
-public class FakePinSetter implements PinSetter {
+public class FakeDetector extends Detector {
 
-   private boolean power = false;
-   private String name;
+    public FakeDetector(String name) {
+        desc = "Virtual(Fake) " + name + " Dectector";
+        try {
+            FakeDetectorDialogController dialog = new FakeDetectorDialogController(name, this);
+            dialog.initModality(Modality.NONE);
+            dialog.show();
+        } catch (IOException e) {
+            System.out.println("Error showing dialog " + e.toString());
+        }
 
-    public FakePinSetter(String name) {
-        this.name = name;
     }
 
     @Override
@@ -52,23 +62,6 @@ public class FakePinSetter implements PinSetter {
     }
 
     @Override
-    public void setPower(boolean state) {
-        log("set power state: " + state);
-        power = state;
-    }
-
-    @Override
-    public boolean getPowerState() {
-        log("get power state: " + power);
-        return power;
-    }
-
-    @Override
-    public void cycle() {
-        log("cycle");
-    }
-
-    @Override
     public String setup() {
         log("setup");
         return "";
@@ -80,11 +73,4 @@ public class FakePinSetter implements PinSetter {
 
     }
 
-    @Override
-    public void log(String s) {
-        PinSetter.super.log(name + " " + s);
-    }
-
-    
-    
 }

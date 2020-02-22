@@ -52,20 +52,31 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        oddBallDetector = new BasicDetector("Odd_Ball_Detector");
-        evenBallDetector = new BasicDetector("Even_Ball_Detector");
+        if (RaspberryPiDetect.isPi()) {
+            oddBallDetector = new BasicDetector("Odd_Ball_Detector");
+            evenBallDetector = new BasicDetector("Even_Ball_Detector");
+
+            oddFoulDetector = new BasicDetector("Odd_Foul_Detector");
+            evenFoulDetector = new BasicDetector("Even_Foul_Detector");
+
+            oddPinSetter = new BasicPinSetter("OddPinSetter");
+            evenPinSetter = new BasicPinSetter("EvenPinSetter");
+        } else {
+            oddBallDetector = new FakeDetector("Odd_Ball_Detector");
+            evenBallDetector = new FakeDetector("Even_Ball_Detector");
+
+            oddFoulDetector = new FakeDetector("Odd_Foul_Detector");
+            evenFoulDetector = new FakeDetector("Even_Foul_Detector");
+
+            oddPinSetter = new FakePinSetter("OddPinSetter");
+            evenPinSetter = new FakePinSetter("EvenPinSetter");
+        }
 
         oddBallDetector.addEventHandler(DetectedEvent.DETECTION, notUsed -> onBallDetected("odd"));
         evenBallDetector.addEventHandler(DetectedEvent.DETECTION, notUsed -> onBallDetected("even"));
 
-        oddFoulDetector = new BasicDetector("Odd_Foul_Detector");
-        evenFoulDetector = new BasicDetector("Even_Foul_Detector");
-
         oddFoulDetector.addEventHandler(DetectedEvent.DETECTION, notUsed -> onFoulDetected("odd"));
         evenFoulDetector.addEventHandler(DetectedEvent.DETECTION, notUsed -> onFoulDetected("even"));
-
-        oddPinSetter = new BasicPinSetter("OddPinSetter");
-        evenPinSetter = new BasicPinSetter("EvenPinSetter");
 
         oddPinCounter = new BasicPinCounter("oddPinCounter");
         evenPinCounter = new BasicPinCounter("evenPinCounter");
@@ -75,11 +86,11 @@ public class MainApp extends Application {
 
         stage.setTitle(ApplicationName);
         root.setTop(buildMenuBar());
-        
+
         remoteControl = WebFunctions.createDefaultServer();
         remoteControl.createContext("/pinsetter/odd/", new PinSetterHandler(oddPinSetter, 1));
         remoteControl.createContext("/pinsetter/even/", new PinSetterHandler(evenPinSetter, 2));
-        
+
         remoteControl.start();
 
         Scene scene = new Scene(root, 500, 440);
@@ -102,8 +113,8 @@ public class MainApp extends Application {
         Menu testMenu = new Menu("_Test");
         MenuItem testOddPinCounter = new MenuItem("Test Odd Pin Detector");
         testOddPinCounter.setOnAction(notUsed -> oddPinCounter.countPins());
-        
-         MenuItem testEvenPinCounter = new MenuItem("Test Even Pin Detector");
+
+        MenuItem testEvenPinCounter = new MenuItem("Test Even Pin Detector");
         testEvenPinCounter.setOnAction(notUsed -> evenPinCounter.countPins());
 
         testMenu.getItems().addAll(testOddPinCounter, testEvenPinCounter);
