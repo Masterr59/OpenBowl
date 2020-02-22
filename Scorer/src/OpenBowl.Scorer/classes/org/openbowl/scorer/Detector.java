@@ -24,10 +24,11 @@ import javafx.scene.Node;
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
 public abstract class Detector extends Node {
+    protected String desc = "Detector";
 
     public abstract void configureDialog();
 
-    public abstract void setConfiguration(Map<String, Object> configuration);
+    public abstract String setConfiguration(Map<String, Object> configuration);
 
     public abstract Map<String, Object> getConfiguration();
     
@@ -40,4 +41,7 @@ public abstract class Detector extends Node {
     
     public abstract void teardown();
 
+    protected void log(String s) {
+        System.out.println(desc + " - " + s);
+    }
 }
