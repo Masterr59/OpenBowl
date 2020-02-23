@@ -244,7 +244,7 @@ public class BasicPinCounter implements PinCounter {
      * future
      */
     @Override
-    public void setConfiguration(Map<String, Object> configuration) {
+    public String setConfiguration(Map<String, Object> configuration) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

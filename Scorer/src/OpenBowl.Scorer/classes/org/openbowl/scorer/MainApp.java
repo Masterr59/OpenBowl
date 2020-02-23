@@ -45,10 +45,12 @@ import org.openbowl.scorer.remote.PinSetterHandler;
 public class MainApp extends Application {
 
     private final String ApplicationName = "Open Bowl - Scorer";
-    private Detector oddFoulDetector, evenFoulDetector, oddBallDetector, evenBallDetector;
+    private Detector oddFoulDetector, evenFoulDetector, oddBallDetector, evenBallDetector,
+            oddSweepDetector, evenSweepDetector;
     private PinSetter oddPinSetter, evenPinSetter;
     private PinCounter oddPinCounter, evenPinCounter;
     private HttpServer remoteControl;
+    private FakeBowlerDialogController oddBowler, evenBowler;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -59,17 +61,36 @@ public class MainApp extends Application {
             oddFoulDetector = new BasicDetector("Odd_Foul_Detector");
             evenFoulDetector = new BasicDetector("Even_Foul_Detector");
 
+            oddSweepDetector = new BasicDetector("Odd_Sweep_Detector");
+            evenSweepDetector = new BasicDetector("Even_Sweep_Detector");
+
             oddPinSetter = new BasicPinSetter("OddPinSetter");
             evenPinSetter = new BasicPinSetter("EvenPinSetter");
+
+            oddPinCounter = new BasicPinCounter("oddPinCounter");
+            evenPinCounter = new BasicPinCounter("evenPinCounter");
+
         } else {
-            oddBallDetector = new FakeDetector("Odd_Ball_Detector");
-            evenBallDetector = new FakeDetector("Even_Ball_Detector");
+            oddBowler = new FakeBowlerDialogController("odd");
+            oddBallDetector = oddBowler.getBall();
+            oddFoulDetector = oddBowler.getFoul();
+            oddSweepDetector = oddBowler.getSweep();
+            oddPinSetter = oddBowler.getPinsetter();
+            oddPinCounter = oddBowler.getCounter();
 
-            oddFoulDetector = new FakeDetector("Odd_Foul_Detector");
-            evenFoulDetector = new FakeDetector("Even_Foul_Detector");
+            evenBowler = new FakeBowlerDialogController("even");
+            evenBallDetector = evenBowler.getBall();
+            evenFoulDetector = evenBowler.getFoul();
+            evenSweepDetector = evenBowler.getSweep();
+            evenPinSetter = evenBowler.getPinsetter();
+            evenPinCounter = evenBowler.getCounter();
 
-            oddPinSetter = new FakePinSetter("OddPinSetter");
-            evenPinSetter = new FakePinSetter("EvenPinSetter");
+            oddBowler.initModality(Modality.NONE);
+            oddBowler.show();
+
+            evenBowler.initModality(Modality.NONE);
+            evenBowler.show();
+
         }
 
         oddBallDetector.addEventHandler(DetectedEvent.DETECTION, notUsed -> onBallDetected("odd"));
@@ -78,8 +99,8 @@ public class MainApp extends Application {
         oddFoulDetector.addEventHandler(DetectedEvent.DETECTION, notUsed -> onFoulDetected("odd"));
         evenFoulDetector.addEventHandler(DetectedEvent.DETECTION, notUsed -> onFoulDetected("even"));
 
-        oddPinCounter = new BasicPinCounter("oddPinCounter");
-        evenPinCounter = new BasicPinCounter("evenPinCounter");
+        oddSweepDetector.addEventHandler(DetectedEvent.DETECTION, notUsed -> onSweepDetected("odd"));
+        evenSweepDetector.addEventHandler(DetectedEvent.DETECTION, notUsed -> onSweepDetected("even"));
 
         BorderPane root = new BorderPane();
         root.setTop(buildMenuBar());
@@ -112,10 +133,10 @@ public class MainApp extends Application {
 
         Menu testMenu = new Menu("_Test");
         MenuItem testOddPinCounter = new MenuItem("Test Odd Pin Detector");
-        testOddPinCounter.setOnAction(notUsed -> oddPinCounter.countPins());
+        testOddPinCounter.setOnAction(notUsed -> onCountPins("Odd", oddPinCounter));
 
         MenuItem testEvenPinCounter = new MenuItem("Test Even Pin Detector");
-        testEvenPinCounter.setOnAction(notUsed -> evenPinCounter.countPins());
+        testEvenPinCounter.setOnAction(notUsed -> onCountPins("Even", evenPinCounter));
 
         testMenu.getItems().addAll(testOddPinCounter, testEvenPinCounter);
 
@@ -178,7 +199,16 @@ public class MainApp extends Application {
     }
 
     private void onFoulDetected(String lane) {
-        System.out.println("Foul detected on lane: " + lane);
+        System.out.println("Foul Detected on lane: " + lane);
+    }
+
+    private void onSweepDetected(String lane) {
+        System.out.println("Sweep detected on lane: " + lane);
+    }
+
+    private void onCountPins(String lane, PinCounter p) {
+        System.out.println("Counting pins on lane: " + lane);
+        System.out.println(p.countPins());
     }
 
     private void onQuit() {
