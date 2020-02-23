@@ -4,9 +4,11 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
@@ -25,7 +27,13 @@
             <Slider fx:id="ballSpeed" blockIncrement="0.1" max="25.0" min="10.0" value="10.0" />
             <CheckBox fx:id="sweepTrigger" mnemonicParsing="false" text="Trigger Sweep" />
             <CheckBox fx:id="foulTrigger" mnemonicParsing="false" text="Foul" />
-            <Button fx:id="bowl" mnemonicParsing="false" text="Bowl" />
+            <HBox>
+               <children>
+                  <Button fx:id="bowl" mnemonicParsing="false" text="Bowl" />
+                  <Separator prefHeight="29.0" prefWidth="47.0" />
+                  <Button fx:id="foulButton" mnemonicParsing="false" text="Foul now" />
+               </children>
+            </HBox>
          </children>
       </VBox>
       <VBox>
