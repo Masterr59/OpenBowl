@@ -21,7 +21,6 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.animation.AnimationTimer;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -42,6 +41,8 @@ public class FakeBowlerDialogController extends Dialog<Void> implements Initiali
 
     @FXML
     private Button bowl;
+    @FXML
+    private Button foulButton;
     @FXML
     private CheckBox sweepTrigger;
     @FXML
@@ -76,6 +77,7 @@ public class FakeBowlerDialogController extends Dialog<Void> implements Initiali
 
         setTitle("Fake " + n);
         bowl.setOnAction(notUsed -> onBowl());
+        foulButton.setOnAction(notUsed -> foul.fireDetectedEvent());
         pinsetter = new FakePinSetter(n);
         pinsetter.setBowler(this);
         dialog = pinsetter.getDialog();
