@@ -32,14 +32,6 @@ public class FakeDetector extends Detector {
 
     public FakeDetector(String name) {
         desc = "Virtual(Fake) " + name + " Dectector";
-        try {
-            FakeDetectorDialogController dialog = new FakeDetectorDialogController(name, this);
-            dialog.initModality(Modality.NONE);
-            dialog.show();
-        } catch (IOException e) {
-            System.out.println("Error showing dialog " + e.toString());
-        }
-
     }
 
     @Override

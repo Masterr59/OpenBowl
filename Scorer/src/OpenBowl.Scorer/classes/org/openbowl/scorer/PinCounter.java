@@ -26,16 +26,21 @@ import org.openbowl.common.BowlingPins;
  */
 public interface PinCounter {
 
+    String desc = "PinCounter";
+
     public void configureDialog();
 
-    public void setConfiguration(Map<String, Object> configuration);
+    public String setConfiguration(Map<String, Object> configuration);
 
     public Map<String, Object> getConfiguration();
-    
+
     public ArrayList<BowlingPins> countPins();
-    
+
     public String setup();
-    
+
     public void teardown();
 
+    default public void log(String s) {
+        System.out.println(desc + " - " + s);
+    }
 }

@@ -16,8 +16,10 @@
  */
 package org.openbowl.scorer;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import javafx.stage.Modality;
 
 /**
  *
@@ -25,11 +27,34 @@ import java.util.Map;
  */
 public class FakePinSetter implements PinSetter {
 
-   private boolean power = false;
-   private String name;
+    private boolean power = false;
+    private String name;
+    FakePinSetterDialogController dialog;
+    FakeBowlerDialogController bowler;
+    int ball;
 
     public FakePinSetter(String name) {
+        ball = 0;
         this.name = name;
+        try {
+            dialog = new FakePinSetterDialogController(name, this);
+            dialog.initModality(Modality.NONE);
+            dialog.show();
+        } catch (IOException e) {
+            System.out.println("Error showing dialog " + e.toString());
+        }
+    }
+
+    public PinCounter getPinCounter() {
+        return dialog;
+    }
+
+    public FakePinSetterDialogController getDialog() {
+        return dialog;
+    }
+
+    public void setBowler(FakeBowlerDialogController bowler) {
+        this.bowler = bowler;
     }
 
     @Override
@@ -54,6 +79,7 @@ public class FakePinSetter implements PinSetter {
     @Override
     public void setPower(boolean state) {
         log("set power state: " + state);
+        dialog.setPower(state);
         power = state;
     }
 
@@ -65,7 +91,19 @@ public class FakePinSetter implements PinSetter {
 
     @Override
     public void cycle() {
-        log("cycle");
+        if (power) {
+            ball++;
+            ball = ball % 3;
+            dialog.setBall(ball);
+            if(ball == 0){
+                dialog.resetPins();
+            }
+            bowler.onCycle();
+            log("cycle");
+        }
+        else{
+            log("cycled when powered off");
+        }
     }
 
     @Override
@@ -85,6 +123,4 @@ public class FakePinSetter implements PinSetter {
         PinSetter.super.log(name + " " + s);
     }
 
-    
-    
 }

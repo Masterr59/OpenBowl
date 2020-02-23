@@ -46,13 +46,11 @@ public class PinSetterMaintenanceController extends Dialog<Void> implements Init
 
     private final PinSetter pinSetter;
     private final String name;
-    private final boolean isPi;
 
     public PinSetterMaintenanceController(PinSetter pinSetter, String name) throws IOException {
         super();
         this.pinSetter = pinSetter;
         this.name = name;
-        isPi = RaspberryPiDetect.isPi();
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/openbowl/scorer/PinSetterMaintenanceDialog.fxml"));
         loader.setController(this);
@@ -71,22 +69,16 @@ public class PinSetterMaintenanceController extends Dialog<Void> implements Init
     }
 
     private void onPower() {
-        if (isPi) {
-            boolean currentPowerState = pinSetter.getPowerState();
-            pinSetter.setPower(!currentPowerState);
-        }
+        boolean currentPowerState = pinSetter.getPowerState();
+        pinSetter.setPower(!currentPowerState);
         setLabel();
     }
 
     private void setLabel() {
         String msg = name + " is ";
-        if (isPi) {
-            boolean currentPowerState = pinSetter.getPowerState();
-            msg += currentPowerState ? "on" : "off";
-        }
-        else{
-            msg += "VIRTUAL";
-        }
+
+        boolean currentPowerState = pinSetter.getPowerState();
+        msg += currentPowerState ? "on" : "off";
         PowerLabel.setText(msg);
 
     }
