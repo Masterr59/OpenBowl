@@ -14,29 +14,40 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.openbowl.scorer;
+package org.openbowl.common;
 
+import java.util.Calendar;
+import java.util.List;
 import java.util.Map;
 
 /**
  *
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
-public interface PinSetter {
+public class AuthorizedUser {
 
-    public void configureDialog();
+    private final String AUTHKEYWORD = "x-auth-bearer";
+    private final String Token;
+    private final Calendar expire;
 
-    public String setConfiguration(Map<String, Object> configuration);
+    public AuthorizedUser(String Token, Calendar expire) {
+        this.Token = Token;
+        this.expire = expire;
+    }
 
-    public Map<String, Object> getConfiguration();
+    public boolean isAuthorized(Map<String, List<String>> headers) {
+        if (headers.containsKey(AUTHKEYWORD)) {
+            List<String> values = headers.get(AUTHKEYWORD);
+            if (values.contains(Token)) {
+                isExpired();
+            }
+        }
+        return true;
+    }
 
-    public void setPower(boolean state);
+    public boolean isExpired() {
+        Calendar now = Calendar.getInstance();
+        return now.before(expire);
+    }
 
-    public boolean getPowerState();
-
-    public void cycle();
-    
-    public String setup();
-    
-    public void teardown();
 }

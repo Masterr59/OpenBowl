@@ -21,6 +21,8 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.prefs.Preferences;
+import javafx.scene.paint.Color;
 import org.openbowl.common.BowlingPins;
 
 /**
@@ -29,19 +31,28 @@ import org.openbowl.common.BowlingPins;
  */
 public class BasicPinCounter implements PinCounter {
 
+    private final int defaultX = 1;
+    private final int defaultY = 1;
+    private final int defaultLevel = 100;
+    private final int defaultRadius = 10;
+    private final Color defaultColor = Color.WHITE;
+
     private ArrayList<PinCounterTarget> targetList;
     private BufferedImage lastCameraImage;
     private String name;
+    private final Preferences prefs;
 
     public BasicPinCounter(String name) {
         this.name = name;
         targetList = new ArrayList<>(0);
+        prefs = Preferences.userNodeForPackage(this.getClass());
 
         try {
             lastCameraImage = LaneCamera.getCurrentCameraImage();
         } catch (InterruptedException e) {
             e.printStackTrace(System.out);
         }
+        setup();
     }
 
     /**
@@ -235,5 +246,32 @@ public class BasicPinCounter implements PinCounter {
     @Override
     public void setConfiguration(Map<String, Object> configuration) {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public String setup() {
+        String ret = "";
+        BowlingPins[] allPins = BowlingPins.values();
+        for (BowlingPins p : allPins) {
+            int X, Y, R, level;
+            X = prefs.getInt(name + "-" + p.toString() + "-" + "X", defaultX);
+            Y = prefs.getInt(name + "-" + p.toString() + "-" + "Y", defaultY);
+            R = prefs.getInt(name + "-" + p.toString() + "-" + "Radius", defaultRadius);
+            level = prefs.getInt(name + "-" + p.toString() + "-" + "Level", defaultLevel);
+            double r, g, b;
+            r = prefs.getDouble(name + "-" + p.toString() + "-" + "Red", defaultColor.getRed());
+            g = prefs.getDouble(name + "-" + p.toString() + "-" + "Green", defaultColor.getGreen());
+            b = prefs.getDouble(name + "-" + p.toString() + "-" + "Blue", defaultColor.getBlue());
+            
+            PinCounterTarget pinTarget = new PinCounterTarget(level, 255, p, R, X, Y);
+            addTarget(pinTarget);
+            
+        }
+        return ret;
+    }
+
+    @Override
+    public void teardown() {
+        targetList.clear();
     }
 }

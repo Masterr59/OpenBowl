@@ -116,11 +116,11 @@ public class BasicPinSetterOptionsController extends Dialog<Void> implements Ini
         SpinnerValueFactory<String> powerGPIOStateFactory = new SpinnerValueFactory.ListSpinnerValueFactory<>(gpioStates);
         SpinnerValueFactory<String> cycleGPIOStateFactory = new SpinnerValueFactory.ListSpinnerValueFactory<>(gpioStates);
 
-        String powerPinName = prefs.get(name + "PowerName", "GPIO 7");
-        String powerPinState = prefs.get(name + "PowerState", "HIGH");
+        String powerPinName = prefs.get(name + BasicPinSetter.POWER_PIN_SETTING_NAME, BasicPinSetter.DEFAULT_SETTING_POWER_PIN);
+        String powerPinState = prefs.get(name + BasicPinSetter.POWER_STATE_SETTING_NAME, BasicPinSetter.DEFAULT_SETTING_POWER_STATE);
 
-        String cyclePinName = prefs.get(name + "cycleName", "GPIO 0");
-        String cyclePinState = prefs.get(name + "cycleState", "HIGH");
+        String cyclePinName = prefs.get(name + BasicPinSetter.CYCLE_PIN_SETTING_NAME, BasicPinSetter.DEFAULT_SETTING_CYCLE_PIN);
+        String cyclePinState = prefs.get(name + BasicPinSetter.CYCLE_STATE_SETTING_NAME, BasicPinSetter.DEFAULT_SETTING_CYCLE_STATE);
         powerGPIOStateFactory.setValue(powerPinState);
         powerGPIOPinFactory.setValue(powerPinName);
         
@@ -131,18 +131,18 @@ public class BasicPinSetterOptionsController extends Dialog<Void> implements Ini
         PowerStateSpinner.setValueFactory(powerGPIOStateFactory);
         CycleGPIOSpinner.setValueFactory(cycleGPIOPinFactory);
         CycleStateSpinner.setValueFactory(cycleGPIOStateFactory);
-        long delay = prefs.getLong(name + "CycleDelay", 100);
+        long delay = prefs.getLong(name + BasicPinSetter.CYCLE_DELAY_SETTING_NAME, BasicPinSetter.DEFAULT_SETTING_CYCLE_DELAY);
         CycleDelaySlider.setValue(delay);
         
     }
 
     private void onOK(ActionEvent eh) {
         pinsetter.teardown();
-        prefs.put(name + "PowerName", PowerGPIOSpinner.getValue());
-        prefs.put(name + "PowerState", PowerStateSpinner.getValue());
-        prefs.put(name + "cycleName", CycleGPIOSpinner.getValue());
-        prefs.put(name + "cycleState", CycleStateSpinner.getValue());
-        prefs.putLong(name + "CycleDelay", (long)CycleDelaySlider.getValue());
+        prefs.put(name + BasicPinSetter.POWER_PIN_SETTING_NAME, PowerGPIOSpinner.getValue());
+        prefs.put(name + BasicPinSetter.POWER_STATE_SETTING_NAME, PowerStateSpinner.getValue());
+        prefs.put(name + BasicPinSetter.CYCLE_PIN_SETTING_NAME, CycleGPIOSpinner.getValue());
+        prefs.put(name + BasicPinSetter.CYCLE_STATE_SETTING_NAME, CycleStateSpinner.getValue());
+        prefs.putLong(name + BasicPinSetter.CYCLE_DELAY_SETTING_NAME, (long)CycleDelaySlider.getValue());
         String results = pinsetter.setup();
         if(!results.isBlank()){
             ErrorLabel.setText(results);
