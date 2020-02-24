@@ -2,6 +2,7 @@
   <head>
     <title>OpenBowlScoring | Office</title>
     <link href="https://fonts.googleapis.com/css?family=Arimo&display=swap" rel="stylesheet">
+    <script src="office.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
   <link rel="stylesheet" type="text/css" href="stylesheet.css">
   <link rel="stylesheet" type="text/css" href="officeapp.css">
@@ -16,52 +17,52 @@
         <div>
           <nav class="accordion arrows">
             <header class="box">
-              <label for="acc-close" class="box-title">Office Menu</label>
+              <label for="acc-close" class="box-title" onclick="changeText('')">Office Menu</label>
             </header>
             <input type="radio" name="accordion" id="cb1" />
             <section class="box">
               <label class="box-title" for="cb1">Administration</label>
               <label class="box-close" for="acc-close"></label>
-              <div class="box-content">Center Information</div>
-              <div class="box-content">Terminal Confirmation</div>
-              <div class="box-content">Adjustment Message</div>
+              <div class="box-content" onclick="changeText('Center Information')">Center Information</div>
+              <div class="box-content" onclick="changeText('Terminal Confirmation')">Terminal Confirmation</div>
+              <div class="box-content" onclick="changeText('Adjustment Message')">Adjustment Message</div>
             </section>
             <input type="radio" name="accordion" id="cb2" />
             <section class="box">
               <label class="box-title" for="cb2">Security</label>
               <label class="box-close" for="acc-close"></label>
-              <div class="box-content">Policies</div>
-              <div class="box-content">Roles</div>
-              <div class="box-content">User Accounts</div>
+              <div class="box-content" onclick="changeText('Policies')">Policies</div>
+              <div class="box-content" onclick="changeText('Roles')">Roles</div>
+              <div class="box-content" onclick="changeText('User Accounts')">User Accounts</div>
             </section>
             <input type="radio" name="accordion" id="cb3" />
             <section class="box">
               <label class="box-title" for="cb3">Cash Control</label>
               <label class="box-close" for="acc-close"></label>
-              <div class="box-content">Policies</div>
-              <div class="box-content">Departments</div>
-              <div class="box-content">Sub Departments</div>
-              <div class="box-content">Rate Periods</div>
-              <div class="box-content">Tax Types</div>
-              <div class="box-content">Modifiers</div>
-              <div class="box-content">Products</div>
-              <div class="box-content">Packages</div>
-              <div class="box-content">Quick Keys</div>
-              <div class="box-content">Payment Methods</div>
-              <div class="box-content">Banking</div>
-              <div class="box-content">Adjustments</div>
-              <div class="box-content">Customer Receipts</div>
+              <div class="box-content" onclick="changeText('Policies')">Policies</div>
+              <div class="box-content" onclick="changeText('Departments')">Departments</div>
+              <div class="box-content" onclick="changeText('Sub Departments')">Sub Departments</div>
+              <div class="box-content" onclick="changeText('Rate Periods')">Rate Periods</div>
+              <div class="box-content" onclick="changeText('Tax Types')">Tax Types</div>
+              <div class="box-content" onclick="changeText('Modifiers')">Modifiers</div>
+              <div class="box-content" onclick="changeText('Products')">Products</div>
+              <div class="box-content" onclick="changeText('Packages')">Packages</div>
+              <div class="box-content" onclick="changeText('Quick Keys')">Quick Keys</div>
+              <div class="box-content" onclick="changeText('Payment Methods')">Payment Methods</div>
+              <div class="box-content" onclick="changeText('Banking')">Banking</div>
+              <div class="box-content" onclick="changeText('Adjustments')">Adjustments</div>
+              <div class="box-content" onclick="changeText('Customer Receipts')">Customer Receipts</div>
             </section>
             <input type="radio" name="accordion" id="cb4" />
             <section class="box">
               <label class="box-title" for="cb4">Cash Tools</label>
               <label class="box-close" for="acc-close"></label>
-              <div class="box-content">View Open Transactions</div>
-              <div class="box-content">View Old Transactions</div>
-              <div class="box-content">Purge Old Transactions</div>
-              <div class="box-content">End Shifts</div>
-              <div class="box-content">Adjust Prices</div>
-              <div class="box-content">Reports</div>
+              <div class="box-content" onclick="changeText('View Open Transactions')">View Open Transactions</div>
+              <div class="box-content" onclick="changeText('View Old Transactions')">View Old Transactions</div>
+              <div class="box-content" onclick="changeText('Purge Old Transactions')">Purge Old Transactions</div>
+              <div class="box-content" onclick="changeText('End Shifts')">End Shifts</div>
+              <div class="box-content" onclick="changeText('Adjust Prices')">Adjust Prices</div>
+              <div class="box-content" onclick="changeText('Reports')">Reports</div>
             </section>
             <input type="radio" name="accordion" id="cb5" />
             <section class="box">
@@ -75,6 +76,7 @@
         </div>
         <div class="officepaneldisplay">
           <h3 id="officetitle"></h3>
+          <div id="officebody"></div>
         </div>
       </div>
     </div>

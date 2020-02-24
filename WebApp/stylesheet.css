@@ -375,9 +375,8 @@ button:hover
 }
 
 .product_panel_child{
-  display: flex;
-  justify-content: space-evenly;
-  flex-wrap: wrap;
+  display: inline-block;
+  vertical-align: middle;
 }
 
 .product_panel{
@@ -442,8 +441,15 @@ button:hover
   border-radius: 5px;
   border: 1px solid #212121;
   padding: 10px 10px -10px 10px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
-
+#officebody
+{
+  padding: 10px;
+}
 .contacts
 {
     display: flex;
