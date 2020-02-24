@@ -1,0 +1,18 @@
+.sidebar { width: 75px; }
+.separator .topline { width: 75px; }
+.separator .bottomline { width: 75px; }
+.header { left: 68px; }
+.pageBody { left: 75px; }
+.logo { left: 10px; height: 49px; }
+.linksection { width: 75px; }
+.linksection a { width: 75px; }
+.status { width: 20px; height: 20px; }
+button { width: 4em; height: 4em;}
+.laneBtn { height: 6em; }
+#receipt { width: 245px; height: 245px; }
+
+.buttonTxtShort { display: inline-block; text-align: center;}
+.buttonTxtFull { display: none; }
+
+#logoIconShort { display: inline-block; }
+#logoIconFull { display: none; }

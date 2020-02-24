@@ -1,0 +1,146 @@
+<html>
+  <head>
+    <title>OpenBowlScoring | Mechanic</title>
+    <link href="https://fonts.googleapis.com/css?family=Arimo&display=swap" rel="stylesheet">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="stylesheet.css">
+  <link rel="stylesheet" type="text/css" href="officeapp.css">
+  <link rel="stylesheet" media="screen and (max-width: 1400px)" href="smallscreen.css">
+  </head>
+  
+<!--  Body  -->
+  <body>
+    
+    <div class="pageBody">
+      <div class="officepanel">
+        <div>
+          <nav class="accordion arrows">
+            <header class="box">
+              <label for="acc-close" class="box-title">Mechanic Menu</label>
+            </header>
+            <input type="radio" name="accordion" id="cb1" />
+            <section class="box">
+              <label class="box-title" for="cb1">Terminal</label>
+              <label class="box-close" for="acc-close"></label>
+            </section>
+            <input type="radio" name="accordion" id="cb2" />
+            <section class="box">
+              <label class="box-title" for="cb2">Serial Ports</label>
+              <label class="box-close" for="acc-close"></label>
+            </section>
+            <input type="radio" name="accordion" id="cb3" />
+            <section class="box">
+              <label class="box-title" for="cb3">A/V Box</label>
+              <label class="box-close" for="acc-close"></label>
+            </section>
+            <input type="radio" name="accordion" id="cb4" />
+            <section class="box">
+              <label class="box-title" for="cb4">User Interface</label>
+              <label class="box-close" for="acc-close"></label>
+            </section>
+            <input type="radio" name="accordion" id="cb5" />
+            <section class="box">
+              <label class="box-title" for="cb5">Printing</label>
+              <label class="box-close" for="acc-close"></label>
+            </section>
+            <input type="radio" name="accordion" id="cb6" />
+            <section class="box">
+              <label class="box-title" for="cb6">Web Server</label>
+              <label class="box-close" for="acc-close"></label>
+            </section>
+            <input type="radio" name="accordion" id="cb7" />
+            <section class="box">
+              <label class="box-title" for="cb7">Services</label>
+              <label class="box-close" for="acc-close"></label>
+            </section>
+            <input type="radio" name="accordion" id="cb8" />
+            <section class="box">
+              <label class="box-title" for="cb8">Competition</label>
+              <label class="box-close" for="acc-close"></label>
+            </section>
+            <input type="radio" name="accordion" id="cb9" />
+            <section class="box">
+              <label class="box-title" for="cb9">Scheduler</label>
+              <label class="box-close" for="acc-close"></label>
+            </section>
+            <input type="radio" name="accordion" id="cb10" />
+            <section class="box">
+              <label class="box-title" for="cb10">Backup</label>
+              <label class="box-close" for="acc-close"></label>
+            </section>
+            <input type="radio" name="accordion" id="cb11" />
+            <section class="box">
+              <label class="box-title" for="cb11">Restore</label>
+              <label class="box-close" for="acc-close"></label>
+            </section>
+            <input type="radio" name="accordion" id="cb12" />
+            <section class="box">
+              <label class="box-title" for="cb12">Logging</label>
+              <label class="box-close" for="acc-close"></label>
+            </section>
+            <input type="radio" name="accordion" id="cb13" />
+            <section class="box">
+              <label class="box-title" for="cb13">Repair</label>
+              <label class="box-close" for="acc-close"></label>
+            </section>
+            <input type="radio" name="accordion" id="cb14" />
+            <section class="box">
+              <label class="box-title" for="cb14">Help</label>
+              <label class="box-close" for="acc-close"></label>
+            </section>
+            <input type="radio" name="accordion" id="acc-close" />
+          </nav>
+        </div>
+        <div class="officepaneldisplay">
+          <h3 id="officetitle"></h3>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer">
+      <p>OpenBowlScoring &copy; 2020
+        <img src="imgs/logo_footer.png" alt="">
+      </p>
+    </div>
+    
+    <div class="header">
+      <h2>Mechanic</h2>
+    </div>
+    
+    <div class="sidebar">
+      <section class="linksection">
+        <div class="separator">
+            <div class="topline"></div>
+            <div class="bottomline"></div>
+        </div>
+		<div class="subMenuBar">
+			<p id="sect1">You</p>
+		</div>
+        <a href="login.html"><div class="btnText"><span class="buttonTxtFull">Log In</span><span class="buttonTxtShort">Log In</span></div></a>
+        <div class="separator">
+          <div class="topline"></div>
+          <div class="bottomline"></div>
+        </div>
+		<div class="subMenuBar">
+			<p id="sect2">Tools</p>
+		</div>
+        <a href="desk.html"><div class="btnText"><span class="buttonTxtFull">Desk</span><span class="buttonTxtShort">Desk</span></div></a>
+        <a href="office.html"><div class="btnText"><span class="buttonTxtFull">Office</span><span class="buttonTxtShort">Office</span></div></a>
+        <a href="mechanic.html"><div class="btnText"><span class="buttonTxtFull">Mechanic</span><span class="buttonTxtShort">Mech.</span></div></a>
+        <a href="reservations.html"><div class="btnText"><span class="buttonTxtFull">Reservations</span><span class="buttonTxtShort">Rsrv.</span></div></a>
+        <a href="competitions.html"><div class="btnText"><span class="buttonTxtFull">Competitions</span><span class="buttonTxtShort">Comp.</span></div></a>
+        <a href="bowlers.html"><div class="btnText"><span class="buttonTxtFull">Bowlers</span><span class="buttonTxtShort">Bowlers</span></div></a>
+        <div class="separator">
+          <div class="topline"></div>
+          <div class="bottomline"></div>
+        </div>
+		<div class="subMenuBar">
+			<p id="sect3">Help</p>
+		</div>
+        <a href="about.html"><div class="btnText"><span class="buttonTxtFull">About</span><span class="buttonTxtShort">About</span></div></a>
+        <a href="contact.html"><div class="btnText"><span class="buttonTxtFull">Contact</span><span class="buttonTxtShort">Contact</span></div></a>
+      </section>
+      <span id="logoIconFull"><a href="index.html" id="logoLink"><img src="imgs/logo.png" class="logo"></img></a></span><span id="logoIconShort"><a href="index.html" id="logoLink"><img src="imgs/applogowebshort.png" alt="" class="logo"></img></a></span>
+    </div>
+  </body>
+</html>
