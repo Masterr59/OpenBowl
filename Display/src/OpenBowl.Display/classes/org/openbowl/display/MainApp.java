@@ -65,6 +65,8 @@ public class MainApp extends Application {
         setupStage(secondaryStage, rightBounds, false, 1, evenGame);
 
         server = WebFunctions.createDefaultServer();
+        server.createContext("/gamedisplay/odd/", new BowlingGameDisplayHandler(1, oddGame));
+        server.createContext("/gamedisplay/even/", new BowlingGameDisplayHandler(2, evenGame));
     }
 
     private MenuBar buildMenuBar() {
