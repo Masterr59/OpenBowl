@@ -26,16 +26,42 @@ public class BowlingGame {
 
     private String playerName;
     private int playerID;
+    private int tapValue;
     private int handycap;
     private ArrayList<BowlingFrame> frames;
+    private BowlingFrame currentFrame;
     private int gameScore;
 
     public BowlingGame(String name, int id) {
         this.playerName = name;
         this.playerID = id;
         this.gameScore = 0;
+        this.tapValue = 0;
         this.handycap = 0;
         this.frames = new ArrayList<>();
+        this.currentFrame = new BowlingFrame();
+        this.frames.add(currentFrame);
+    }
+
+    public void addBall(ArrayList<BowlingPins> pins, boolean foul) {
+        switch (currentFrame.getCurrentBall()) {
+            case NONE:
+                this.currentFrame.addBall(pins, foul);
+                break;
+            case ONE:
+                this.currentFrame.addBall(pins, foul);
+                if (this.frames.size() < 10) {
+                    this.currentFrame = new BowlingFrame();
+                    this.frames.add(currentFrame);
+                }
+                break;
+            case TWO:
+                if (this.frames.size() == 10) {
+                    this.currentFrame.addBall(pins, foul);
+                }
+                break;
+        }
+        scoreGame();
     }
 
     public ArrayList<BowlingFrame> getFrames() {
@@ -44,18 +70,16 @@ public class BowlingGame {
 
     public void setFrames(ArrayList<BowlingFrame> frames) {
         this.frames = frames;
+        scoreGame();
     }
 
     public void addFrame(BowlingFrame f) {
         this.frames.add(f);
+        scoreGame();
     }
 
     public int getGameScore() {
         return gameScore;
-    }
-
-    public void setGameScore(int gameScore) {
-        this.gameScore = gameScore;
     }
 
     public int getHandycap() {
@@ -82,11 +106,25 @@ public class BowlingGame {
         this.playerID = playerID;
     }
 
+    public int getTapValue() {
+        return tapValue;
+    }
+
+    public void setTapValue(int tapValue) {
+        this.tapValue = tapValue;
+        scoreGame();
+    }
+
     public void updateTo(BowlingGame game) {
         this.playerName = game.getPlayerName();
         this.playerID = game.getPlayerID();
         this.handycap = game.getHandycap();
         this.frames = game.getFrames();
+        scoreGame();
+    }
+
+    private void scoreGame() {
+        //to do
     }
 
 }
