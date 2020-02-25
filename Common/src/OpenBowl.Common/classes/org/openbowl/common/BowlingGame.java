@@ -43,13 +43,13 @@ public class BowlingGame {
         this.frames.add(currentFrame);
     }
 
-    public void addBall(ArrayList<BowlingPins> pins, boolean foul) {
+    public void addBall(ArrayList<BowlingPins> pins, boolean foul, double speed) {
         switch (currentFrame.getCurrentBall()) {
             case NONE:
-                this.currentFrame.addBall(pins, foul);
+                this.currentFrame.addBall(pins, foul, speed);
                 break;
             case ONE:
-                this.currentFrame.addBall(pins, foul);
+                this.currentFrame.addBall(pins, foul, speed);
                 if (this.frames.size() < 10) {
                     this.currentFrame = new BowlingFrame();
                     this.frames.add(currentFrame);
@@ -57,7 +57,7 @@ public class BowlingGame {
                 break;
             case TWO:
                 if (this.frames.size() == 10) {
-                    this.currentFrame.addBall(pins, foul);
+                    this.currentFrame.addBall(pins, foul, speed);
                 }
                 break;
         }

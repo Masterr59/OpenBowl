@@ -43,43 +43,47 @@ public class BowlingFrame implements Comparable<BowlingFrame> {
     private int frameScore;
     private BallNumber currentBall;
     private final ScoreType ballType[];
+    private double speed[];
 
     public BowlingFrame() {
         int numBalls = BallNumber.values().length;
         isBallFoul = new boolean[numBalls];
         balls = new ArrayList[numBalls];
         ballType = new ScoreType[numBalls];
+        speed = new double[numBalls];
         for (BallNumber b : BallNumber.values()) {
             isBallFoul[b.ordinal()] = false;
             balls[b.ordinal()] = new ArrayList<>();
             ballType[b.ordinal()] = ScoreType.UNKNOWN;
+            speed[b.ordinal()] = 0;
         }
         this.frameScore = 0;
         this.currentBall = BallNumber.NONE;
     }
 
-    public void addBall(ArrayList<BowlingPins> p, boolean foul) {
+    public void addBall(ArrayList<BowlingPins> p, boolean foul, double speed) {
         switch (currentBall) {
             case NONE:
-                setBall(p, foul, BallNumber.ONE, ScoreType.MECHANICAL);
+                setBall(p, foul, BallNumber.ONE, ScoreType.MECHANICAL, speed);
                 currentBall = BallNumber.ONE;
                 break;
             case ONE:
-                setBall(p, foul, BallNumber.TWO, ScoreType.MECHANICAL);
+                setBall(p, foul, BallNumber.TWO, ScoreType.MECHANICAL, speed);
                 currentBall = BallNumber.TWO;
                 break;
             case TWO:
-                setBall(p, foul, BallNumber.BONUS, ScoreType.MECHANICAL);
+                setBall(p, foul, BallNumber.BONUS, ScoreType.MECHANICAL, speed);
                 currentBall = BallNumber.BONUS;
                 break;
         }
     }
 
-    public void setBall(ArrayList<BowlingPins> p, boolean foul, BallNumber b, ScoreType t) {
+    public void setBall(ArrayList<BowlingPins> p, boolean foul, BallNumber b, ScoreType t, double speed) {
         int ballNum = b.ordinal();
         balls[ballNum] = p;
         isBallFoul[ballNum] = foul;
         ballType[ballNum] = t;
+        this.speed[ballNum] = speed;
     }
 
     public boolean isBallFoul(BallNumber b) {
