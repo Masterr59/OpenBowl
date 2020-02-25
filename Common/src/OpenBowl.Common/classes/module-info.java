@@ -18,6 +18,7 @@
 module OpenBowl.Common {
     requires javafx.controls;
     requires jdk.httpserver;
+    requires java.net.http;
     
     exports org.openbowl.common;
 }
