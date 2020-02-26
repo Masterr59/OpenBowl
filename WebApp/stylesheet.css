@@ -282,6 +282,15 @@ button:hover
 {
   background-color: #6B8FB0;
 }
+
+.saveBtn
+{
+  width: 30px;
+  height: 30px;
+  margin: 0px 0px 10px 0px;
+  color: #FFF;
+}
+
 .buttonPost
 {
   width: 100px;
@@ -449,6 +458,24 @@ button:hover
 #officebody
 {
   padding: 10px;
+  font-size: 10pt;
+}
+#officebody input
+{
+  height: 30px;
+}
+.officePanelGrid
+{
+  display: grid;
+  grid-template-columns: 175px 1fr;
+  grid-column-gap: 5px;
+}
+.officePanelGridLabel
+{
+  color: #cfcfcf;
+  margin-top: 8px;
+  margin-left: auto;
+  text-align: end;
 }
 .contacts
 {
