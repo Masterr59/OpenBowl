@@ -67,7 +67,7 @@ public class FakeBowlerDialogController extends Dialog<Void> implements Initiali
     private int cycleDelay = 2000;
 
     public FakeBowlerDialogController(String n) throws IOException {
-        
+
         this.name = n;
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/openbowl/scorer/FakeBowlerDialog.fxml"));
         loader.setController(this);
@@ -104,24 +104,24 @@ public class FakeBowlerDialogController extends Dialog<Void> implements Initiali
         };
     }
 
-    public void onCycle(){
+    public void onCycle() {
         long now = System.currentTimeMillis();
-        if(cycleEndTime < now){
+        if (cycleEndTime < now) {
             startCycleTimer();
         }
     }
-    
+
     public void startBallTimer() {
         ballPreviousTime = System.currentTimeMillis();
         ballStartTime = ballPreviousTime;
 
         double fpms = ballSpeed.getValue() * 1.4667;
         log("Balls Speed " + String.format("%.2f", fpms) + " fps");
-        ballSweepTime = ballStartTime + (long)(67.0 / fpms * 1000.0);
-        ballDetectTime = ballStartTime + (long)(60.0 / fpms * 1000.0);
+        ballSweepTime = ballStartTime + (long) (67.0 / fpms * 1000.0);
+        ballDetectTime = ballStartTime + (long) (60.0 / fpms * 1000.0);
         log("Time till ball Detect: " + (ballDetectTime - ballStartTime));
         log("Time till ball sweep: " + (ballSweepTime - ballStartTime));
-        if(foulTrigger.isSelected()){
+        if (foulTrigger.isSelected()) {
             foul.fireDetectedEvent();
         }
         ballTimer.start();
@@ -154,13 +154,14 @@ public class FakeBowlerDialogController extends Dialog<Void> implements Initiali
                     startCycleTimer();
                 }
             }
-            
+
             ballPreviousTime = now;
         }
 
     }
 
     public void startCycleTimer() {
+        pinsetter.cycle();
         cyclePreviousTime = System.currentTimeMillis();
         cycleStartTime = cyclePreviousTime;
         cycleEndTime = cycleStartTime + cycleDelay;
@@ -170,6 +171,10 @@ public class FakeBowlerDialogController extends Dialog<Void> implements Initiali
     public void stopCycleTimer() {
         cyclePreviousTime = System.currentTimeMillis();
         cycleTimer.stop();
+        if (pinsetter.getBall() == 2) {
+            dialog.setBall(0);
+            pinsetter.setBall(0);
+        }
         ballProgress.setProgress(0);
         cycleProgress.setProgress(0);
     }
@@ -222,7 +227,7 @@ public class FakeBowlerDialogController extends Dialog<Void> implements Initiali
         startBallTimer();
     }
 
-    private void log(String s){
+    private void log(String s) {
         System.out.println(desc + name + " " + s);
     }
 }

@@ -96,7 +96,7 @@ public class FakePinSetterDialogController extends Dialog<Void> implements Initi
 
     }
 
-    public void resetPins(){
+    public void resetPins() {
         Pin1.setSelected(true);
         Pin2.setSelected(true);
         Pin3.setSelected(true);
@@ -108,8 +108,8 @@ public class FakePinSetterDialogController extends Dialog<Void> implements Initi
         Pin9.setSelected(true);
         Pin10.setSelected(true);
     }
-    
-    public void onStrike(){
+
+    public void onStrike() {
         Pin1.setSelected(false);
         Pin2.setSelected(false);
         Pin3.setSelected(false);
@@ -121,10 +121,12 @@ public class FakePinSetterDialogController extends Dialog<Void> implements Initi
         Pin9.setSelected(false);
         Pin10.setSelected(false);
     }
-    
+
     public void setBall(int ball) {
+        log("Ball: " + Integer.toString(ball));
         switch (ball) {
             case 0:
+                resetPins();
                 BallOne.setText(" ");
                 BallTwo.setText(" ");
                 break;
@@ -139,20 +141,20 @@ public class FakePinSetterDialogController extends Dialog<Void> implements Initi
         }
     }
 
-    public void setPower(boolean power){
-        if(power){
+    public void setPower(boolean power) {
+        if (power) {
             lineTop.setStroke(Color.GOLDENROD);
             lineBottom.setStroke(Color.GOLDENROD);
             lineLeft.setStroke(Color.GOLDENROD);
             lineRight.setStroke(Color.GOLDENROD);
-        }
-        else{
+        } else {
             lineTop.setStroke(Color.BLACK);
             lineBottom.setStroke(Color.BLACK);
             lineLeft.setStroke(Color.BLACK);
             lineRight.setStroke(Color.BLACK);
         }
     }
+
     @Override
     public void configureDialog() {
         log("show configuration dialog");

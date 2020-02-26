@@ -45,6 +45,14 @@ public class FakePinSetter implements PinSetter {
         }
     }
 
+    public void setBall(int ball) {
+        this.ball = ball;
+    }
+
+    public int getBall() {
+        return ball;
+    }
+
     public PinCounter getPinCounter() {
         return dialog;
     }
@@ -95,13 +103,12 @@ public class FakePinSetter implements PinSetter {
             ball++;
             ball = ball % 3;
             dialog.setBall(ball);
-            if(ball == 0){
+            if (ball == 0) {
                 dialog.resetPins();
             }
-            bowler.onCycle();
+            //bowler.onCycle();
             log("cycle");
-        }
-        else{
+        } else {
             log("cycled when powered off");
         }
     }

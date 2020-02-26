@@ -18,6 +18,7 @@ package org.openbowl.scorer;
 
 import java.util.ArrayList;
 import org.openbowl.common.BowlingGame;
+import org.openbowl.common.BowlingSplash;
 
 /**
  *
@@ -45,11 +46,13 @@ public abstract class BowlingSession implements Runnable {
     }
 
     public abstract void pauseSession();
+    
+    public abstract void resumeSession();
 
     public abstract void abortSession();
 
     private void onSlowBall() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        display.showSplash(BowlingSplash.SlowBall);
     }
 
     protected abstract void onBowlEvent();
