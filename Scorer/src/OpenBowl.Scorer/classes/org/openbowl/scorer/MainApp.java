@@ -20,7 +20,6 @@ import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;

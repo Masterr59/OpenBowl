@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.openbowl.common.BowlingGame;
+import org.openbowl.common.BowlingSplash;
 import org.openbowl.common.WebFunctions;
 
 /**
@@ -96,5 +97,43 @@ public class DisplayConnector {
         }
         return ret;
     }
+    
+    public Map<String, Object> showSplash(BowlingSplash type){
+        String parms = "?set=splash";
+        Map<String, String> map = new HashMap<>();
+        map.put("type", type.toString());
+        String response = "{}";
+        try {
+            response = WebFunctions.doHttpPostRequest(address, endpoint + parms, gson.toJson(map), authToken);
+        } catch (IOException | InterruptedException ex) {
+            Logger.getLogger(DisplayConnector.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        Map<String, Object> ret = new HashMap<>();
+        try {
+            ret = gson.fromJson(response, Map.class);
+        } catch (JsonSyntaxException ex) {
+            Logger.getLogger(DisplayConnector.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return ret;
+    }
 
+    public Map<String, Object> showMessageCard(String type, int duration){
+        String parms = "?set=card";
+        Map<String, Object> map = new HashMap<>();
+        map.put("type", type);
+        map.put("duration", duration);
+        String response = "{}";
+        try {
+            response = WebFunctions.doHttpPostRequest(address, endpoint + parms, gson.toJson(map), authToken);
+        } catch (IOException | InterruptedException ex) {
+            Logger.getLogger(DisplayConnector.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        Map<String, Object> ret = new HashMap<>();
+        try {
+            ret = gson.fromJson(response, Map.class);
+        } catch (JsonSyntaxException ex) {
+            Logger.getLogger(DisplayConnector.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return ret;
+    }
 }
