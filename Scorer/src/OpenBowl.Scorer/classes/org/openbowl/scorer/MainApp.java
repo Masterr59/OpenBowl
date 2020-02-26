@@ -20,6 +20,8 @@ import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.Queue;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -44,45 +46,43 @@ import org.openbowl.scorer.remote.PinSetterHandler;
 public class MainApp extends Application {
 
     private final String ApplicationName = "Open Bowl - Scorer";
-    private Detector oddFoulDetector, evenFoulDetector, oddBallDetector, evenBallDetector,
-            oddSweepDetector, evenSweepDetector;
-    private PinSetter oddPinSetter, evenPinSetter;
-    private PinCounter oddPinCounter, evenPinCounter;
     private HttpServer remoteControl;
     private FakeBowlerDialogController oddBowler, evenBowler;
+    private Lane oddLane, evenLane;
+    private Queue<BowlingSession> sessionQueue;
 
     @Override
     public void start(Stage stage) throws Exception {
+        sessionQueue = new LinkedList<>();
+        oddLane = new Lane("odd");
+        evenLane = new Lane("even");
         if (RaspberryPiDetect.isPi()) {
-            oddBallDetector = new BasicDetector("Odd_Ball_Detector");
-            evenBallDetector = new BasicDetector("Even_Ball_Detector");
+            oddLane.setBall(new BasicDetector("Odd_Ball_Detector"));
+            oddLane.setFoul(new BasicDetector("Odd_Foul_Detector"));
+            oddLane.setSweep(new BasicDetector("Odd_Sweep_Detector"));
+            oddLane.setPinSetter(new BasicPinSetter("Odd_PinSetter"));
+            oddLane.setPinCounter(new BasicPinCounter("Odd_PinCounter"));
 
-            oddFoulDetector = new BasicDetector("Odd_Foul_Detector");
-            evenFoulDetector = new BasicDetector("Even_Foul_Detector");
-
-            oddSweepDetector = new BasicDetector("Odd_Sweep_Detector");
-            evenSweepDetector = new BasicDetector("Even_Sweep_Detector");
-
-            oddPinSetter = new BasicPinSetter("OddPinSetter");
-            evenPinSetter = new BasicPinSetter("EvenPinSetter");
-
-            oddPinCounter = new BasicPinCounter("oddPinCounter");
-            evenPinCounter = new BasicPinCounter("evenPinCounter");
+            evenLane.setBall(new BasicDetector("Even_Ball_Detector"));
+            evenLane.setFoul(new BasicDetector("Even_Foul_Detector"));
+            evenLane.setSweep(new BasicDetector("Even_Sweep_Detector"));
+            evenLane.setPinSetter(new BasicPinSetter("Even_PinSetter"));
+            evenLane.setPinCounter(new BasicPinCounter("Even_PinCounter"));
 
         } else {
             oddBowler = new FakeBowlerDialogController("odd");
-            oddBallDetector = oddBowler.getBall();
-            oddFoulDetector = oddBowler.getFoul();
-            oddSweepDetector = oddBowler.getSweep();
-            oddPinSetter = oddBowler.getPinsetter();
-            oddPinCounter = oddBowler.getCounter();
+            oddLane.setBall(oddBowler.getBall());
+            oddLane.setFoul(oddBowler.getFoul());
+            oddLane.setSweep(oddBowler.getSweep());
+            oddLane.setPinSetter(oddBowler.getPinsetter());
+            oddLane.setPinCounter(oddBowler.getCounter());
 
             evenBowler = new FakeBowlerDialogController("even");
-            evenBallDetector = evenBowler.getBall();
-            evenFoulDetector = evenBowler.getFoul();
-            evenSweepDetector = evenBowler.getSweep();
-            evenPinSetter = evenBowler.getPinsetter();
-            evenPinCounter = evenBowler.getCounter();
+            evenLane.setBall(evenBowler.getBall());
+            evenLane.setFoul(evenBowler.getFoul());
+            evenLane.setSweep(evenBowler.getSweep());
+            evenLane.setPinSetter(evenBowler.getPinsetter());
+            evenLane.setPinCounter(evenBowler.getCounter());
 
             oddBowler.initModality(Modality.NONE);
             oddBowler.show();
@@ -91,15 +91,14 @@ public class MainApp extends Application {
             evenBowler.show();
 
         }
+        oddLane.getBall().addEventHandler(DetectedEvent.DETECTION, notUsed -> onBallDetected("odd"));
+        evenLane.getBall().addEventHandler(DetectedEvent.DETECTION, notUsed -> onBallDetected("even"));
 
-        oddBallDetector.addEventHandler(DetectedEvent.DETECTION, notUsed -> onBallDetected("odd"));
-        evenBallDetector.addEventHandler(DetectedEvent.DETECTION, notUsed -> onBallDetected("even"));
+        oddLane.getFoul().addEventHandler(DetectedEvent.DETECTION, notUsed -> onFoulDetected("odd"));
+        evenLane.getFoul().addEventHandler(DetectedEvent.DETECTION, notUsed -> onFoulDetected("even"));
 
-        oddFoulDetector.addEventHandler(DetectedEvent.DETECTION, notUsed -> onFoulDetected("odd"));
-        evenFoulDetector.addEventHandler(DetectedEvent.DETECTION, notUsed -> onFoulDetected("even"));
-
-        oddSweepDetector.addEventHandler(DetectedEvent.DETECTION, notUsed -> onSweepDetected("odd"));
-        evenSweepDetector.addEventHandler(DetectedEvent.DETECTION, notUsed -> onSweepDetected("even"));
+        oddLane.getSweep().addEventHandler(DetectedEvent.DETECTION, notUsed -> onSweepDetected("odd"));
+        evenLane.getSweep().addEventHandler(DetectedEvent.DETECTION, notUsed -> onSweepDetected("even"));
 
         BorderPane root = new BorderPane();
         root.setTop(buildMenuBar());
@@ -108,8 +107,8 @@ public class MainApp extends Application {
         root.setTop(buildMenuBar());
 
         remoteControl = WebFunctions.createDefaultServer();
-        remoteControl.createContext("/pinsetter/odd/", new PinSetterHandler(oddPinSetter, 1));
-        remoteControl.createContext("/pinsetter/even/", new PinSetterHandler(evenPinSetter, 2));
+        remoteControl.createContext("/pinsetter/odd/", new PinSetterHandler(oddLane.getPinSetter(), 1));
+        remoteControl.createContext("/pinsetter/even/", new PinSetterHandler(evenLane.getPinSetter(), 2));
 
         remoteControl.start();
 
@@ -132,47 +131,47 @@ public class MainApp extends Application {
 
         Menu testMenu = new Menu("_Test");
         MenuItem testOddPinCounter = new MenuItem("Test Odd Pin Detector");
-        testOddPinCounter.setOnAction(notUsed -> onCountPins("Odd", oddPinCounter));
+        testOddPinCounter.setOnAction(notUsed -> onCountPins("Odd", oddLane.getPinCounter()));
 
         MenuItem testEvenPinCounter = new MenuItem("Test Even Pin Detector");
-        testEvenPinCounter.setOnAction(notUsed -> onCountPins("Even", evenPinCounter));
+        testEvenPinCounter.setOnAction(notUsed -> onCountPins("Even", evenLane.getPinCounter()));
 
         testMenu.getItems().addAll(testOddPinCounter, testEvenPinCounter);
 
         Menu configMenu = new Menu("_Configure");
         MenuItem oddPinSetterConfig = new MenuItem("OddPinSetter");
-        oddPinSetterConfig.setOnAction(notUsed -> oddPinSetter.configureDialog());
+        oddPinSetterConfig.setOnAction(notUsed -> oddLane.getPinSetter().configureDialog());
 
         MenuItem evenPinSetterConfig = new MenuItem("EvenPinSetter");
-        evenPinSetterConfig.setOnAction(notUsed -> evenPinSetter.configureDialog());
+        evenPinSetterConfig.setOnAction(notUsed -> evenLane.getPinSetter().configureDialog());
 
         MenuItem oddFoulConf = new MenuItem("OddFoulDetect");
-        oddFoulConf.setOnAction(notUsed -> oddFoulDetector.configureDialog());
+        oddFoulConf.setOnAction(notUsed -> oddLane.getFoul().configureDialog());
 
         MenuItem evenFoulConf = new MenuItem("EvenFoulDetect");
-        evenFoulConf.setOnAction(notUsed -> evenFoulDetector.configureDialog());
+        evenFoulConf.setOnAction(notUsed -> evenLane.getFoul().configureDialog());
 
         MenuItem oddBallConf = new MenuItem("OddBallDetect");
-        oddBallConf.setOnAction(notUsed -> oddBallDetector.configureDialog());
+        oddBallConf.setOnAction(notUsed -> oddLane.getBall().configureDialog());
 
         MenuItem evenBallConf = new MenuItem("EvenBallDetect");
-        evenBallConf.setOnAction(notUsed -> evenBallDetector.configureDialog());
+        evenBallConf.setOnAction(notUsed -> evenLane.getBall().configureDialog());
 
         MenuItem oddPinCounterConfig = new MenuItem("OddPinCounter");
-        oddPinCounterConfig.setOnAction(notUsed -> oddPinCounter.configureDialog());
+        oddPinCounterConfig.setOnAction(notUsed -> oddLane.getPinCounter().configureDialog());
 
         MenuItem evenPinCounterConfig = new MenuItem("EvenPinCounter");
-        evenPinCounterConfig.setOnAction(notUsed -> evenPinCounter.configureDialog());
+        evenPinCounterConfig.setOnAction(notUsed -> evenLane.getPinCounter().configureDialog());
 
         configMenu.getItems().addAll(oddPinSetterConfig, oddFoulConf, oddBallConf, oddPinCounterConfig,
                 new SeparatorMenuItem(), evenPinSetterConfig, evenFoulConf, evenBallConf, evenPinCounterConfig);
 
         Menu maintMenu = new Menu("_Maintenance");
         MenuItem oddPinSetterMaint = new MenuItem("OddPinSetter");
-        oddPinSetterMaint.setOnAction(notUsed -> onPinSetterMaint(oddPinSetter, "OddPinSetter"));
+        oddPinSetterMaint.setOnAction(notUsed -> onPinSetterMaint(oddLane.getPinSetter(), "OddPinSetter"));
 
         MenuItem evenPinSetterMaint = new MenuItem("EvenPinSetter");
-        evenPinSetterMaint.setOnAction(notUsed -> onPinSetterMaint(evenPinSetter, "EvenPinSetter"));
+        evenPinSetterMaint.setOnAction(notUsed -> onPinSetterMaint(evenLane.getPinSetter(), "EvenPinSetter"));
 
         maintMenu.getItems().addAll(oddPinSetterMaint, evenPinSetterMaint);
 
@@ -213,14 +212,16 @@ public class MainApp extends Application {
     private void onQuit() {
 
         if (RaspberryPiDetect.isPi()) {
-            oddPinSetter.setPower(false);
-            evenPinSetter.setPower(false);
-            oddPinSetter.teardown();
-            evenPinSetter.teardown();
-            oddFoulDetector.teardown();
-            evenFoulDetector.teardown();
-            oddBallDetector.teardown();
-            evenBallDetector.teardown();
+            oddLane.getPinSetter().setPower(false);
+            evenLane.getPinSetter().setPower(false);
+            oddLane.getPinSetter().teardown();
+            evenLane.getPinSetter().teardown();
+            oddLane.getFoul().teardown();
+            evenLane.getFoul().teardown();
+            oddLane.getBall().teardown();
+            evenLane.getBall().teardown();
+            oddLane.getSweep().teardown();
+            evenLane.getSweep().teardown();
             GpioController gpioController = GpioFactory.getInstance();
             gpioController.shutdown();
         }
@@ -239,4 +240,7 @@ public class MainApp extends Application {
         }
     }
 
+    private void onTestNumberedSession(Lane l, DisplayConnector d, int numGames) {
+        NumberedSession session = new NumberedSession(l, d, numGames);
+    }
 }
