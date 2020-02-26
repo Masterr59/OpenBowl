@@ -82,6 +82,14 @@ public class Lane extends Node {
         this.pinSetter = pinSetter;
     }
 
+    public PinCounter getPinCounter() {
+        return pinCounter;
+    }
+
+    public void setPinCounter(PinCounter pinCounter) {
+        this.pinCounter = pinCounter;
+    }
+
     public Detector getSweep() {
         return sweep;
     }
