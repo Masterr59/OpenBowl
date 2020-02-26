@@ -23,19 +23,17 @@ import org.openbowl.common.BowlingGame;
  *
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
-public abstract class BowlingSession implements Runnable{
+public abstract class BowlingSession implements Runnable {
 
     protected ArrayList<BowlingGame> players;
-    protected PinSetter pinSetter;
-    protected Detector sweep, ball, foul;
+    protected Lane lane;
     protected DisplayConnector display;
 
-    public BowlingSession(PinSetter pinSetter, Detector sweep, Detector ball, Detector foul, DisplayConnector display) {
-        this.pinSetter = pinSetter;
-        this.sweep = sweep;
-        this.ball = ball;
-        this.foul = foul;
+    public BowlingSession(Lane lane, DisplayConnector display) {
+        this.lane = lane;
         this.display = display;
+        this.lane.addEventHandler(LaneEvents.SLOW_BALL, notUsed -> onSlowBall());
+        this.lane.addEventHandler(LaneEvents.BOWL_EVENT, notUsed -> onBowlEvent());
     }
 
     public ArrayList<BowlingGame> getPlayers() {
@@ -47,7 +45,13 @@ public abstract class BowlingSession implements Runnable{
     }
 
     public abstract void pauseSession();
-    
+
     public abstract void abortSession();
+
+    private void onSlowBall() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    protected abstract void onBowlEvent();
 
 }
