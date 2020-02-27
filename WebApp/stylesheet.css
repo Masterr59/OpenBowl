@@ -200,6 +200,37 @@ html {
   background: #71B46F;
 }
 
+.siteLogo
+{
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  width: 150px;
+  height: 49px;
+  transition: background 0.3s;
+  background-color: #303030;
+  border-bottom: 1px solid #232323;
+}
+.siteLogo:hover {
+  background-color: #262626;
+}
+.siteLogo2
+{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  width: 75px;
+  height: 49px;
+  transition: background 0.3s;
+  background-color: #303030;
+  border-bottom: 1px solid #232323;
+}
+.siteLogo2:hover {
+  background-color: #262626;
+}
 
 .logo
 {
@@ -652,3 +683,9 @@ tr:nth-child(even){background-color: #555}
 #logoIconShort { display: none; }
 #logoIconFull { display: inline-block; }
 
+/* Small Screen */
+@media screen and (max-height: 800px)
+{
+  .linksection a { height: 55px }
+  .btnText { padding: 20px 0px 0px 0px; }
+}
