@@ -303,6 +303,27 @@ button:hover
   color: #FFF;
 }
 
+.bigButton
+{
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 135px;
+  height: 50px;
+  color: #fff;
+  background-color: #5B8F5A;
+  border-radius: 5px;
+  font-style: normal;
+  font-weight: bold;
+  margin: 5px 5px 5px 0px;
+  cursor: default;
+}
+.bigButton:hover
+{
+  background-color: #71B46F;
+}
+
 .buttonPost
 {
   width: 100px;
@@ -501,14 +522,48 @@ button:hover
   vertical-align: middle;
   margin-top: -1px;
 }
-.officePanelTable
-{
-  width: 200px;
-  height: 300px;
-  background-color: #555;
-  border-radius: 5px;
-  margin-bottom: 10px;
+
+/* Office Panel Table */
+.officePanelTable {
+  display: block;
+  empty-cells: show;
+  color: #fff;
+  font-size: 10pt;
+  border-spacing: 0;
+  border: 1px solid #222;
 }
+
+.officePanelTable thead{
+  background-color: #666;  
+  position:relative;
+  display: block;
+  width:100%;
+}
+
+.officePanelTable tbody{
+  display: block;
+  position:relative;
+  width:100%;
+  overflow-y:scroll;
+  border-top: 1px solid rgba(0,0,0,0.2);
+  max-height: 200px;
+}
+
+.officePanelTable tr{
+  width: 100%;
+  display:flex;
+}
+
+.officePanelTable td,.officePanelTable th{
+  flex-basis:100%;
+  flex-grow:2;
+  display: block;
+  padding: 3px;
+  text-align:left;
+}
+
+tr:nth-child(even){background-color: #555}
+/*  */
 
 .contacts
 {
