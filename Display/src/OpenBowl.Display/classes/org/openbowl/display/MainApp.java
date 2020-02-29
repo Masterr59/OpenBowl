@@ -70,7 +70,7 @@ public class MainApp extends Application {
         server.start();
     }
 
-    private MenuBar buildMenuBar() {
+    private MenuBar buildMenuBar(BowlingGameDisplay game) {
         // build a menu bar
         MenuBar menuBar = new MenuBar();
         // File menu with just a quit item for now
@@ -79,7 +79,11 @@ public class MainApp extends Application {
         quitMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.Q,
                 KeyCombination.CONTROL_DOWN));
         quitMenuItem.setOnAction(notUsed -> onQuit());
-        fileMenu.getItems().add(quitMenuItem);
+        
+        MenuItem resetMenuItem = new MenuItem("_Reset Game");
+        resetMenuItem.setOnAction(notUsed -> onResetGame(game));
+        
+        fileMenu.getItems().addAll(resetMenuItem, quitMenuItem);
 
         Menu helpMenu = new Menu("_Help");
         MenuItem aboutMenuItem = new MenuItem("_About");
@@ -114,7 +118,7 @@ public class MainApp extends Application {
         }
         Label label = new Label("Screen " + id);
         BorderPane root = new BorderPane();
-        root.setTop(buildMenuBar());
+        root.setTop(buildMenuBar(game));
         root.setCenter(game);
         root.setBottom(label);
         //stage.setTitle(ApplicationName);
@@ -122,6 +126,10 @@ public class MainApp extends Application {
         stage.setScene(scene);
 
         stage.show();
+    }
+
+    private void onResetGame(BowlingGameDisplay game) {
+        game.reset();
     }
 
 }
