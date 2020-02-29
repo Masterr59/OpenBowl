@@ -94,10 +94,10 @@ public class BowlingFrame implements Comparable<BowlingFrame> {
         return balls[b.ordinal()];
     }
 
-    public ScoreType getScoreType(BallNumber b){
+    public ScoreType getScoreType(BallNumber b) {
         return ballType[b.ordinal()];
     }
-    
+
     public int getFrameScore() {
         return frameScore;
     }
@@ -120,4 +120,17 @@ public class BowlingFrame implements Comparable<BowlingFrame> {
         }
         return 0;
     }
+
+    @Override
+    public String toString() {
+        String ret = "Frame: ";
+        for (int i = 0; i < 3; i++) {
+            ret += "B" + i + " -> ";
+            ret += ballType[i];
+            ret += ": " + balls[i].size();
+            ret += " " ;
+        }
+        return ret;
+    }
+
 }
