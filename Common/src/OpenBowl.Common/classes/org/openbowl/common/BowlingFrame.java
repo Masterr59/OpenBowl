@@ -25,7 +25,7 @@ import java.util.ArrayList;
 public class BowlingFrame implements Comparable<BowlingFrame> {
 
     public enum ScoreType {
-        UNKNOWN,
+        NONE,
         MECHANICAL,
         USER,
         ADMIN
@@ -54,10 +54,10 @@ public class BowlingFrame implements Comparable<BowlingFrame> {
         for (BallNumber b : BallNumber.values()) {
             isBallFoul[b.ordinal()] = false;
             balls[b.ordinal()] = new ArrayList<>();
-            ballType[b.ordinal()] = ScoreType.UNKNOWN;
+            ballType[b.ordinal()] = ScoreType.NONE;
             speed[b.ordinal()] = 0;
         }
-        this.frameScore = 0;
+        this.frameScore = -1;
         this.currentBall = BallNumber.NONE;
     }
 
