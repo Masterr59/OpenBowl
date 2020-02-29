@@ -31,6 +31,7 @@ public class FakePinSetter implements PinSetter {
     private String name;
     FakePinSetterDialogController dialog;
     FakeBowlerDialogController bowler;
+    Detector sweep;
     int ball;
 
     public FakePinSetter(String name) {
@@ -97,17 +98,22 @@ public class FakePinSetter implements PinSetter {
         return power;
     }
 
+    public void setSweep(Detector sweep) {
+        this.sweep = sweep;
+    }
+
     @Override
     public void cycle() {
         if (power) {
             ball++;
-            ball = ball % 3;
+            ball = ball % 2;
             dialog.setBall(ball);
             if (ball == 0) {
-                dialog.resetPins();
+                //dialog.resetPins();
             }
             //bowler.onCycle();
             log("cycle");
+            sweep.fireDetectedEvent();
         } else {
             log("cycled when powered off");
         }

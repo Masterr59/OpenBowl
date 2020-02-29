@@ -21,6 +21,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -46,6 +47,10 @@ public class FakePinSetterDialogController extends Dialog<Void> implements Initi
     private Label BallTwo;
     @FXML
     private Button Strike;
+    @FXML
+    private Button Random;
+    @FXML
+    private Button All;
     @FXML
     private CheckBox Pin1;
     @FXML
@@ -77,6 +82,7 @@ public class FakePinSetterDialogController extends Dialog<Void> implements Initi
 
     private String name;
     private FakePinSetter pinsetter;
+    private Random rd;
 
     FakePinSetterDialogController(String n, FakePinSetter p) throws IOException {
         this.name = n;
@@ -89,6 +95,9 @@ public class FakePinSetterDialogController extends Dialog<Void> implements Initi
         setBall(0);
         resetPins();
         Strike.setOnAction(notUsed -> onStrike());
+        All.setOnAction(notUsed -> resetPins());
+        Random.setOnAction(notUsed -> onRandom());
+        rd = new Random();
     }
 
     @Override
@@ -126,7 +135,7 @@ public class FakePinSetterDialogController extends Dialog<Void> implements Initi
         log("Ball: " + Integer.toString(ball));
         switch (ball) {
             case 0:
-                resetPins();
+                //resetPins();
                 BallOne.setText(" ");
                 BallTwo.setText(" ");
                 break;
@@ -226,6 +235,20 @@ public class FakePinSetterDialogController extends Dialog<Void> implements Initi
     @Override
     public void log(String s) {
         PinCounter.super.log(name + " " + s);
+    }
+
+    private void onRandom() {
+
+        Pin1.setSelected(rd.nextBoolean());
+        Pin2.setSelected(rd.nextBoolean());
+        Pin3.setSelected(rd.nextBoolean());
+        Pin4.setSelected(rd.nextBoolean());
+        Pin5.setSelected(rd.nextBoolean());
+        Pin6.setSelected(rd.nextBoolean());
+        Pin7.setSelected(rd.nextBoolean());
+        Pin8.setSelected(rd.nextBoolean());
+        Pin9.setSelected(rd.nextBoolean());
+        Pin10.setSelected(rd.nextBoolean());
     }
 
 }

@@ -20,8 +20,8 @@ import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -36,6 +36,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.openbowl.common.AboutOpenBowl;
+import org.openbowl.common.BowlingGame;
 import org.openbowl.common.WebFunctions;
 import org.openbowl.scorer.remote.PinSetterHandler;
 
@@ -45,17 +46,23 @@ import org.openbowl.scorer.remote.PinSetterHandler;
  */
 public class MainApp extends Application {
 
+    private final static BlockingQueue<BowlingSession> sessionQueue = new LinkedBlockingQueue<>();
     private final String ApplicationName = "Open Bowl - Scorer";
     private HttpServer remoteControl;
     private FakeBowlerDialogController oddBowler, evenBowler;
     private Lane oddLane, evenLane;
-    private Queue<BowlingSession> sessionQueue;
+    private DisplayConnector oddDisplay, evenDisplay;
+    //private BlockingQueue<BowlingSession> sessionQueue;
+    private BowlingSession currentSession;
+    private Thread sessionManager;
 
     @Override
     public void start(Stage stage) throws Exception {
-        sessionQueue = new LinkedList<>();
+        // sessionQueue = new LinkedBlockingQueue<>();
         oddLane = new Lane("odd");
         evenLane = new Lane("even");
+        oddDisplay = new DisplayConnector("127.0.0.1", "odd", "token");
+        evenDisplay = new DisplayConnector("127.0.0.1", "even", "token");
         if (RaspberryPiDetect.isPi()) {
             oddLane.setBall(new BasicDetector("Odd_Ball_Detector"));
             oddLane.setFoul(new BasicDetector("Odd_Foul_Detector"));
@@ -106,11 +113,18 @@ public class MainApp extends Application {
         stage.setTitle(ApplicationName);
         root.setTop(buildMenuBar());
 
-        remoteControl = WebFunctions.createDefaultServer();
+        try {
+            remoteControl = WebFunctions.createDefaultServer();
+        } catch (IOException e) {
+            remoteControl = WebFunctions.createCustomServer(1);
+        }
         remoteControl.createContext("/pinsetter/odd/", new PinSetterHandler(oddLane.getPinSetter(), 1));
         remoteControl.createContext("/pinsetter/even/", new PinSetterHandler(evenLane.getPinSetter(), 2));
 
         remoteControl.start();
+
+        sessionManager = new Thread(new SessionManager(sessionQueue));
+        sessionManager.start();
 
         Scene scene = new Scene(root, 500, 440);
         stage.setScene(scene);
@@ -136,7 +150,14 @@ public class MainApp extends Application {
         MenuItem testEvenPinCounter = new MenuItem("Test Even Pin Detector");
         testEvenPinCounter.setOnAction(notUsed -> onCountPins("Even", evenLane.getPinCounter()));
 
-        testMenu.getItems().addAll(testOddPinCounter, testEvenPinCounter);
+        MenuItem testOddGame = new MenuItem("Test adding game Odd (4)");
+        testOddGame.setOnAction(notUsed -> onTestNumberSession(oddLane, oddDisplay, 4));
+
+        MenuItem testEvenGame = new MenuItem("Test adding game even (8)");
+        testEvenGame.setOnAction(notUsed -> onTestNumberSession(evenLane, evenDisplay, 8));
+
+        testMenu.getItems().addAll(testOddPinCounter, testEvenPinCounter,
+                testOddGame, testEvenGame);
 
         Menu configMenu = new Menu("_Configure");
         MenuItem oddPinSetterConfig = new MenuItem("OddPinSetter");
@@ -210,21 +231,13 @@ public class MainApp extends Application {
     }
 
     private void onQuit() {
-
+        oddLane.shutdown();
+        evenLane.shutdown();
         if (RaspberryPiDetect.isPi()) {
-            oddLane.getPinSetter().setPower(false);
-            evenLane.getPinSetter().setPower(false);
-            oddLane.getPinSetter().teardown();
-            evenLane.getPinSetter().teardown();
-            oddLane.getFoul().teardown();
-            evenLane.getFoul().teardown();
-            oddLane.getBall().teardown();
-            evenLane.getBall().teardown();
-            oddLane.getSweep().teardown();
-            evenLane.getSweep().teardown();
             GpioController gpioController = GpioFactory.getInstance();
             gpioController.shutdown();
         }
+        sessionManager.interrupt();
         remoteControl.stop(0);
         Platform.exit();
     }
@@ -240,7 +253,70 @@ public class MainApp extends Application {
         }
     }
 
-    private void onTestNumberedSession(Lane l, DisplayConnector d, int numGames) {
+    private void onTestNumberSession(Lane l, DisplayConnector d, int numGames) {
+        NumberedSession session = onAddNumberedSession(l, d, numGames);
+        BowlingGame b = new BowlingGame("Patrick", -1);
+        b.setHandycap(5);
+        session.addPlayer(b);
+        b = new BowlingGame("Marcus", -1);
+        session.addPlayer(b);
+//        b = new BowlingGame("Eric", -1);
+//        b.setHandycap(25);
+//        session.addPlayer(b);
+//        b = new BowlingGame("Brian", -1);
+//        b.setHandycap(19);
+//        session.addPlayer(b);
+    }
+
+    private NumberedSession onAddNumberedSession(Lane l, DisplayConnector d, int numGames) {
         NumberedSession session = new NumberedSession(l, d, numGames);
+        sessionQueue.add(session);
+        synchronized (sessionQueue) {
+            sessionQueue.notifyAll();
+        }
+        return session;
+    }
+
+    private class SessionManager implements Runnable {
+
+        private Thread sessionThread;
+        private BlockingQueue<BowlingSession> queue;
+
+        public SessionManager(BlockingQueue<BowlingSession> q) {
+            queue = q;
+        }
+
+        @Override
+        public void run() {
+            boolean run = true;
+            while (!Thread.currentThread().isInterrupted() && run) {
+                System.out.println("SessionManager is running");
+                try {
+                    if (!sessionQueue.isEmpty()) {
+                        System.out.println("Start new Session");
+                        currentSession = queue.poll();
+                        sessionThread = new Thread(currentSession);
+                        sessionThread.start();
+
+                        sessionThread.join();
+
+                    } else {
+                        synchronized (queue) {
+                            queue.wait();
+                        }
+
+                    }
+                } catch (InterruptedException ex) {
+                    if (sessionThread != null && sessionThread.isAlive()) {
+                        sessionThread.interrupt();
+                    }
+                    run = false;
+                    System.out.println("SessionManager Interupted");
+
+                }
+            }
+
+        }
+
     }
 }

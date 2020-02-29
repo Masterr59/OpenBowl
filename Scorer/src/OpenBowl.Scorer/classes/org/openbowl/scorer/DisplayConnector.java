@@ -51,88 +51,75 @@ public class DisplayConnector {
         map.put("player", player);
         String response = "{}";
         try {
-            response = WebFunctions.doHttpPostRequest(address, endpoint + parms, gson.toJson(map), authToken);
+            response = WebFunctions.doHttpPostRequest(address, "gamedisplay/" + endpoint + "/" + parms, gson.toJson(map), authToken);
         } catch (IOException | InterruptedException ex) {
             Logger.getLogger(DisplayConnector.class.getName()).log(Level.SEVERE, null, ex);
         }
-        Map<String, Object> ret = new HashMap<>();
-        try {
-            ret = gson.fromJson(response, Map.class);
-        } catch (JsonSyntaxException ex) {
-            Logger.getLogger(DisplayConnector.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return ret;
+        return processResponse(response);
     }
 
     public Map<String, Object> setScore(BowlingGame g, int player) {
         String parms = "?set=playerScore&player=" + Integer.toString(player);
         String response = "{}";
         try {
-            response = WebFunctions.doHttpPostRequest(address, endpoint + parms, gson.toJson(g), authToken);
+            //System.out.println("send to display player: " + player + " data: " + gson.toJson(g));
+            //System.out.println(address + "gamedisplay/" + endpoint + parms);
+            response = WebFunctions.doHttpPostRequest(address, "gamedisplay/" + endpoint + "/" + parms, gson.toJson(g), authToken);
         } catch (IOException | InterruptedException ex) {
             Logger.getLogger(DisplayConnector.class.getName()).log(Level.SEVERE, null, ex);
         }
-        Map<String, Object> ret = new HashMap<>();
-        try {
-            ret = gson.fromJson(response, Map.class);
-        } catch (JsonSyntaxException ex) {
-            Logger.getLogger(DisplayConnector.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return ret;
+        //System.out.println("no error");
+        //System.out.println(response);
+        return processResponse(response);
     }
 
     public Map<String, Object> newPlayer(BowlingGame g) {
         String parms = "?set=newPlayer";
         String response = "{}";
         try {
-            response = WebFunctions.doHttpPostRequest(address, endpoint + parms, gson.toJson(g), authToken);
+            response = WebFunctions.doHttpPostRequest(address, "gamedisplay/" + endpoint + "/" + parms, gson.toJson(g), authToken);
         } catch (IOException | InterruptedException ex) {
             Logger.getLogger(DisplayConnector.class.getName()).log(Level.SEVERE, null, ex);
         }
-        Map<String, Object> ret = new HashMap<>();
-        try {
-            ret = gson.fromJson(response, Map.class);
-        } catch (JsonSyntaxException ex) {
-            Logger.getLogger(DisplayConnector.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return ret;
+        return processResponse(response);
     }
-    
-    public Map<String, Object> showSplash(BowlingSplash type){
+
+    public Map<String, Object> showSplash(BowlingSplash type) {
         String parms = "?set=splash";
         Map<String, String> map = new HashMap<>();
         map.put("type", type.toString());
         String response = "{}";
         try {
-            response = WebFunctions.doHttpPostRequest(address, endpoint + parms, gson.toJson(map), authToken);
+            response = WebFunctions.doHttpPostRequest(address, "splash/" + endpoint + "/" + parms, gson.toJson(map), authToken);
         } catch (IOException | InterruptedException ex) {
             Logger.getLogger(DisplayConnector.class.getName()).log(Level.SEVERE, null, ex);
         }
-        Map<String, Object> ret = new HashMap<>();
-        try {
-            ret = gson.fromJson(response, Map.class);
-        } catch (JsonSyntaxException ex) {
-            Logger.getLogger(DisplayConnector.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return ret;
+        return processResponse(response);
     }
 
-    public Map<String, Object> showMessageCard(String type, int duration){
+    public Map<String, Object> showMessageCard(String type, int duration) {
         String parms = "?set=card";
         Map<String, Object> map = new HashMap<>();
         map.put("type", type);
         map.put("duration", duration);
         String response = "{}";
         try {
-            response = WebFunctions.doHttpPostRequest(address, endpoint + parms, gson.toJson(map), authToken);
+            response = WebFunctions.doHttpPostRequest(address, "message/" + endpoint + "/" + parms, gson.toJson(map), authToken);
         } catch (IOException | InterruptedException ex) {
             Logger.getLogger(DisplayConnector.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return processResponse(response);
+    }
+
+    private Map<String, Object> processResponse(String response) {
         Map<String, Object> ret = new HashMap<>();
-        try {
-            ret = gson.fromJson(response, Map.class);
-        } catch (JsonSyntaxException ex) {
-            Logger.getLogger(DisplayConnector.class.getName()).log(Level.SEVERE, null, ex);
+        if (response.contains("{") && response.contains("}")) {
+            try {
+                ret = gson.fromJson(response, Map.class);
+            } catch (JsonSyntaxException ex) {
+                System.out.println(response);
+                System.out.println(ex.toString());
+            }
         }
         return ret;
     }
