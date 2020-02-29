@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.prefs.Preferences;
+import javafx.application.Platform;
 import javafx.scene.Node;
 import org.openbowl.common.BowlingPins;
 
@@ -53,6 +54,7 @@ public class Lane extends Node {
     private ArrayList<BowlingPins> lastBallPins;
     private final Preferences prefs;
     private Timer timer;
+    boolean scoreOnSweep;
 
     public Lane(String name) {
         this.name = name;
@@ -66,12 +68,9 @@ public class Lane extends Node {
         slowBallThreshold = prefs.getLong(SLOW_BALL_THRESHOLD_SETTING, SLOW_BALL_THRESHOLD_DEFAULT);
         foulBallThreshold = prefs.getLong(FOUL_BALL_THRESHOLD_SETTING, FOUL_BALL_THRESHOLD_DEFAULT);
         pinCounterDelay = prefs.getLong(PIN_COUNTER_DELAY_SETTING, PIN_COUNTER_DELAY_DEFAULT);
-
+        scoreOnSweep = true;
         timer = new Timer();
 
-        ball.addEventHandler(DetectedEvent.DETECTION, not_used -> onBallDetected());
-        sweep.addEventHandler(DetectedEvent.DETECTION, not_used -> onSweepDetected());
-        foul.addEventHandler(DetectedEvent.DETECTION, not_used -> onFoulDetected());
     }
 
     public PinSetter getPinSetter() {
@@ -96,6 +95,7 @@ public class Lane extends Node {
 
     public void setSweep(Detector sweep) {
         this.sweep = sweep;
+        sweep.addEventHandler(DetectedEvent.DETECTION, not_used -> onSweepDetected());
     }
 
     public Detector getBall() {
@@ -104,6 +104,7 @@ public class Lane extends Node {
 
     public void setBall(Detector ball) {
         this.ball = ball;
+        ball.addEventHandler(DetectedEvent.DETECTION, not_used -> onBallDetected());
     }
 
     public Detector getFoul() {
@@ -112,6 +113,7 @@ public class Lane extends Node {
 
     public void setFoul(Detector foul) {
         this.foul = foul;
+        foul.addEventHandler(DetectedEvent.DETECTION, not_used -> onFoulDetected());
     }
 
     private void onBallDetected() {
@@ -120,12 +122,18 @@ public class Lane extends Node {
     }
 
     private void onSweepDetected() {
-        lastSweepDetected = System.currentTimeMillis();
-        long timeTaken = lastSweepDetected - lastBallDetected;
-        //feet / millis
-        lastBallSpeed = foulSweepDistance / (double) timeTaken * SPEED_CONVERSION_RATE;
-        lastBallFoul = ((lastSweepDetected - lastFoulDetected) < foulBallThreshold);
-        timer.schedule(new pinCounterDelayTask(), pinCounterDelay);
+        if (scoreOnSweep) {
+            timer.cancel();
+            timer = new Timer();
+            lastSweepDetected = System.currentTimeMillis();
+            lastBallSpeed = foulSweepDistance / (double) lastSweepDetected * SPEED_CONVERSION_RATE;
+            lastBallFoul = ((lastSweepDetected - lastFoulDetected) < foulBallThreshold);
+            timer.schedule(new pinCounterDelayTask(), pinCounterDelay);
+        }
+        else{
+            System.out.println("Not scoring this cycle");            
+            scoreOnSweep = true;
+        }
     }
 
     private void onFoulDetected() {
@@ -151,7 +159,8 @@ public class Lane extends Node {
             lastBallPins = pinCounter.countPins();
             fireEvent(new LaneEvents(LaneEvents.BOWL_EVENT));
             timer.cancel();
-            timer.purge();
+            timer = new Timer();
+            //timer.purge();
         }
 
     }
@@ -160,12 +169,38 @@ public class Lane extends Node {
 
         @Override
         public void run() {
+            System.out.println("Slow ball detected");
             fireEvent(new LaneEvents(LaneEvents.SLOW_BALL));
             timer.cancel();
-            pinSetter.cycle();
-            timer.schedule(new pinCounterDelayTask(), pinCounterDelay);
+            timer = new Timer();
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    pinSetter.cycle();
+                }
+            });
+            //timer.schedule(new pinCounterDelayTask(), pinCounterDelay);
         }
 
     }
+    
+    public void cycleNoScore(){
+        scoreOnSweep = false;
+        Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    pinSetter.cycle();
+                }
+            });
+    }
 
+    public void shutdown() {
+        timer.cancel();
+        timer = null;
+        pinSetter.setPower(false);
+        pinSetter.teardown();
+        ball.teardown();
+        foul.teardown();
+        sweep.teardown();
+    }
 }

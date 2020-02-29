@@ -17,8 +17,7 @@
 package org.openbowl.scorer;
 
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javafx.application.Platform;
 import org.openbowl.common.BowlingFrame;
 import org.openbowl.common.BowlingFrame.BallNumber;
 import org.openbowl.common.BowlingGame;
@@ -35,20 +34,22 @@ public class NumberedSession extends BowlingSession {
     private int GamesRemaining;
     private BallNumber currentBall;
     private int currentPlayer;
-    private Object frameInterupt;
+    private DisplayConnector display;
+    private final static Object frameInterupt = new Object();
 
     public NumberedSession(Lane lane, DisplayConnector display, int numGames) {
         super(lane, display);
         GamesRemaining = numGames;
         currentBall = BallNumber.NONE;
+        this.display = display;
         currentPlayer = 0;
-        frameInterupt = new Object();
         run = true;
     }
 
     public int addPlayer(BowlingGame g) {
         if (GamesRemaining > 0) {
             this.players.add(g);
+            display.newPlayer(g);
             GamesRemaining--;
         }
         return GamesRemaining;
@@ -63,7 +64,9 @@ public class NumberedSession extends BowlingSession {
     @Override
     public void abortSession() {
         run = false;
-        frameInterupt.notifyAll();
+        synchronized (frameInterupt) {
+            frameInterupt.notifyAll();
+        }
     }
 
     @Override
@@ -71,6 +74,8 @@ public class NumberedSession extends BowlingSession {
         boolean foul = lane.isLastBallFoul();
         double speed = lane.getLastBallSpeed();
         ArrayList<BowlingPins> pins = lane.getLastBallPins();
+        System.out.println(players.get(currentPlayer).getPlayerName() + " Ball: " + currentBall);
+        System.out.println(pins);
         players.get(currentPlayer).addBall(pins, foul, speed);
         display.setScore(players.get(currentPlayer), currentPlayer);
 
@@ -82,8 +87,10 @@ public class NumberedSession extends BowlingSession {
                 currentBall = BallNumber.ONE;
                 if (pins.isEmpty()) {
                     //Strike
-                    players.get(currentPlayer).addBall(pins, foul, speed);
-                    lane.getPinSetter().cycle();
+                    players.get(currentPlayer).addEmptyBall();
+                    lane.cycleNoScore();
+                    currentBall = BallNumber.NONE;
+                    currentPlayer = (currentPlayer + 1) % players.size();
                 }
                 break;
             case ONE:
@@ -93,9 +100,9 @@ public class NumberedSession extends BowlingSession {
                     display.showSplash(BowlingSplash.Spare);
                 }
                 break;
-            case BONUS:
+            case TWO:
                 currentBall = BallNumber.NONE;
-                lane.getPinSetter().cycle();
+                lane.cycleNoScore();
                 break;
         }
         //tenth frame and strike / spare
@@ -104,7 +111,7 @@ public class NumberedSession extends BowlingSession {
                 case ONE:
                     //Strike on first ball
                     if (pins.isEmpty()) {
-                        lane.getPinSetter().cycle();
+                        lane.cycleNoScore();
                     }
                     break;
                 case TWO:
@@ -116,47 +123,57 @@ public class NumberedSession extends BowlingSession {
                     break;
                 case BONUS:
                     currentPlayer = (currentPlayer + 1) % players.size();
-                    lane.getPinSetter().cycle();
+                    lane.cycleNoScore();
                     break;
             }
         } else {
-            currentPlayer = (currentPlayer + 1) % players.size();
+            if (currentBall == BallNumber.TWO) {
+                currentBall = BallNumber.NONE;
+                currentPlayer = (currentPlayer + 1) % players.size();
+            }
         }
 
-        frameInterupt.notifyAll();
+        synchronized (frameInterupt) {
+            frameInterupt.notifyAll();
+        }
     }
 
     @Override
     public void run() {
-        while (run) {
-            boolean framesLeft = false;
-            for (BowlingGame b : players) {
-                ArrayList<BowlingFrame> frames = b.getFrames();
-                if (frames.size() == 11) {
-                    framesLeft = false;
-                } else {
-                    framesLeft = true;
-                    break;
-                }
-            }
-            if (!framesLeft && GamesRemaining < 1) {
-                run = false;
-                lane.getPinSetter().setPower(false);
-            } else if (!framesLeft && GamesRemaining > 0) {
-                //create new game
-                for (int i = 0; i < players.size(); i++) {
-                    //reset Game
-                    players.get(i).setFrames(new ArrayList<>());
-                    GamesRemaining --;
-                }
-            }
-
+        isRunning.setValue(true);
+        lane.getPinSetter().setPower(true);
+        while (run && !Thread.currentThread().isInterrupted()) {
             try {
-                frameInterupt.wait();
+                boolean framesLeft = false;
+                for (BowlingGame b : players) {
+                    ArrayList<BowlingFrame> frames = b.getFrames();
+                    if (frames.size() == 11) {
+                        framesLeft = false;
+                    } else {
+                        framesLeft = true;
+                        break;
+                    }
+                }
+                if (!framesLeft && GamesRemaining < 1) {
+                    run = false;
+                    lane.getPinSetter().setPower(false);
+                } else if (!framesLeft && GamesRemaining > 0) {
+                    //create new game
+                    for (int i = 0; i < players.size(); i++) {
+                        //reset Game
+                        players.get(i).setFrames(new ArrayList<>());
+                        GamesRemaining--;
+                    }
+                }
+                synchronized (frameInterupt) {
+                    frameInterupt.wait();
+                }
             } catch (InterruptedException ex) {
-                Logger.getLogger(NumberedSession.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println("NumberedManager Interupted");
+
             }
         }
+        isRunning.setValue(false);
 
     }
 

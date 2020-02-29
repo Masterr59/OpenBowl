@@ -17,6 +17,8 @@
 package org.openbowl.scorer;
 
 import java.util.ArrayList;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import org.openbowl.common.BowlingGame;
 import org.openbowl.common.BowlingSplash;
 
@@ -29,18 +31,25 @@ public abstract class BowlingSession implements Runnable {
     protected ArrayList<BowlingGame> players;
     protected Lane lane;
     protected DisplayConnector display;
+    protected BooleanProperty isRunning;
 
     public BowlingSession(Lane lane, DisplayConnector display) {
         this.lane = lane;
         this.display = display;
         this.lane.addEventHandler(LaneEvents.SLOW_BALL, notUsed -> onSlowBall());
         this.lane.addEventHandler(LaneEvents.BOWL_EVENT, notUsed -> onBowlEvent());
+        this.isRunning = new SimpleBooleanProperty(false);
+        players = new ArrayList<>();
     }
 
     public ArrayList<BowlingGame> getPlayers() {
         return players;
     }
 
+    public BooleanProperty getIsRunning() {
+        return isRunning;
+    }
+    
     public void setPlayers(ArrayList<BowlingGame> players) {
         this.players = players;
     }

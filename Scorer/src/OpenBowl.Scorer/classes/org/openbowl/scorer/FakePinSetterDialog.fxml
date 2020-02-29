@@ -9,7 +9,6 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.shape.Line?>
 
-
 <BorderPane fx:id="topLine" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="225.0" prefWidth="250.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <top>
       <Line fx:id="lineTop" endX="250.0" strokeWidth="10.0" BorderPane.alignment="CENTER" />
@@ -58,6 +57,8 @@
             <Button fx:id="Strike" mnemonicParsing="false" text="X" GridPane.columnIndex="7" GridPane.rowIndex="5" />
             <Label fx:id="BallOne" text="O" GridPane.columnIndex="1" />
             <Label fx:id="BallTwo" text="O" GridPane.columnIndex="2" />
+            <Button fx:id="Random" mnemonicParsing="false" text="?" GridPane.columnIndex="5" GridPane.rowIndex="5" />
+            <Button fx:id="All" mnemonicParsing="false" text="-" GridPane.columnIndex="3" GridPane.rowIndex="5" />
          </children>
       </GridPane>
    </center>

@@ -81,6 +81,7 @@ public class FakeBowlerDialogController extends Dialog<Void> implements Initiali
         pinsetter.setBowler(this);
         dialog = pinsetter.getDialog();
         sweep = new FakeDetector(n + "SweepDetector");
+        pinsetter.setSweep(sweep);
         ball = new FakeDetector(n + "BallDetector");
         foul = new FakeDetector(n + "FoulDetector");
         ballProgress.setProgress(0);
@@ -107,6 +108,7 @@ public class FakeBowlerDialogController extends Dialog<Void> implements Initiali
     public void onCycle() {
         long now = System.currentTimeMillis();
         if (cycleEndTime < now) {
+            sweep.fireDetectedEvent();
             startCycleTimer();
         }
     }
@@ -150,7 +152,6 @@ public class FakeBowlerDialogController extends Dialog<Void> implements Initiali
 
                 stopBallTimer();
                 if (sweepTrigger.isSelected()) {
-                    sweep.fireDetectedEvent();
                     startCycleTimer();
                 }
             }
