@@ -45,6 +45,13 @@ public class BowlingGame {
         this.frames.add(currentFrame);
     }
 
+    public void reset(){
+        this.gameScore = 0;
+        this.frames = new ArrayList<>();
+        this.currentFrame = new BowlingFrame();
+        this.frames.add(currentFrame);
+    }
+    
     public void addBall(ArrayList<BowlingPins> pins, boolean foul, double speed) {
         switch (currentFrame.getCurrentBall()) {
             case NONE:
