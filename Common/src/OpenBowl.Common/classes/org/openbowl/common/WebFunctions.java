@@ -60,13 +60,20 @@ public class WebFunctions {
         server.setExecutor(null);
         return server;
     }
+    
+    public static HttpServer createCustomServer(int offset) throws IOException{
+        HttpServer server = HttpServer.create(new InetSocketAddress(DefaultPort + offset), 0);
+        //default executor
+        server.setExecutor(null);
+        return server;
+    }
 
     public static String doHttpGetRequest(String address, String parms, String authToken) throws MalformedURLException, IOException, InterruptedException {
         HttpClient httpClient = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_2)
             .build();
         
-        String uri = "http://" + address + ":" + Integer.toString(DefaultPort) + parms;
+        String uri = "http://" + address + ":" + Integer.toString(DefaultPort) + "/" + parms;
         HttpRequest request = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create(uri))
@@ -84,7 +91,7 @@ public class WebFunctions {
             .version(HttpClient.Version.HTTP_2)
             .build();
         
-        String uri = "http://" + address + ":" + Integer.toString(DefaultPort) + parms;
+        String uri = "http://" + address + ":" + Integer.toString(DefaultPort) + "/" + parms;
         HttpRequest request = HttpRequest.newBuilder()
                 .POST(HttpRequest.BodyPublishers.ofString(postData))
                 .uri(URI.create(uri))
