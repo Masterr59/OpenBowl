@@ -17,13 +17,9 @@
 package org.openbowl.scorer;
 
 import java.util.ArrayList;
-import javafx.application.Platform;
 import org.openbowl.common.BowlingFrame;
 import org.openbowl.common.BowlingFrame.BallNumber;
-import org.openbowl.common.BowlingFrame.ScoreType;
 import org.openbowl.common.BowlingGame;
-import org.openbowl.common.BowlingPins;
-import org.openbowl.common.BowlingSplash;
 
 /**
  *
@@ -33,9 +29,7 @@ public class NumberedSession extends BowlingSession {
 
     private boolean run;
     private int GamesRemaining;
-    private BallNumber currentBall;
-    private int currentPlayer;
-    private DisplayConnector display;
+    private final DisplayConnector display;
     private final static Object frameInterupt = new Object();
 
     public NumberedSession(Lane lane, DisplayConnector display, int numGames) {
@@ -72,99 +66,7 @@ public class NumberedSession extends BowlingSession {
 
     @Override
     protected void onBowlEvent() {
-        boolean foul = lane.isLastBallFoul();
-        double speed = lane.getLastBallSpeed();
-        ArrayList<BowlingPins> pins = lane.getLastBallPins();
-        //System.out.println(players.get(currentPlayer).getPlayerName() + " Ball: " + currentBall);
-        //System.out.println(pins);
-        players.get(currentPlayer).addBall(pins, foul, speed);
-        display.setScore(players.get(currentPlayer), currentPlayer);
-
-        if (foul) {
-            display.showSplash(BowlingSplash.Foul);
-        }
-        if (players.get(currentPlayer).getFrames().size() < 10) {
-            switch (currentBall) {
-                case NONE:
-                    currentBall = BallNumber.ONE;
-                    //strike
-                    if (players.get(currentPlayer).isStrikeSpare(pins)) {
-                        display.showSplash(BowlingSplash.Strike);
-                        players.get(currentPlayer).addEmptyBall();
-                        lane.cycleNoScore();
-                        currentBall = BallNumber.NONE;
-                        currentPlayer = (currentPlayer + 1) % players.size();
-                    }
-                    break;
-                case ONE:
-                    currentBall = BallNumber.TWO;
-                    //spare
-                    if (players.get(currentPlayer).isStrikeSpare(pins)) {
-                        display.showSplash(BowlingSplash.Spare);
-                    }
-                    break;
-                case TWO:
-                    currentBall = BallNumber.NONE;
-                    lane.cycleNoScore();
-                    break;
-            }
-        }
-        //tenth frame
-        if (players.get(currentPlayer).getFrames().size() >= 10) {
-            BowlingFrame frameTen = players.get(currentPlayer).getFrames().get(9);
-            boolean isBallOne = frameTen.getScoreType(BallNumber.ONE) != ScoreType.NONE;
-            boolean isBallTwo = frameTen.getScoreType(BallNumber.TWO) != ScoreType.NONE;
-            boolean isBallBonus = frameTen.getScoreType(BallNumber.BONUS) != ScoreType.NONE;
-            boolean isBallOneStrike = players.get(currentPlayer).isStrikeSpare(frameTen.getBallPins(BallNumber.ONE));
-            boolean isBallTwoStrike = players.get(currentPlayer).isStrikeSpare(frameTen.getBallPins(BallNumber.TWO));
-            switch (currentBall) {
-                case NONE:
-                    //Strike on first ball
-                    currentBall = BallNumber.ONE;
-                    if (players.get(currentPlayer).isStrikeSpare(pins)) {
-                        players.get(currentPlayer).addEmptyBall();
-                        lane.cycleNoScore();
-                    }
-                    break;
-                case ONE:
-                    //Strike / spare on second ball
-                    currentBall = BallNumber.TWO;
-                    if (players.get(currentPlayer).isStrikeSpare(pins)) {
-                        lane.cycleNoScore();
-                    }
-                    break;
-                case TWO:
-                    currentBall = BallNumber.NONE;
-                    lane.cycleNoScore();
-                    break;
-            }
-            boolean allowThird = false;
-
-            if (isBallOne && isBallOneStrike) {
-                allowThird = true;
-            }
-            if (isBallTwo && isBallTwoStrike) {
-                allowThird = true;
-            }
-
-            int ballCount = isBallOne ? 1 : 0;
-            ballCount += isBallTwo ? 1 : 0;
-            ballCount += isBallBonus ? 1 : 0;
-            //System.out.println("Ball Count: " + ballCount);
-            //System.out.println("Allow 3rd " + allowThird);
-            //System.out.println(frameTen);
-            if (ballCount == 3 || (ballCount == 2 && !allowThird)) {
-                currentPlayer = (currentPlayer + 1) % players.size();
-                currentBall = BallNumber.NONE;
-            }
-
-        } else {
-            if (currentBall == BallNumber.TWO) {
-                currentBall = BallNumber.NONE;
-                currentPlayer = (currentPlayer + 1) % players.size();
-            }
-        }
-
+        super.onBowlEvent();
         synchronized (frameInterupt) {
             frameInterupt.notifyAll();
         }
@@ -178,7 +80,7 @@ public class NumberedSession extends BowlingSession {
         while (run && !Thread.currentThread().isInterrupted()) {
             try {
                 int framesLeft = 0;
-                if(triggerDisplayRefresh){
+                if (triggerDisplayRefresh) {
                     refreshDisplay();
                 }
                 for (BowlingGame b : players) {
@@ -221,9 +123,5 @@ public class NumberedSession extends BowlingSession {
 
     }
 
-    public void refreshDisplay() {
-        for (int i = 0; i < players.size(); i++) {
-            display.setScore(players.get(i), i);
-        }
-    }
+    
 }
