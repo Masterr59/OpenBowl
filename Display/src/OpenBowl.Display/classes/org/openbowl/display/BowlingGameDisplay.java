@@ -57,7 +57,6 @@ public class BowlingGameDisplay extends Region {
     }
 
     public void updatePlater(int playerNumber, BowlingGame game) {
-        System.out.println("Updating Player: " + playerNumber);
         if (playerNumber < games.size()) {
             games.get(playerNumber).updateTo(game);
             draw();
@@ -171,9 +170,7 @@ public class BowlingGameDisplay extends Region {
             }
             
             else if(i == 9){
-                System.out.println("10th frame");
                 for (int j = 0; j < 3; j++) {
-                    System.out.println(ballTypes[j]);
                     if (ballTypes[j] != ScoreType.NONE) {
                         String ballString = String.format("%d", ballValues[j]);
                         ballString = (j == 1) ? String.format("%d", ballValues[1] - ballValues[0]) : ballString;
@@ -185,7 +182,6 @@ public class BowlingGameDisplay extends Region {
                         ballString = (ballFoul[j]) ? "F" : ballString;
                         gc.strokeText(ballString, x + fontBuffer + ((36 + j) * xDist), yFont);
                         gc.fillText(ballString, x + fontBuffer + ((36 + j) * xDist), yFont);
-                        System.out.println("Ball: " + j + " value: " + ballString);
                     }
                 }
             }
@@ -224,7 +220,6 @@ public class BowlingGameDisplay extends Region {
         gc.strokeLine(x, y, x, yOffset);
         for (int i = 9; i < 43; i += 3) {
             xOffset = x + (i * xDist);
-            //System.out.println(i);
             gc.strokeLine(xOffset, y, xOffset, yOffset);
         }
         double fontSize = getFontSize(NAME_LABEL, yDist);
