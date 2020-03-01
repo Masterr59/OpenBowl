@@ -159,6 +159,7 @@ public class BowlingGameDisplay extends Region {
                     if (ballTypes[j] != ScoreType.NONE) {
                         String ballString = String.format("%d", ballValues[j]);
                         ballString = (j == 1) ? String.format("%d", ballValues[1] - ballValues[0]) : ballString;
+                        ballString = (j == 1 && ballValues[1] == ballValues[0]) ? "-" : ballString;
                         ballString = (j == 0 && game.isStrikeSpare(cFrame.getBallPins(BallNumber.ONE))) ? "X" : ballString;
                         ballString = (ballValues[j] == 0) ? "-" : ballString;
                         ballString = (j == 1 && game.isStrikeSpare(cFrame.getBallPins(BallNumber.TWO))) ? "/" : ballString;
