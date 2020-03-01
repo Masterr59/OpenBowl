@@ -37,9 +37,9 @@ public abstract class BowlingSession implements Runnable {
     protected BowlingFrame.BallNumber currentBall;
     protected int currentPlayer;
 
-    public BowlingSession(Lane lane, DisplayConnector display) {
+    public BowlingSession(Lane lane) {
         this.lane = lane;
-        this.display = display;
+        this.display = lane.getDisplay();
         this.lane.addEventHandler(LaneEvents.SLOW_BALL, notUsed -> onSlowBall());
         this.lane.addEventHandler(LaneEvents.BOWL_EVENT, notUsed -> onBowlEvent());
         this.isRunning = new SimpleBooleanProperty(false);

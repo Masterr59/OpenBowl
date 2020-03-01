@@ -16,6 +16,7 @@
  */
 package org.openbowl.scorer;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -31,19 +32,20 @@ import org.openbowl.common.BowlingPins;
 public class Lane extends Node {
 
     private final double SPEED_CONVERSION_RATE = 681.818;
-    private final String FOUL_SWEEP_DISTANCE_SETTING = "FoulSweepDistance";
-    private final String SLOW_BALL_THRESHOLD_SETTING = "SlowBallThreshold";
-    private final String FOUL_BALL_THRESHOLD_SETTING = "FoulBallThreshold";
-    private final String PIN_COUNTER_DELAY_SETTING = "PinCounterDelay";
+    public final String BALL_SWEEP_DISTANCE_SETTING = "FoulSweepDistance";
+    public final String SLOW_BALL_THRESHOLD_SETTING = "SlowBallThreshold";
+    public final String FOUL_BALL_THRESHOLD_SETTING = "FoulBallThreshold";
+    public final String PIN_COUNTER_DELAY_SETTING = "PinCounterDelay";
 
-    private final double FOUL_SWEEP_DISTANCE_DEFAULT = 12 * 7;
-    private final long SLOW_BALL_THRESHOLD_DEFAULT = 2000;
-    private final long FOUL_BALL_THRESHOLD_DEFAULT = 5000;
-    private final long PIN_COUNTER_DELAY_DEFAULT = 2000;
+    public final double FOUL_SWEEP_DISTANCE_DEFAULT = 12 * 7;
+    public final long SLOW_BALL_THRESHOLD_DEFAULT = 2000;
+    public final long FOUL_BALL_THRESHOLD_DEFAULT = 5000;
+    public final long PIN_COUNTER_DELAY_DEFAULT = 2000;
 
     private PinSetter pinSetter;
     private PinCounter pinCounter;
     private Detector sweep, ball, foul;
+    private DisplayConnector display;
     private String name;
     private double foulSweepDistance;
     private long slowBallThreshold, foulBallThreshold, pinCounterDelay,
@@ -64,12 +66,29 @@ public class Lane extends Node {
 
         prefs = Preferences.userNodeForPackage(this.getClass());
 
-        foulSweepDistance = prefs.getDouble(FOUL_SWEEP_DISTANCE_SETTING, FOUL_SWEEP_DISTANCE_DEFAULT);
-        slowBallThreshold = prefs.getLong(SLOW_BALL_THRESHOLD_SETTING, SLOW_BALL_THRESHOLD_DEFAULT);
-        foulBallThreshold = prefs.getLong(FOUL_BALL_THRESHOLD_SETTING, FOUL_BALL_THRESHOLD_DEFAULT);
-        pinCounterDelay = prefs.getLong(PIN_COUNTER_DELAY_SETTING, PIN_COUNTER_DELAY_DEFAULT);
+        foulSweepDistance = prefs.getDouble(name + BALL_SWEEP_DISTANCE_SETTING, FOUL_SWEEP_DISTANCE_DEFAULT);
+        slowBallThreshold = prefs.getLong(name + SLOW_BALL_THRESHOLD_SETTING, SLOW_BALL_THRESHOLD_DEFAULT);
+        foulBallThreshold = prefs.getLong(name + FOUL_BALL_THRESHOLD_SETTING, FOUL_BALL_THRESHOLD_DEFAULT);
+        pinCounterDelay = prefs.getLong(name + PIN_COUNTER_DELAY_SETTING, PIN_COUNTER_DELAY_DEFAULT);
         scoreOnSweep = true;
         timer = new Timer();
+
+    }
+
+    public void configureDialog() {
+        try {
+            LaneOptionsDialogController dialog = new LaneOptionsDialogController(this, name);
+            dialog.setTitle(name);
+            dialog.showAndWait();
+
+        } catch (IOException e) {
+            System.out.println("Error showing dialog " + e.toString());
+            e.printStackTrace();
+        }
+        foulSweepDistance = prefs.getDouble(name + BALL_SWEEP_DISTANCE_SETTING, FOUL_SWEEP_DISTANCE_DEFAULT);
+        slowBallThreshold = prefs.getLong(name + SLOW_BALL_THRESHOLD_SETTING, SLOW_BALL_THRESHOLD_DEFAULT);
+        foulBallThreshold = prefs.getLong(name + FOUL_BALL_THRESHOLD_SETTING, FOUL_BALL_THRESHOLD_DEFAULT);
+        pinCounterDelay = prefs.getLong(name + PIN_COUNTER_DELAY_SETTING, PIN_COUNTER_DELAY_DEFAULT);
 
     }
 
@@ -129,9 +148,8 @@ public class Lane extends Node {
             lastBallSpeed = foulSweepDistance / (double) lastSweepDetected * SPEED_CONVERSION_RATE;
             lastBallFoul = ((lastSweepDetected - lastFoulDetected) < foulBallThreshold);
             timer.schedule(new pinCounterDelayTask(), pinCounterDelay);
-        }
-        else{
-            System.out.println("Not scoring this cycle");            
+        } else {
+            System.out.println("Not scoring this cycle");
             scoreOnSweep = true;
         }
     }
@@ -150,6 +168,14 @@ public class Lane extends Node {
 
     public ArrayList<BowlingPins> getLastBallPins() {
         return lastBallPins;
+    }
+
+    public DisplayConnector getDisplay() {
+        return display;
+    }
+
+    public void setDisplay(DisplayConnector display) {
+        this.display = display;
     }
 
     private class pinCounterDelayTask extends TimerTask {
@@ -183,15 +209,15 @@ public class Lane extends Node {
         }
 
     }
-    
-    public void cycleNoScore(){
+
+    public void cycleNoScore() {
         scoreOnSweep = false;
         Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    pinSetter.cycle();
-                }
-            });
+            @Override
+            public void run() {
+                pinSetter.cycle();
+            }
+        });
     }
 
     public void shutdown() {

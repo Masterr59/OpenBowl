@@ -51,8 +51,6 @@ public class MainApp extends Application {
     private HttpServer remoteControl;
     private FakeBowlerDialogController oddBowler, evenBowler;
     private Lane oddLane, evenLane;
-    private DisplayConnector oddDisplay, evenDisplay;
-    //private BlockingQueue<BowlingSession> sessionQueue;
     private BowlingSession currentSession;
     private Thread sessionManager;
 
@@ -61,8 +59,8 @@ public class MainApp extends Application {
         // sessionQueue = new LinkedBlockingQueue<>();
         oddLane = new Lane("odd");
         evenLane = new Lane("even");
-        oddDisplay = new DisplayConnector("127.0.0.1", "odd", "token");
-        evenDisplay = new DisplayConnector("127.0.0.1", "even", "token");
+        oddLane.setDisplay(new DisplayConnector("odd", "token"));
+        evenLane.setDisplay(new DisplayConnector("even", "token"));
         if (RaspberryPiDetect.isPi()) {
             oddLane.setBall(new BasicDetector("Odd_Ball_Detector"));
             oddLane.setFoul(new BasicDetector("Odd_Foul_Detector"));
@@ -151,41 +149,23 @@ public class MainApp extends Application {
         testEvenPinCounter.setOnAction(notUsed -> onCountPins("Even", evenLane.getPinCounter()));
 
         MenuItem testOddGame = new MenuItem("Test adding game Odd (4)");
-        testOddGame.setOnAction(notUsed -> onTestNumberSession(oddLane, oddDisplay, 4));
+        testOddGame.setOnAction(notUsed -> onTestNumberSession(oddLane, 4));
 
         MenuItem testEvenGame = new MenuItem("Test adding game even (8)");
-        testEvenGame.setOnAction(notUsed -> onTestNumberSession(evenLane, evenDisplay, 8));
+        testEvenGame.setOnAction(notUsed -> onTestNumberSession(evenLane, 8));
 
         testMenu.getItems().addAll(testOddPinCounter, testEvenPinCounter,
                 testOddGame, testEvenGame);
 
         Menu configMenu = new Menu("_Configure");
-        MenuItem oddPinSetterConfig = new MenuItem("OddPinSetter");
-        oddPinSetterConfig.setOnAction(notUsed -> oddLane.getPinSetter().configureDialog());
-
-        MenuItem evenPinSetterConfig = new MenuItem("EvenPinSetter");
-        evenPinSetterConfig.setOnAction(notUsed -> evenLane.getPinSetter().configureDialog());
-
-        MenuItem oddFoulConf = new MenuItem("OddFoulDetect");
-        oddFoulConf.setOnAction(notUsed -> oddLane.getFoul().configureDialog());
-
-        MenuItem evenFoulConf = new MenuItem("EvenFoulDetect");
-        evenFoulConf.setOnAction(notUsed -> evenLane.getFoul().configureDialog());
-
-        MenuItem oddBallConf = new MenuItem("OddBallDetect");
-        oddBallConf.setOnAction(notUsed -> oddLane.getBall().configureDialog());
-
-        MenuItem evenBallConf = new MenuItem("EvenBallDetect");
-        evenBallConf.setOnAction(notUsed -> evenLane.getBall().configureDialog());
-
-        MenuItem oddPinCounterConfig = new MenuItem("OddPinCounter");
-        oddPinCounterConfig.setOnAction(notUsed -> oddLane.getPinCounter().configureDialog());
-
-        MenuItem evenPinCounterConfig = new MenuItem("EvenPinCounter");
-        evenPinCounterConfig.setOnAction(notUsed -> evenLane.getPinCounter().configureDialog());
-
-        configMenu.getItems().addAll(oddPinSetterConfig, oddFoulConf, oddBallConf, oddPinCounterConfig,
-                new SeparatorMenuItem(), evenPinSetterConfig, evenFoulConf, evenBallConf, evenPinCounterConfig);
+        MenuItem oddLaneConfig = new MenuItem("Odd Lane");
+        oddLaneConfig.setOnAction(notUsed -> oddLane.configureDialog());
+        
+        MenuItem evenLaneConfig = new MenuItem("Even Lane");
+        evenLaneConfig.setOnAction(notUsed -> evenLane.configureDialog());
+        
+        
+        configMenu.getItems().addAll(oddLaneConfig, evenLaneConfig);
 
         Menu maintMenu = new Menu("_Maintenance");
         MenuItem oddPinSetterMaint = new MenuItem("OddPinSetter");
@@ -253,23 +233,23 @@ public class MainApp extends Application {
         }
     }
 
-    private void onTestNumberSession(Lane l, DisplayConnector d, int numGames) {
-        NumberedSession session = onAddNumberedSession(l, d, numGames);
+    private void onTestNumberSession(Lane l, int numGames) {
+        NumberedSession session = onAddNumberedSession(l, numGames);
         BowlingGame b = new BowlingGame("Patrick", -1);
         b.setHandycap(5);
         session.addPlayer(b);
         b = new BowlingGame("Marcus", -1);
         session.addPlayer(b);
-//        b = new BowlingGame("Eric", -1);
-//        b.setHandycap(25);
-//        session.addPlayer(b);
-//        b = new BowlingGame("Brian", -1);
-//        b.setHandycap(19);
-//        session.addPlayer(b);
+        b = new BowlingGame("Eric", -1);
+        b.setHandycap(25);
+        session.addPlayer(b);
+        b = new BowlingGame("Brian", -1);
+        b.setHandycap(19);
+        session.addPlayer(b);
     }
 
-    private NumberedSession onAddNumberedSession(Lane l, DisplayConnector d, int numGames) {
-        NumberedSession session = new NumberedSession(l, d, numGames);
+    private NumberedSession onAddNumberedSession(Lane l,  int numGames) {
+        NumberedSession session = new NumberedSession(l,  numGames);
         sessionQueue.add(session);
         synchronized (sessionQueue) {
             sessionQueue.notifyAll();
