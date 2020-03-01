@@ -29,14 +29,12 @@ public class NumberedSession extends BowlingSession {
 
     private boolean run;
     private int GamesRemaining;
-    private final DisplayConnector display;
     private final static Object frameInterupt = new Object();
 
-    public NumberedSession(Lane lane, DisplayConnector display, int numGames) {
-        super(lane, display);
+    public NumberedSession(Lane lane, int numGames) {
+        super(lane);
         GamesRemaining = numGames;
         currentBall = BallNumber.NONE;
-        this.display = display;
         currentPlayer = 0;
         run = true;
     }

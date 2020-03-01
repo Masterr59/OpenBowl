@@ -21,8 +21,11 @@ import com.google.gson.JsonSyntaxException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.prefs.Preferences;
+import javafx.scene.control.TextInputDialog;
 import org.openbowl.common.BowlingGame;
 import org.openbowl.common.BowlingSplash;
 import org.openbowl.common.WebFunctions;
@@ -33,16 +36,39 @@ import org.openbowl.common.WebFunctions;
  */
 public class DisplayConnector {
 
-    private final String address;
-    private final String endpoint;
+    public final String DISPLAY_ADDRESS_NAME = "DisplayAddress";
+    public final String DISPLAY_ENDPOINT_NAME = "DisplayEndpoint";
+    public final String DISPLAY_ADDRESS_VALUE = "127.0.0.1";
+    public final String DISPLAY_ENDPOINT_VALUE = "odd";
+
+    private final String name;
+    private String address;
+    private String endpoint;
     private final Gson gson;
     private final String authToken;
+    private Preferences prefs;
 
-    public DisplayConnector(String address, String endpoint, String authToken) {
-        this.address = address;
-        this.endpoint = endpoint;
+    public DisplayConnector(String name, String authToken) {
+        this.name = name;
+        prefs = Preferences.userNodeForPackage(this.getClass());
+        this.address = prefs.get(name + DISPLAY_ADDRESS_NAME, DISPLAY_ADDRESS_VALUE);
+        this.endpoint = prefs.get(name + DISPLAY_ENDPOINT_NAME, DISPLAY_ENDPOINT_VALUE);
         this.authToken = authToken;
         gson = new Gson();
+    }
+
+    public void configureDialog() {
+        try {
+            DisplayConnectorDialogController dialog = new DisplayConnectorDialogController(name, this);
+            dialog.setTitle(name);
+            dialog.showAndWait();
+
+        } catch (IOException e) {
+            System.out.println("Error showing dialog " + e.toString());
+            e.printStackTrace();
+        }
+        this.address = prefs.get(name + DISPLAY_ADDRESS_NAME, DISPLAY_ADDRESS_VALUE);
+        this.endpoint = prefs.get(name + DISPLAY_ENDPOINT_NAME, DISPLAY_ENDPOINT_VALUE);
     }
 
     public Map<String, Object> setCurentPlayer(int player) {
