@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import javafx.application.Platform;
 import org.openbowl.common.BowlingFrame;
 import org.openbowl.common.BowlingFrame.BallNumber;
+import org.openbowl.common.BowlingFrame.ScoreType;
 import org.openbowl.common.BowlingGame;
 import org.openbowl.common.BowlingPins;
 import org.openbowl.common.BowlingSplash;
@@ -74,58 +75,89 @@ public class NumberedSession extends BowlingSession {
         boolean foul = lane.isLastBallFoul();
         double speed = lane.getLastBallSpeed();
         ArrayList<BowlingPins> pins = lane.getLastBallPins();
-        System.out.println(players.get(currentPlayer).getPlayerName() + " Ball: " + currentBall);
-        System.out.println(pins);
+        //System.out.println(players.get(currentPlayer).getPlayerName() + " Ball: " + currentBall);
+        //System.out.println(pins);
         players.get(currentPlayer).addBall(pins, foul, speed);
         display.setScore(players.get(currentPlayer), currentPlayer);
 
         if (foul) {
             display.showSplash(BowlingSplash.Foul);
         }
-        switch (currentBall) {
-            case NONE:
-                currentBall = BallNumber.ONE;
-                if (pins.isEmpty()) {
-                    //Strike
-                    players.get(currentPlayer).addEmptyBall();
-                    lane.cycleNoScore();
-                    currentBall = BallNumber.NONE;
-                    currentPlayer = (currentPlayer + 1) % players.size();
-                }
-                break;
-            case ONE:
-                currentBall = BallNumber.TWO;
-                //spare
-                if (pins.isEmpty()) {
-                    display.showSplash(BowlingSplash.Spare);
-                }
-                break;
-            case TWO:
-                currentBall = BallNumber.NONE;
-                lane.cycleNoScore();
-                break;
-        }
-        //tenth frame and strike / spare
-        if (players.get(currentPlayer).getFrames().size() == 10) {
+        if (players.get(currentPlayer).getFrames().size() < 10) {
             switch (currentBall) {
+                case NONE:
+                    currentBall = BallNumber.ONE;
+                    //strike
+                    if (players.get(currentPlayer).isStrikeSpare(pins)) {
+                        display.showSplash(BowlingSplash.Strike);
+                        players.get(currentPlayer).addEmptyBall();
+                        lane.cycleNoScore();
+                        currentBall = BallNumber.NONE;
+                        currentPlayer = (currentPlayer + 1) % players.size();
+                    }
+                    break;
                 case ONE:
+                    currentBall = BallNumber.TWO;
+                    //spare
+                    if (players.get(currentPlayer).isStrikeSpare(pins)) {
+                        display.showSplash(BowlingSplash.Spare);
+                    }
+                    break;
+                case TWO:
+                    currentBall = BallNumber.NONE;
+                    lane.cycleNoScore();
+                    break;
+            }
+        }
+        //tenth frame
+        if (players.get(currentPlayer).getFrames().size() >= 10) {
+            BowlingFrame frameTen = players.get(currentPlayer).getFrames().get(9);
+            boolean isBallOne = frameTen.getScoreType(BallNumber.ONE) != ScoreType.NONE;
+            boolean isBallTwo = frameTen.getScoreType(BallNumber.TWO) != ScoreType.NONE;
+            boolean isBallBonus = frameTen.getScoreType(BallNumber.BONUS) != ScoreType.NONE;
+            boolean isBallOneStrike = players.get(currentPlayer).isStrikeSpare(frameTen.getBallPins(BallNumber.ONE));
+            boolean isBallTwoStrike = players.get(currentPlayer).isStrikeSpare(frameTen.getBallPins(BallNumber.TWO));
+            switch (currentBall) {
+                case NONE:
                     //Strike on first ball
-                    if (pins.isEmpty()) {
+                    currentBall = BallNumber.ONE;
+                    if (players.get(currentPlayer).isStrikeSpare(pins)) {
+                        players.get(currentPlayer).addEmptyBall();
+                        lane.cycleNoScore();
+                    }
+                    break;
+                case ONE:
+                    //Strike / spare on second ball
+                    currentBall = BallNumber.TWO;
+                    if (players.get(currentPlayer).isStrikeSpare(pins)) {
                         lane.cycleNoScore();
                     }
                     break;
                 case TWO:
-                    ArrayList<BowlingPins> ballOne = players.get(currentPlayer)
-                            .getFrames().get(9).getBallPins(BallNumber.ONE);
-                    if (!pins.isEmpty() && !ballOne.isEmpty()) {
-                        currentPlayer = (currentPlayer + 1) % players.size();
-                    }
-                    break;
-                case BONUS:
-                    currentPlayer = (currentPlayer + 1) % players.size();
+                    currentBall = BallNumber.NONE;
                     lane.cycleNoScore();
                     break;
             }
+            boolean allowThird = false;
+
+            if (isBallOne && isBallOneStrike) {
+                allowThird = true;
+            }
+            if (isBallTwo && isBallTwoStrike) {
+                allowThird = true;
+            }
+
+            int ballCount = isBallOne ? 1 : 0;
+            ballCount += isBallTwo ? 1 : 0;
+            ballCount += isBallBonus ? 1 : 0;
+            //System.out.println("Ball Count: " + ballCount);
+            //System.out.println("Allow 3rd " + allowThird);
+            //System.out.println(frameTen);
+            if (ballCount == 3 || (ballCount == 2 && !allowThird)) {
+                currentPlayer = (currentPlayer + 1) % players.size();
+                currentBall = BallNumber.NONE;
+            }
+
         } else {
             if (currentBall == BallNumber.TWO) {
                 currentBall = BallNumber.NONE;
@@ -142,28 +174,33 @@ public class NumberedSession extends BowlingSession {
     public void run() {
         isRunning.setValue(true);
         lane.getPinSetter().setPower(true);
+        boolean triggerDisplayRefresh = false;
         while (run && !Thread.currentThread().isInterrupted()) {
             try {
-                boolean framesLeft = false;
+                int framesLeft = 0;
+                if(triggerDisplayRefresh){
+                    refreshDisplay();
+                }
                 for (BowlingGame b : players) {
                     ArrayList<BowlingFrame> frames = b.getFrames();
-                    if (frames.size() == 11) {
-                        framesLeft = false;
-                    } else {
-                        framesLeft = true;
-                        break;
-                    }
+                    framesLeft += (frames.size() == 11) ? 0 : 1;
                 }
-                if (!framesLeft && GamesRemaining < 1) {
+                if (framesLeft == 0 && GamesRemaining < 1) {
                     run = false;
                     lane.getPinSetter().setPower(false);
-                } else if (!framesLeft && GamesRemaining > 0) {
+                } else if (framesLeft == 0 && GamesRemaining > 0) {
                     //create new game
                     for (int i = 0; i < players.size(); i++) {
                         //reset Game
-                        players.get(i).setFrames(new ArrayList<>());
-                        GamesRemaining--;
+                        if (GamesRemaining > 0) {
+                            players.get(i).reset();
+                            GamesRemaining--;
+                        }
+                        triggerDisplayRefresh = true;
                     }
+                    currentBall = BallNumber.NONE;
+
+                    currentPlayer = 0;
                 }
                 synchronized (frameInterupt) {
                     frameInterupt.wait();
@@ -184,4 +221,9 @@ public class NumberedSession extends BowlingSession {
 
     }
 
+    public void refreshDisplay() {
+        for (int i = 0; i < players.size(); i++) {
+            display.setScore(players.get(i), i);
+        }
+    }
 }
