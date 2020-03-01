@@ -163,6 +163,10 @@ public class FakeBowlerDialogController extends Dialog<Void> implements Initiali
 
     public void startCycleTimer() {
         pinsetter.cycle();
+    }
+    
+    public void startCycleTimerGUI() {
+        //pinsetter.cycle();
         cyclePreviousTime = System.currentTimeMillis();
         cycleStartTime = cyclePreviousTime;
         cycleEndTime = cycleStartTime + cycleDelay;

@@ -105,6 +105,7 @@ public class FakePinSetter implements PinSetter {
     @Override
     public void cycle() {
         if (power) {
+            bowler.startCycleTimerGUI();
             ball++;
             ball = ball % 2;
             dialog.setBall(ball);
