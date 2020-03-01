@@ -51,11 +51,9 @@ public class BowlingGameDisplayHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange he) throws IOException {
-        //System.out.print("Handle");
         Map<String, List<String>> headers = he.getRequestHeaders();
         String method = he.getRequestMethod();
         if (isAuthorized(headers)) {
-            //System.out.println("Authorized");
             Map<String, String> parms = WebFunctions.queryToMap(he.getRequestURI().getQuery());
             he.getResponseHeaders().set("Content-Type", "application/json");
             OutputStream os = he.getResponseBody();
@@ -79,7 +77,6 @@ public class BowlingGameDisplayHandler implements HttpHandler {
             }
 
             String jsonResponse = gson.toJson(response);
-            //System.out.println("Response: " + jsonResponse);
             he.sendResponseHeaders(200, jsonResponse.length());
             os.write(jsonResponse.getBytes());
             os.close();
@@ -106,7 +103,6 @@ public class BowlingGameDisplayHandler implements HttpHandler {
     private Map<String, Object> onPost(Map<String, String> parms, String body) {
         Map<String, Object> map = new HashMap<>();
         map.put("Lane", lane);
-        //System.out.println(body);
         Map<String, Object> requestBody = new HashMap<>();
         try {
             requestBody = gson.fromJson(body, Map.class);
@@ -115,7 +111,6 @@ public class BowlingGameDisplayHandler implements HttpHandler {
             map.put(ERROR_MSG, e.getMessage());
             return map;
         }
-        //System.out.println(gson.toJson(requestBody));
         try {
             switch (parms.getOrDefault("set", "none")) {
                 case "currentPlayer":
@@ -135,11 +130,9 @@ public class BowlingGameDisplayHandler implements HttpHandler {
                     }
                     break;
                 case "playerScore":
-                    //System.out.println("PlayerScore");
                     try {
                         int playerNumber = Integer.parseInt(parms.get("player"));
                         if (playerNumber < game.getNumPlayers()) {
-                            System.out.println(body);
                             BowlingGame newScore = gson.fromJson(body, BowlingGame.class);
                             game.updatePlater(playerNumber, newScore);
                             map.put(SUCCESS, true);
@@ -154,7 +147,7 @@ public class BowlingGameDisplayHandler implements HttpHandler {
                     }
                     break;
                 case "newPlayer":
-                    
+
                     try {
                         BowlingGame newPlayer = gson.fromJson(body, BowlingGame.class);
                         game.addPlayer(newPlayer);
