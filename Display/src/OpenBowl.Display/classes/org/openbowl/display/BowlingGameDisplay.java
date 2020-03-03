@@ -11,6 +11,9 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import org.openbowl.common.BowlingFrame;
+import org.openbowl.common.BowlingFrame.BallNumber;
+import org.openbowl.common.BowlingFrame.ScoreType;
 
 import org.openbowl.common.BowlingGame;
 
@@ -135,7 +138,73 @@ public class BowlingGameDisplay extends Region {
             gc.strokeText(hdcp, x + fontBuffer + (7 * xDist), yFont);
             gc.fillText(hdcp, x + fontBuffer + (7 * xDist), yFont);
         }
+        //stroke scores
+        for (int i = 0; i < game.getFrames().size(); i++) {
+            BowlingFrame cFrame = game.getFrames().get(i);
+            int ballValues[] = new int[3];
+            boolean ballFoul[] = new boolean[3];
+            ScoreType ballTypes[] = new ScoreType[3];
+            ballValues[0] = 10 - cFrame.getBallPins(BallNumber.ONE).size();
+            ballValues[1] = 10 - cFrame.getBallPins(BallNumber.TWO).size();
+            ballValues[2] = 10 - cFrame.getBallPins(BallNumber.BONUS).size();
+            ballTypes[0] = cFrame.getScoreType(BallNumber.ONE);
+            ballTypes[1] = cFrame.getScoreType(BallNumber.TWO);
+            ballTypes[2] = cFrame.getScoreType(BallNumber.BONUS);
+            ballFoul[0] = cFrame.isBallFoul(BallNumber.ONE);
+            ballFoul[1] = cFrame.isBallFoul(BallNumber.TWO);
+            ballFoul[2] = cFrame.isBallFoul(BallNumber.BONUS);
+            //frames 1-9 (pins)
+            if (i < 9) {
+                for (int j = 0; j < 2; j++) {
+                    if (ballTypes[j] != ScoreType.NONE) {
+                        String ballString = String.format("%d", ballValues[j]);
+                        ballString = (j == 1) ? String.format("%d", ballValues[1] - ballValues[0]) : ballString;
+                        ballString = (j == 1 && ballValues[1] == ballValues[0]) ? "-" : ballString;
+                        ballString = (j == 0 && game.isStrikeSpare(cFrame.getBallPins(BallNumber.ONE))) ? "X" : ballString;
+                        ballString = (ballValues[j] == 0) ? "-" : ballString;
+                        ballString = (j == 1 && game.isStrikeSpare(cFrame.getBallPins(BallNumber.TWO))) ? "/" : ballString;
+                        ballString = (ballFoul[j]) ? "F" : ballString;
+                        gc.strokeText(ballString, x + fontBuffer + ((10 + j + (3 * i)) * xDist), yFont);
+                        gc.fillText(ballString, x + fontBuffer + ((10 + j + (3 * i)) * xDist), yFont);
+                    }
+                }
+            }
+            
+            else if(i == 9){
+                for (int j = 0; j < 3; j++) {
+                    if (ballTypes[j] != ScoreType.NONE) {
+                        String ballString = String.format("%d", ballValues[j]);
+                        ballString = (j == 1) ? String.format("%d", ballValues[1] - ballValues[0]) : ballString;
+                        ballString = (j == 0 && game.isStrikeSpare(cFrame.getBallPins(BallNumber.ONE))) ? "X" : ballString;
+                        ballString = (ballValues[j] == 0) ? "-" : ballString;
+                        ballString = (j == 1 && game.isStrikeSpare(cFrame.getBallPins(BallNumber.TWO))) ? "/" : ballString;
+                        ballString = (j == 1 && game.isStrikeSpare(cFrame.getBallPins(BallNumber.TWO)) && game.isStrikeSpare(cFrame.getBallPins(BallNumber.ONE))) ? "X" : ballString;
+                        ballString = (j == 2 && game.isStrikeSpare(cFrame.getBallPins(BallNumber.BONUS))) ? "X" : ballString;
+                        ballString = (ballFoul[j]) ? "F" : ballString;
+                        gc.strokeText(ballString, x + fontBuffer + ((36 + j) * xDist), yFont);
+                        gc.fillText(ballString, x + fontBuffer + ((36 + j) * xDist), yFont);
+                    }
+                }
+            }
 
+        }
+        //Stroke Score
+        fontSize = getFontSize(NAME_LABEL, yDist);
+        gc.setFont(new Font(gc.getFont().getName(), fontSize * 1.5));
+        fontBuffer = yDist / 10.0;
+        yFont = y + (yDist * 3) - fontBuffer;
+        for (int i = 0; i < game.getFrames().size(); i++) {
+            BowlingFrame cFrame = game.getFrames().get(i);
+            if (cFrame.getFrameScore() >= 0) {
+                gc.strokeText(Integer.toString(cFrame.getFrameScore()), x + fontBuffer + ((9 + (3 * i)) * xDist), yFont);
+                gc.fillText(Integer.toString(cFrame.getFrameScore()), x + fontBuffer + ((9 + (3 * i)) * xDist), yFont);
+            }
+        }
+        //Stroke total Score
+        gc.strokeText(Integer.toString(game.getGameScore()), x + fontBuffer + (39 * xDist), yFont);
+        gc.fillText(Integer.toString(game.getGameScore()), x + fontBuffer + (39 * xDist), yFont);
+        
+        
         gc.restore();
     }
 
@@ -152,7 +221,6 @@ public class BowlingGameDisplay extends Region {
         gc.strokeLine(x, y, x, yOffset);
         for (int i = 9; i < 43; i += 3) {
             xOffset = x + (i * xDist);
-            //System.out.println(i);
             gc.strokeLine(xOffset, y, xOffset, yOffset);
         }
         double fontSize = getFontSize(NAME_LABEL, yDist);

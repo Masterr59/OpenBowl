@@ -17,6 +17,8 @@
 package org.openbowl.common;
 
 import java.util.ArrayList;
+import org.openbowl.common.BowlingFrame.BallNumber;
+import org.openbowl.common.BowlingFrame.ScoreType;
 
 /**
  *
@@ -26,16 +28,74 @@ public class BowlingGame {
 
     private String playerName;
     private int playerID;
+    private int tapValue;
     private int handycap;
     private ArrayList<BowlingFrame> frames;
+    private BowlingFrame currentFrame;
     private int gameScore;
 
     public BowlingGame(String name, int id) {
         this.playerName = name;
         this.playerID = id;
         this.gameScore = 0;
+        this.tapValue = 10;
         this.handycap = 0;
         this.frames = new ArrayList<>();
+        this.currentFrame = new BowlingFrame();
+        this.frames.add(currentFrame);
+    }
+
+    public void reset(){
+        this.gameScore = 0;
+        this.frames = new ArrayList<>();
+        this.currentFrame = new BowlingFrame();
+        this.frames.add(currentFrame);
+    }
+    
+    public void addBall(ArrayList<BowlingPins> pins, boolean foul, double speed) {
+        switch (currentFrame.getCurrentBall()) {
+            case NONE:
+                this.currentFrame.addBall(pins, foul, speed);
+                break;
+            case ONE:
+                this.currentFrame.addBall(pins, foul, speed);
+                if (this.frames.size() < 10) {
+                    this.currentFrame = new BowlingFrame();
+                    this.frames.add(currentFrame);
+                }
+                break;
+            case TWO:
+                if (this.frames.size() == 10) {
+                    this.currentFrame.addBall(pins, foul, speed);
+                    this.currentFrame = new BowlingFrame();
+                    this.frames.add(currentFrame);
+                }
+                break;
+        }
+        scoreGame();
+    }
+
+    public void addEmptyBall() {
+        switch (currentFrame.getCurrentBall()) {
+            case NONE:
+                this.currentFrame.setBall(new ArrayList<BowlingPins>(), false, BallNumber.ONE, ScoreType.NONE, 0.0);
+                break;
+            case ONE:
+                this.currentFrame.setBall(new ArrayList<BowlingPins>(), false, BallNumber.TWO, ScoreType.NONE, 0.0);
+                if (this.frames.size() < 10) {
+                    this.currentFrame = new BowlingFrame();
+                    this.frames.add(currentFrame);
+                }
+                break;
+            case TWO:
+                if (this.frames.size() == 10) {
+                    this.currentFrame.setBall(new ArrayList<BowlingPins>(), false, BallNumber.BONUS, ScoreType.NONE, 0.0);
+                    this.currentFrame = new BowlingFrame();
+                    this.frames.add(currentFrame);
+                }
+                break;
+        }
+        scoreGame();
     }
 
     public ArrayList<BowlingFrame> getFrames() {
@@ -44,18 +104,16 @@ public class BowlingGame {
 
     public void setFrames(ArrayList<BowlingFrame> frames) {
         this.frames = frames;
+        scoreGame();
     }
 
     public void addFrame(BowlingFrame f) {
         this.frames.add(f);
+        scoreGame();
     }
 
     public int getGameScore() {
         return gameScore;
-    }
-
-    public void setGameScore(int gameScore) {
-        this.gameScore = gameScore;
     }
 
     public int getHandycap() {
@@ -82,11 +140,50 @@ public class BowlingGame {
         this.playerID = playerID;
     }
 
+    public int getTapValue() {
+        return tapValue;
+    }
+
+    public void setTapValue(int tapValue) {
+        this.tapValue = tapValue;
+        scoreGame();
+    }
+
+    public boolean isStrikeSpare(ArrayList<BowlingPins> pins) {
+        return (10 - pins.size() - tapValue) >= 0;
+    }
+
+    public boolean isNoTap(ArrayList<BowlingPins> pins) {
+        return !pins.isEmpty() && isStrikeSpare(pins);
+    }
+
     public void updateTo(BowlingGame game) {
         this.playerName = game.getPlayerName();
         this.playerID = game.getPlayerID();
         this.handycap = game.getHandycap();
         this.frames = game.getFrames();
+        scoreGame();
+    }
+
+    private void scoreGame() {
+        //to do
+
+    }
+
+    @Override
+    public String toString() {
+        String ret = playerName;
+        ret += " ";
+        for (BowlingFrame f : frames) {
+
+            ret += "|";
+            ret += (f.getScoreType(BowlingFrame.BallNumber.ONE) != ScoreType.NONE) ? f.getBallPins(BowlingFrame.BallNumber.ONE).size() : " ";
+            ret += "|";
+            ret += (f.getScoreType(BowlingFrame.BallNumber.TWO) != ScoreType.NONE) ? f.getBallPins(BowlingFrame.BallNumber.TWO).size() : " ";
+            ret += "|";
+            ret += (f.getScoreType(BowlingFrame.BallNumber.BONUS) != ScoreType.NONE) ? f.getBallPins(BowlingFrame.BallNumber.BONUS).size() : " ";
+        }
+        return ret;
     }
 
 }

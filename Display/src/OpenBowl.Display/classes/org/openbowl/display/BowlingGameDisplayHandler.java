@@ -103,7 +103,6 @@ public class BowlingGameDisplayHandler implements HttpHandler {
     private Map<String, Object> onPost(Map<String, String> parms, String body) {
         Map<String, Object> map = new HashMap<>();
         map.put("Lane", lane);
-        //System.out.println(body);
         Map<String, Object> requestBody = new HashMap<>();
         try {
             requestBody = gson.fromJson(body, Map.class);
@@ -112,7 +111,6 @@ public class BowlingGameDisplayHandler implements HttpHandler {
             map.put(ERROR_MSG, e.getMessage());
             return map;
         }
-        //System.out.println(gson.toJson(requestBody));
         try {
             switch (parms.getOrDefault("set", "none")) {
                 case "currentPlayer":
@@ -149,6 +147,7 @@ public class BowlingGameDisplayHandler implements HttpHandler {
                     }
                     break;
                 case "newPlayer":
+
                     try {
                         BowlingGame newPlayer = gson.fromJson(body, BowlingGame.class);
                         game.addPlayer(newPlayer);
@@ -159,6 +158,7 @@ public class BowlingGameDisplayHandler implements HttpHandler {
                         map.put(SUCCESS, false);
                         map.put(ERROR_MSG, e.toString());
                     }
+                    break;
                 default:
                     map.put(SUCCESS, false);
                     map.put(ERROR_MSG, "missing or unsupported request");

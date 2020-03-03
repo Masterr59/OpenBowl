@@ -26,7 +26,7 @@ import java.util.Map;
  */
 public class AuthorizedUser {
 
-    private final String AUTHKEYWORD = "x-auth-bearer";
+    public static final String AUTHKEYWORD = "x-auth-bearer";
     private final String Token;
     private final Calendar expire;
 

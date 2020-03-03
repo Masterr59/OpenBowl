@@ -20,7 +20,8 @@ import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
-import java.net.InetSocketAddress;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -35,6 +36,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.openbowl.common.AboutOpenBowl;
+import org.openbowl.common.BowlingGame;
 import org.openbowl.common.WebFunctions;
 import org.openbowl.scorer.remote.PinSetterHandler;
 
@@ -44,43 +46,83 @@ import org.openbowl.scorer.remote.PinSetterHandler;
  */
 public class MainApp extends Application {
 
+    private final static BlockingQueue<BowlingSession> sessionQueue = new LinkedBlockingQueue<>();
     private final String ApplicationName = "Open Bowl - Scorer";
-    private Detector oddFoulDetector, evenFoulDetector, oddBallDetector, evenBallDetector;
-    private PinSetter oddPinSetter, evenPinSetter;
-    private PinCounter oddPinCounter, evenPinCounter;
     private HttpServer remoteControl;
+    private FakeBowlerDialogController oddBowler, evenBowler;
+    private Lane oddLane, evenLane;
+    private BowlingSession currentSession;
+    private Thread sessionManager;
 
     @Override
     public void start(Stage stage) throws Exception {
-        oddBallDetector = new BasicDetector("Odd_Ball_Detector");
-        evenBallDetector = new BasicDetector("Even_Ball_Detector");
+        // sessionQueue = new LinkedBlockingQueue<>();
+        oddLane = new Lane("odd");
+        evenLane = new Lane("even");
+        oddLane.setDisplay(new DisplayConnector("odd", "token"));
+        evenLane.setDisplay(new DisplayConnector("even", "token"));
+        if (RaspberryPiDetect.isPi()) {
+            oddLane.setBall(new BasicDetector("Odd_Ball_Detector"));
+            oddLane.setFoul(new BasicDetector("Odd_Foul_Detector"));
+            oddLane.setSweep(new BasicDetector("Odd_Sweep_Detector"));
+            oddLane.setPinSetter(new BasicPinSetter("Odd_PinSetter"));
+            oddLane.setPinCounter(new BasicPinCounter("Odd_PinCounter"));
 
-        oddBallDetector.addEventHandler(DetectedEvent.DETECTION, notUsed -> onBallDetected("odd"));
-        evenBallDetector.addEventHandler(DetectedEvent.DETECTION, notUsed -> onBallDetected("even"));
+            evenLane.setBall(new BasicDetector("Even_Ball_Detector"));
+            evenLane.setFoul(new BasicDetector("Even_Foul_Detector"));
+            evenLane.setSweep(new BasicDetector("Even_Sweep_Detector"));
+            evenLane.setPinSetter(new BasicPinSetter("Even_PinSetter"));
+            evenLane.setPinCounter(new BasicPinCounter("Even_PinCounter"));
 
-        oddFoulDetector = new BasicDetector("Odd_Foul_Detector");
-        evenFoulDetector = new BasicDetector("Even_Foul_Detector");
+        } else {
+            oddBowler = new FakeBowlerDialogController("odd");
+            oddLane.setBall(oddBowler.getBall());
+            oddLane.setFoul(oddBowler.getFoul());
+            oddLane.setSweep(oddBowler.getSweep());
+            oddLane.setPinSetter(oddBowler.getPinsetter());
+            oddLane.setPinCounter(oddBowler.getCounter());
 
-        oddFoulDetector.addEventHandler(DetectedEvent.DETECTION, notUsed -> onFoulDetected("odd"));
-        evenFoulDetector.addEventHandler(DetectedEvent.DETECTION, notUsed -> onFoulDetected("even"));
+            evenBowler = new FakeBowlerDialogController("even");
+            evenLane.setBall(evenBowler.getBall());
+            evenLane.setFoul(evenBowler.getFoul());
+            evenLane.setSweep(evenBowler.getSweep());
+            evenLane.setPinSetter(evenBowler.getPinsetter());
+            evenLane.setPinCounter(evenBowler.getCounter());
 
-        oddPinSetter = new BasicPinSetter("OddPinSetter");
-        evenPinSetter = new BasicPinSetter("EvenPinSetter");
+            oddBowler.initModality(Modality.NONE);
+            oddBowler.show();
 
-        oddPinCounter = new BasicPinCounter("oddPinCounter");
-        evenPinCounter = new BasicPinCounter("evenPinCounter");
+            evenBowler.initModality(Modality.NONE);
+            evenBowler.show();
+
+        }
+        oddLane.getBall().addEventHandler(DetectedEvent.DETECTION, notUsed -> onBallDetected("odd"));
+        evenLane.getBall().addEventHandler(DetectedEvent.DETECTION, notUsed -> onBallDetected("even"));
+
+        oddLane.getFoul().addEventHandler(DetectedEvent.DETECTION, notUsed -> onFoulDetected("odd"));
+        evenLane.getFoul().addEventHandler(DetectedEvent.DETECTION, notUsed -> onFoulDetected("even"));
+
+        oddLane.getSweep().addEventHandler(DetectedEvent.DETECTION, notUsed -> onSweepDetected("odd"));
+        evenLane.getSweep().addEventHandler(DetectedEvent.DETECTION, notUsed -> onSweepDetected("even"));
 
         BorderPane root = new BorderPane();
         root.setTop(buildMenuBar());
 
         stage.setTitle(ApplicationName);
         root.setTop(buildMenuBar());
-        
-        remoteControl = WebFunctions.createDefaultServer();
-        remoteControl.createContext("/pinsetter/odd/", new PinSetterHandler(oddPinSetter, 1));
-        remoteControl.createContext("/pinsetter/even/", new PinSetterHandler(evenPinSetter, 2));
-        
+
+        try {
+            remoteControl = WebFunctions.createDefaultServer();
+        } catch (IOException e) {
+            remoteControl = WebFunctions.createCustomServer(1);
+        }
+        remoteControl.createContext("/pinsetter/odd/", new PinSetterHandler(oddLane.getPinSetter(), 1));
+        remoteControl.createContext("/pinsetter/even/", new PinSetterHandler(evenLane.getPinSetter(), 2));
+
         remoteControl.start();
+
+        sessionManager = new Thread(new SessionManager(sessionQueue));
+        sessionManager.start();
 
         Scene scene = new Scene(root, 500, 440);
         stage.setScene(scene);
@@ -101,47 +143,36 @@ public class MainApp extends Application {
 
         Menu testMenu = new Menu("_Test");
         MenuItem testOddPinCounter = new MenuItem("Test Odd Pin Detector");
-        testOddPinCounter.setOnAction(notUsed -> oddPinCounter.countPins());
-        
-         MenuItem testEvenPinCounter = new MenuItem("Test Even Pin Detector");
-        testEvenPinCounter.setOnAction(notUsed -> evenPinCounter.countPins());
+        testOddPinCounter.setOnAction(notUsed -> onCountPins("Odd", oddLane.getPinCounter()));
 
-        testMenu.getItems().addAll(testOddPinCounter, testEvenPinCounter);
+        MenuItem testEvenPinCounter = new MenuItem("Test Even Pin Detector");
+        testEvenPinCounter.setOnAction(notUsed -> onCountPins("Even", evenLane.getPinCounter()));
+
+        MenuItem testOddGame = new MenuItem("Test adding game Odd (4)");
+        testOddGame.setOnAction(notUsed -> onTestNumberSession(oddLane, 4));
+
+        MenuItem testEvenGame = new MenuItem("Test adding game even (8)");
+        testEvenGame.setOnAction(notUsed -> onTestNumberSession(evenLane, 8));
+
+        testMenu.getItems().addAll(testOddPinCounter, testEvenPinCounter,
+                testOddGame, testEvenGame);
 
         Menu configMenu = new Menu("_Configure");
-        MenuItem oddPinSetterConfig = new MenuItem("OddPinSetter");
-        oddPinSetterConfig.setOnAction(notUsed -> oddPinSetter.configureDialog());
-
-        MenuItem evenPinSetterConfig = new MenuItem("EvenPinSetter");
-        evenPinSetterConfig.setOnAction(notUsed -> evenPinSetter.configureDialog());
-
-        MenuItem oddFoulConf = new MenuItem("OddFoulDetect");
-        oddFoulConf.setOnAction(notUsed -> oddFoulDetector.configureDialog());
-
-        MenuItem evenFoulConf = new MenuItem("EvenFoulDetect");
-        evenFoulConf.setOnAction(notUsed -> evenFoulDetector.configureDialog());
-
-        MenuItem oddBallConf = new MenuItem("OddBallDetect");
-        oddBallConf.setOnAction(notUsed -> oddBallDetector.configureDialog());
-
-        MenuItem evenBallConf = new MenuItem("EvenBallDetect");
-        evenBallConf.setOnAction(notUsed -> evenBallDetector.configureDialog());
-
-        MenuItem oddPinCounterConfig = new MenuItem("OddPinCounter");
-        oddPinCounterConfig.setOnAction(notUsed -> oddPinCounter.configureDialog());
-
-        MenuItem evenPinCounterConfig = new MenuItem("EvenPinCounter");
-        evenPinCounterConfig.setOnAction(notUsed -> evenPinCounter.configureDialog());
-
-        configMenu.getItems().addAll(oddPinSetterConfig, oddFoulConf, oddBallConf, oddPinCounterConfig,
-                new SeparatorMenuItem(), evenPinSetterConfig, evenFoulConf, evenBallConf, evenPinCounterConfig);
+        MenuItem oddLaneConfig = new MenuItem("Odd Lane");
+        oddLaneConfig.setOnAction(notUsed -> oddLane.configureDialog());
+        
+        MenuItem evenLaneConfig = new MenuItem("Even Lane");
+        evenLaneConfig.setOnAction(notUsed -> evenLane.configureDialog());
+        
+        
+        configMenu.getItems().addAll(oddLaneConfig, evenLaneConfig);
 
         Menu maintMenu = new Menu("_Maintenance");
         MenuItem oddPinSetterMaint = new MenuItem("OddPinSetter");
-        oddPinSetterMaint.setOnAction(notUsed -> onPinSetterMaint(oddPinSetter, "OddPinSetter"));
+        oddPinSetterMaint.setOnAction(notUsed -> onPinSetterMaint(oddLane.getPinSetter(), "OddPinSetter"));
 
         MenuItem evenPinSetterMaint = new MenuItem("EvenPinSetter");
-        evenPinSetterMaint.setOnAction(notUsed -> onPinSetterMaint(evenPinSetter, "EvenPinSetter"));
+        evenPinSetterMaint.setOnAction(notUsed -> onPinSetterMaint(evenLane.getPinSetter(), "EvenPinSetter"));
 
         maintMenu.getItems().addAll(oddPinSetterMaint, evenPinSetterMaint);
 
@@ -167,23 +198,26 @@ public class MainApp extends Application {
     }
 
     private void onFoulDetected(String lane) {
-        System.out.println("Foul detected on lane: " + lane);
+        System.out.println("Foul Detected on lane: " + lane);
+    }
+
+    private void onSweepDetected(String lane) {
+        System.out.println("Sweep detected on lane: " + lane);
+    }
+
+    private void onCountPins(String lane, PinCounter p) {
+        System.out.println("Counting pins on lane: " + lane);
+        System.out.println(p.countPins());
     }
 
     private void onQuit() {
-
+        oddLane.shutdown();
+        evenLane.shutdown();
         if (RaspberryPiDetect.isPi()) {
-            oddPinSetter.setPower(false);
-            evenPinSetter.setPower(false);
-            oddPinSetter.teardown();
-            evenPinSetter.teardown();
-            oddFoulDetector.teardown();
-            evenFoulDetector.teardown();
-            oddBallDetector.teardown();
-            evenBallDetector.teardown();
             GpioController gpioController = GpioFactory.getInstance();
             gpioController.shutdown();
         }
+        sessionManager.interrupt();
         remoteControl.stop(0);
         Platform.exit();
     }
@@ -199,4 +233,70 @@ public class MainApp extends Application {
         }
     }
 
+    private void onTestNumberSession(Lane l, int numGames) {
+        NumberedSession session = onAddNumberedSession(l, numGames);
+        BowlingGame b = new BowlingGame("Patrick", -1);
+        b.setHandycap(5);
+        session.addPlayer(b);
+        b = new BowlingGame("Marcus", -1);
+        session.addPlayer(b);
+        b = new BowlingGame("Eric", -1);
+        b.setHandycap(25);
+        session.addPlayer(b);
+        b = new BowlingGame("Brian", -1);
+        b.setHandycap(19);
+        session.addPlayer(b);
+    }
+
+    private NumberedSession onAddNumberedSession(Lane l,  int numGames) {
+        NumberedSession session = new NumberedSession(l,  numGames);
+        sessionQueue.add(session);
+        synchronized (sessionQueue) {
+            sessionQueue.notifyAll();
+        }
+        return session;
+    }
+
+    private class SessionManager implements Runnable {
+
+        private Thread sessionThread;
+        private BlockingQueue<BowlingSession> queue;
+
+        public SessionManager(BlockingQueue<BowlingSession> q) {
+            queue = q;
+        }
+
+        @Override
+        public void run() {
+            boolean run = true;
+            while (!Thread.currentThread().isInterrupted() && run) {
+                System.out.println("SessionManager is running");
+                try {
+                    if (!sessionQueue.isEmpty()) {
+                        System.out.println("Start new Session");
+                        currentSession = queue.poll();
+                        sessionThread = new Thread(currentSession);
+                        sessionThread.start();
+
+                        sessionThread.join();
+
+                    } else {
+                        synchronized (queue) {
+                            queue.wait();
+                        }
+
+                    }
+                } catch (InterruptedException ex) {
+                    if (sessionThread != null && sessionThread.isAlive()) {
+                        sessionThread.interrupt();
+                    }
+                    run = false;
+                    System.out.println("SessionManager Interupted");
+
+                }
+            }
+
+        }
+
+    }
 }
