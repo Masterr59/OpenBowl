@@ -78,7 +78,7 @@ public class BasicDetector extends Detector {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public void onPinStateChange(GpioPinDigitalStateChangeEvent event) {
+    private void onPinStateChange(GpioPinDigitalStateChangeEvent event) {
         String PinTrigger = prefs.get(name + "TriggerState", defaultTrigger);
         PinState pinState = PinState.valueOf(PinTrigger);
         if (pinState == event.getState()) {

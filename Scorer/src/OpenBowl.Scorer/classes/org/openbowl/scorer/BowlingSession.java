@@ -68,6 +68,12 @@ public abstract class BowlingSession implements Runnable {
         display.showSplash(BowlingSplash.SlowBall);
     }
 
+    /**
+     *
+     * Default action of a bowling event ie a bowler bowls a ball down the lane
+     * The player gets two balls on frames 1-9 and an optional 3rd ball on 
+     * frame 10
+     */
     protected void onBowlEvent() {
         boolean foul = lane.isLastBallFoul();
         double speed = lane.getLastBallSpeed();
@@ -158,6 +164,10 @@ public abstract class BowlingSession implements Runnable {
         }
     }
     
+    /**
+     *
+     * Resends the scores for every player to the display
+     */
     public void refreshDisplay() {
         for (int i = 0; i < players.size(); i++) {
             display.setScore(players.get(i), i);
