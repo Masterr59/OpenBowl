@@ -24,22 +24,24 @@ import org.openbowl.common.BowlingFrame.ScoreType;
  *
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
-public class BowlingGame {
+public class BowlingGame 
+{
 
     private String playerName;
     private int playerID;
     private int tapValue;
-    private int handycap;
+    private int handicap;
     private ArrayList<BowlingFrame> frames;
     private BowlingFrame currentFrame;
     private int gameScore;
 
-    public BowlingGame(String name, int id) {
+    public BowlingGame(String name, int id) 
+    {
         this.playerName = name;
         this.playerID = id;
         this.gameScore = 0;
         this.tapValue = 10;
-        this.handycap = 0;
+        this.handicap = 0;
         this.frames = new ArrayList<>();
         this.currentFrame = new BowlingFrame();
         this.frames.add(currentFrame);
@@ -95,59 +97,55 @@ public class BowlingGame {
                 }
                 break;
         }
+        
+        scoreGame();
+    }
+    
+    public void addFrame(BowlingFrame f) {
+        this.frames.add(f);
         scoreGame();
     }
 
     public ArrayList<BowlingFrame> getFrames() {
         return frames;
     }
-
-    public void setFrames(ArrayList<BowlingFrame> frames) {
+    
+/* ************************************************************ */    
+    
+    /*           *
+     *  SETTERS  *
+     *           */
+    
+    public void setHandicap(int handicap)        {  this.handicap = handicap;      }
+    
+    public void setFrames(ArrayList<BowlingFrame> frames) 
+    {
         this.frames = frames;
         scoreGame();
     }
+    
+    public void setPlayerName(String playerName) {  this.playerName = playerName;  }
+    public void setPlayerID(int playerID)        {  this.playerID = playerID;      }
 
-    public void addFrame(BowlingFrame f) {
-        this.frames.add(f);
-        scoreGame();
-    }
-
-    public int getGameScore() {
-        return gameScore;
-    }
-
-    public int getHandycap() {
-        return handycap;
-    }
-
-    public void setHandycap(int handycap) {
-        this.handycap = handycap;
-    }
-
-    public String getPlayerName() {
-        return playerName;
-    }
-
-    public int getPlayerID() {
-        return playerID;
-    }
-
-    public void setPlayerName(String playerName) {
-        this.playerName = playerName;
-    }
-
-    public void setPlayerID(int playerID) {
-        this.playerID = playerID;
-    }
-
-    public int getTapValue() {
-        return tapValue;
-    }
-
-    public void setTapValue(int tapValue) {
+    public void setTapValue(int tapValue) 
+    {
         this.tapValue = tapValue;
         scoreGame();
     }
+    
+/* ************************************************************ */
+    
+    /*           *
+     *  GETTERS  *
+     *           */
+
+    public String getPlayerName()  {  return playerName;  }
+    public int getPlayerID()       {  return playerID;    }
+    public int getGameScore()      {  return gameScore;   }
+    public int getHandicap()       {  return handicap;    }
+    public int getTapValue()       {  return tapValue;    }
+
+/* ************************************************************ */
 
     public boolean isStrikeSpare(ArrayList<BowlingPins> pins) {
         return (10 - pins.size() - tapValue) >= 0;
@@ -160,7 +158,7 @@ public class BowlingGame {
     public void updateTo(BowlingGame game) {
         this.playerName = game.getPlayerName();
         this.playerID = game.getPlayerID();
-        this.handycap = game.getHandycap();
+        this.handicap = game.getHandicap();
         this.frames = game.getFrames();
         scoreGame();
     }
