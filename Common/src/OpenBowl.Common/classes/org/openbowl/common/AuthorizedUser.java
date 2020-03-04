@@ -26,15 +26,33 @@ import java.util.Map;
  */
 public class AuthorizedUser {
 
+    /**
+     *
+     */
     public static final String AUTHKEYWORD = "x-auth-bearer";
     private final String Token;
     private final Calendar expire;
 
+    /**
+     *
+     * Constructs an authorized user with a token string and expiration date
+     *
+     * @param Token
+     * @param expire
+     */
     public AuthorizedUser(String Token, Calendar expire) {
         this.Token = Token;
         this.expire = expire;
     }
 
+    /**
+     *
+     * Checks if the supplied http(s) request headers are authorized by this
+     * user
+     *
+     * @param headers
+     * @return
+     */
     public boolean isAuthorized(Map<String, List<String>> headers) {
         if (headers.containsKey(AUTHKEYWORD)) {
             List<String> values = headers.get(AUTHKEYWORD);
@@ -45,6 +63,12 @@ public class AuthorizedUser {
         return true;
     }
 
+    /**
+     *
+     * Check if the user is currently expired
+     *
+     * @return
+     */
     public boolean isExpired() {
         Calendar now = Calendar.getInstance();
         return now.before(expire);

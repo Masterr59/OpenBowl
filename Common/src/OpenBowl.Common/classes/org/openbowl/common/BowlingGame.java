@@ -35,8 +35,11 @@ public class BowlingGame
     private BowlingFrame currentFrame;
     private int gameScore;
 
-    public BowlingGame(String name, int id) 
-    {
+    /**
+     *
+     * @param name The players name on the score card
+     * @param id The ID number of the player
+     */
         this.playerName = name;
         this.playerID = id;
         this.gameScore = 0;
@@ -47,6 +50,10 @@ public class BowlingGame
         this.frames.add(currentFrame);
     }
 
+    /**
+     *
+     * Resets / clears a game of all scoring 
+     */
     public void reset(){
         this.gameScore = 0;
         this.frames = new ArrayList<>();
@@ -54,6 +61,14 @@ public class BowlingGame
         this.frames.add(currentFrame);
     }
     
+    /**
+     *
+     * Adds a ball to the game
+     * 
+     * @param pins An Array of pins remaining
+     * @param foul If this ball is foul
+     * @param speed The speed of the ball in fps
+     */
     public void addBall(ArrayList<BowlingPins> pins, boolean foul, double speed) {
         switch (currentFrame.getCurrentBall()) {
             case NONE:
@@ -77,6 +92,11 @@ public class BowlingGame
         scoreGame();
     }
 
+    /**
+     *
+     * Adds an empty ball to the frame that is NOT scored
+     * 
+     */
     public void addEmptyBall() {
         switch (currentFrame.getCurrentBall()) {
             case NONE:
@@ -124,23 +144,29 @@ public class BowlingGame
         scoreGame();
     }
     
-    public void setPlayerName(String playerName) {  this.playerName = playerName;  }
-    public void setPlayerID(int playerID)        {  this.playerID = playerID;      }
+    /**
+     *
+     * @return The number of pins that are required to be down to count
+     * as a strike or spare
+     */
 
-    public void setTapValue(int tapValue) 
-    {
+    /**
+     *
+     * @param tapValue The number of pins that are required to be down to count
+     * as a strike or spare
+     */
         this.tapValue = tapValue;
         scoreGame();
     }
     
-/* ************************************************************ */
-    
-    /*           *
-     *  GETTERS  *
-     *           */
-
-    public String getPlayerName()  {  return playerName;  }
-    public int getPlayerID()       {  return playerID;    }
+    /**
+     *
+     * Checks if the array of pins would count as a strike or spare based on
+     * the tap value
+     * 
+     * @param pins The array of pins remaining
+     * @return If it counts as a strike or spare
+     */
     public int getGameScore()      {  return gameScore;   }
     public int getHandicap()       {  return handicap;    }
     public int getTapValue()       {  return tapValue;    }
@@ -151,10 +177,23 @@ public class BowlingGame
         return (10 - pins.size() - tapValue) >= 0;
     }
 
+    /**
+     *
+     * Checks if the array of pins is a noTap strike / spare
+     * 
+     * @param pins The array of pins remaining
+     * @return
+     */
     public boolean isNoTap(ArrayList<BowlingPins> pins) {
         return !pins.isEmpty() && isStrikeSpare(pins);
     }
 
+    /**
+     *
+     * Copies the incoming game to the current game
+     * 
+     * @param game The game that is being copied from
+     */
     public void updateTo(BowlingGame game) {
         this.playerName = game.getPlayerName();
         this.playerID = game.getPlayerID();
