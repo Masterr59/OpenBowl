@@ -61,6 +61,14 @@ public class BowlingFrame implements Comparable<BowlingFrame> {
         this.currentBall = BallNumber.NONE;
     }
 
+    /**
+     *
+     * Adds a ball to the frame and sets the ScoreType to mechanical
+     * 
+     * @param p The pins that were still standing for this ball
+     * @param foul If this ball was foul
+     * @param speed The speed of the ball in fps
+     */
     public void addBall(ArrayList<BowlingPins> p, boolean foul, double speed) {
         switch (currentBall) {
             case NONE:
@@ -78,6 +86,16 @@ public class BowlingFrame implements Comparable<BowlingFrame> {
         }
     }
 
+    /**
+     *
+     * Manually sets a ball in the frame, should be used for changing a score 
+     * 
+     * @param p The pins that were still standing for this ball
+     * @param foul If this ball was foul
+     * @param b The ball number in the frame
+     * @param t The type of scoring for this ball
+     * @param speed The speed of the ball in fps
+     */
     public void setBall(ArrayList<BowlingPins> p, boolean foul, BallNumber b, ScoreType t, double speed) {
         int ballNum = b.ordinal();
         balls[ballNum] = p;
