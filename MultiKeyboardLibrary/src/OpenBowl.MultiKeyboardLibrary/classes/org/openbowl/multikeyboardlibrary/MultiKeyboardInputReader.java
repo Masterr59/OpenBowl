@@ -80,6 +80,12 @@ public class MultiKeyboardInputReader implements Runnable
     {
         MultiKeyboardInputReader testMultiKeyboardInputReader = new MultiKeyboardInputReader();
         KeyboardIdentificationData[] testIdentArray = MultiKeyboardInputReader.getKeyboardIdentificationData();
+        
+        if (testIdentArray == null)
+        {
+            System.out.println("Error: getKeyboardIdentificationData returned null");
+            return;
+        }
 
         System.out.println("Keyboard identification data\n");
 
@@ -231,6 +237,7 @@ public class MultiKeyboardInputReader implements Runnable
         }
 
         isInputBeingPolled = true;
+        
         Thread inputPollingThread = new Thread(this);
 
         inputPollingThread.start();
