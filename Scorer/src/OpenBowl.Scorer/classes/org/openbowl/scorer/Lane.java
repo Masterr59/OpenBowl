@@ -27,6 +27,10 @@ import org.openbowl.common.BowlingPins;
 
 /**
  *
+ * A collection of devices that comprise a bowling lane
+ * This class will fire the LaneEvents.SLOW_BALL and LaneEvents.BOWL_EVENT
+ * when the conditions are met.
+ * 
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
 public class Lane extends Node {

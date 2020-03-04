@@ -71,6 +71,13 @@ public class DisplayConnector {
         this.endpoint = prefs.get(name + DISPLAY_ENDPOINT_NAME, DISPLAY_ENDPOINT_VALUE);
     }
 
+    /**
+     * 
+     * Tells the display who the current player is
+     *
+     * @param player The new current player
+     * @return The response from the display
+     */
     public Map<String, Object> setCurentPlayer(int player) {
         String parms = "?set=currentPlayer";
         Map<String, Integer> map = new HashMap<>();
@@ -84,6 +91,14 @@ public class DisplayConnector {
         return processResponse(response);
     }
 
+    /**
+     *
+     * Sets the score for a given player
+     * 
+     * @param g The game score card
+     * @param player The player to update
+     * @return The response from the display
+     */
     public Map<String, Object> setScore(BowlingGame g, int player) {
         String parms = "?set=playerScore&player=" + Integer.toString(player);
         String response = "{}";
@@ -99,6 +114,13 @@ public class DisplayConnector {
         return processResponse(response);
     }
 
+    /**
+     *
+     * Adds a new player on the display
+     * 
+     * @param g The players scorecard
+     * @return The response from the display
+     */
     public Map<String, Object> newPlayer(BowlingGame g) {
         String parms = "?set=newPlayer";
         String response = "{}";
@@ -110,6 +132,13 @@ public class DisplayConnector {
         return processResponse(response);
     }
 
+    /**
+     *
+     * Shows a splash / excitor video
+     * 
+     * @param type The type of splash to show
+     * @return the response from the display
+     */
     public Map<String, Object> showSplash(BowlingSplash type) {
         String parms = "?set=splash";
         Map<String, String> map = new HashMap<>();
@@ -123,6 +152,14 @@ public class DisplayConnector {
         return processResponse(response);
     }
 
+    /**
+     *
+     * Shows a message card on the display for a given length of time
+     * 
+     * @param type The type of card to show
+     * @param duration How long to show it
+     * @return The response from the display
+     */
     public Map<String, Object> showMessageCard(String type, int duration) {
         String parms = "?set=card";
         Map<String, Object> map = new HashMap<>();
