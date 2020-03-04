@@ -56,6 +56,13 @@ public class BowlingGameDisplay extends Region {
         return this.games.size();
     }
 
+    /**
+     *
+     * Updates a player scorecard 
+     * 
+     * @param playerNumber The player to be updated
+     * @param game The new game scorecard
+     */
     public void updatePlater(int playerNumber, BowlingGame game) {
         if (playerNumber < games.size()) {
             games.get(playerNumber).updateTo(game);
