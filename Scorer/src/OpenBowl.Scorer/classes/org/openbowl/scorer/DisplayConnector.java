@@ -21,11 +21,9 @@ import com.google.gson.JsonSyntaxException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
-import javafx.scene.control.TextInputDialog;
 import org.openbowl.common.BowlingGame;
 import org.openbowl.common.BowlingSplash;
 import org.openbowl.common.WebFunctions;
@@ -36,10 +34,10 @@ import org.openbowl.common.WebFunctions;
  */
 public class DisplayConnector {
 
-    public final String DISPLAY_ADDRESS_NAME = "DisplayAddress";
-    public final String DISPLAY_ENDPOINT_NAME = "DisplayEndpoint";
-    public final String DISPLAY_ADDRESS_VALUE = "127.0.0.1";
-    public final String DISPLAY_ENDPOINT_VALUE = "odd";
+    public final String ADDRESS_SETTING = "DisplayAddress";
+    public final String ENDPOINT_SETTING = "DisplayEndpoint";
+    public final String DEFAULT_ADDRESS = "127.0.0.1";
+    public final String DEFAULT_ENDPOINT = "odd";
 
     private final String name;
     private String address;
@@ -51,8 +49,8 @@ public class DisplayConnector {
     public DisplayConnector(String name, String authToken) {
         this.name = name;
         prefs = Preferences.userNodeForPackage(this.getClass());
-        this.address = prefs.get(name + DISPLAY_ADDRESS_NAME, DISPLAY_ADDRESS_VALUE);
-        this.endpoint = prefs.get(name + DISPLAY_ENDPOINT_NAME, DISPLAY_ENDPOINT_VALUE);
+        this.address = prefs.get(name + ADDRESS_SETTING, DEFAULT_ADDRESS);
+        this.endpoint = prefs.get(name + ENDPOINT_SETTING, DEFAULT_ENDPOINT);
         this.authToken = authToken;
         gson = new Gson();
     }
@@ -67,8 +65,8 @@ public class DisplayConnector {
             System.out.println("Error showing dialog " + e.toString());
             e.printStackTrace();
         }
-        this.address = prefs.get(name + DISPLAY_ADDRESS_NAME, DISPLAY_ADDRESS_VALUE);
-        this.endpoint = prefs.get(name + DISPLAY_ENDPOINT_NAME, DISPLAY_ENDPOINT_VALUE);
+        this.address = prefs.get(name + ADDRESS_SETTING, DEFAULT_ADDRESS);
+        this.endpoint = prefs.get(name + ENDPOINT_SETTING, DEFAULT_ENDPOINT);
     }
 
     /**
@@ -188,10 +186,31 @@ public class DisplayConnector {
     }
 
     public String setConfiguration(Map<String, Object> configuration) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String results = "";
+        try {
+            String type = (String) configuration.get("Type");
+            String addr = (String) configuration.get(ADDRESS_SETTING);
+            String end = (String) configuration.get(ENDPOINT_SETTING);
+            if (type.equals(this.getClass().getName())) {
+                prefs.put(name + ADDRESS_SETTING, addr);
+                prefs.put(name + ENDPOINT_SETTING, end);
+            } else {
+                results += "Incorrect device type";
+            }
+        } catch (ClassCastException e) {
+            results += e.getMessage();
+        } catch (NullPointerException e) {
+            results += "NullPointException: " + e.getMessage();
+        }
+
+        return results;
     }
 
     public Map<String, Object> getConfiguration() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Map<String, Object> ret = new HashMap<>();
+        ret.put("Type", this.getClass().getName());
+        ret.put(ADDRESS_SETTING, prefs.get(name + ADDRESS_SETTING, DEFAULT_ADDRESS));
+        ret.put(ENDPOINT_SETTING, prefs.get(name + ENDPOINT_SETTING, DEFAULT_ENDPOINT));
+        return ret;
     }
 }

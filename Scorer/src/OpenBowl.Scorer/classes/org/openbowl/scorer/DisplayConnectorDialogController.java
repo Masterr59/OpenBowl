@@ -65,13 +65,13 @@ public class DisplayConnectorDialogController extends Dialog<Void> implements In
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        address.setText(prefs.get(name + display.DISPLAY_ADDRESS_NAME, display.DISPLAY_ADDRESS_VALUE));
-        endpoint.setText(prefs.get(name + display.DISPLAY_ENDPOINT_NAME, display.DISPLAY_ENDPOINT_VALUE));
+        address.setText(prefs.get(name + display.ADDRESS_SETTING, display.DEFAULT_ADDRESS));
+        endpoint.setText(prefs.get(name + display.ENDPOINT_SETTING, display.DEFAULT_ENDPOINT));
     }
 
     private void onOK(ActionEvent eh) {
-        prefs.put(name + display.DISPLAY_ADDRESS_NAME, address.getText());
-        prefs.put(name + display.DISPLAY_ENDPOINT_NAME, endpoint.getText());
+        prefs.put(name + display.ADDRESS_SETTING, address.getText());
+        prefs.put(name + display.ENDPOINT_SETTING, endpoint.getText());
     }
 
 }
