@@ -20,6 +20,7 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.prefs.Preferences;
 import javafx.scene.paint.Color;
@@ -31,11 +32,19 @@ import org.openbowl.common.BowlingPins;
  */
 public class BasicPinCounter implements PinCounter {
 
-    private final int defaultX = 1;
-    private final int defaultY = 1;
-    private final int defaultLevel = 100;
-    private final int defaultRadius = 10;
-    private final Color defaultColor = Color.WHITE;
+    public final String X_SETTING = "X";
+    public final String Y_SETTING = "Y";
+    public final String RADIUS_SETTING = "Radius";
+    public final String LEVEL_SETTING = "Level";
+    public final String RED_SETTING = "Red";
+    public final String BLUE_SETTING = "Blue";
+    public final String GREEN_SETTING = "Green";
+
+    public final int DEFAULT_X = 1;
+    public final int DEFAULT_Y = 1;
+    public final int DEFAULT_LEVEL = 100;
+    public final int DEFAULT_RADIUS = 10;
+    public final Color DEFAULT_COLOR = Color.WHITE;
 
     private ArrayList<PinCounterTarget> targetList;
     private BufferedImage lastCameraImage;
@@ -187,12 +196,35 @@ public class BasicPinCounter implements PinCounter {
     /**
      * Gets the current pin counter configuration settings
      *
-     * @throws UnsupportedOperationException Will be implemented in the near
-     * future
+     * @return
+     *
      */
     @Override
     public Map<String, Object> getConfiguration() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        Map<String, Object> ret = new HashMap<>();
+        ret.put("Type", this.getClass().getName());
+        BowlingPins[] allPins = BowlingPins.values();
+        for (BowlingPins p : allPins) {
+            int X, Y, R, level;
+            X = prefs.getInt(name + "-" + p.toString() + "-" + X_SETTING, DEFAULT_X);
+            Y = prefs.getInt(name + "-" + p.toString() + "-" + Y_SETTING, DEFAULT_Y);
+            R = prefs.getInt(name + "-" + p.toString() + "-" + RADIUS_SETTING, DEFAULT_RADIUS);
+            level = prefs.getInt(name + "-" + p.toString() + "-" + LEVEL_SETTING, DEFAULT_LEVEL);
+            double r, g, b;
+            r = prefs.getDouble(name + "-" + p.toString() + "-" + RED_SETTING, DEFAULT_COLOR.getRed());
+            g = prefs.getDouble(name + "-" + p.toString() + "-" + GREEN_SETTING, DEFAULT_COLOR.getGreen());
+            b = prefs.getDouble(name + "-" + p.toString() + "-" + BLUE_SETTING, DEFAULT_COLOR.getBlue());
+
+            ret.put(p.toString() + "-" + X_SETTING, X);
+            ret.put(p.toString() + "-" + Y_SETTING, Y);
+            ret.put(p.toString() + "-" + RADIUS_SETTING, R);
+            ret.put(p.toString() + "-" + LEVEL_SETTING, level);
+            ret.put(p.toString() + "-" + RED_SETTING, r);
+            ret.put(p.toString() + "-" + GREEN_SETTING, g);
+            ret.put(p.toString() + "-" + BLUE_SETTING, b);
+
+        }
+        return ret;
     }
 
     /**
@@ -240,12 +272,52 @@ public class BasicPinCounter implements PinCounter {
     /**
      * Sets the current pin counter configuration settings
      *
-     * @throws UnsupportedOperationException Will be implemented in the near
-     * future
+     * @param configuration
+     * @return
+     *
      */
     @Override
     public String setConfiguration(Map<String, Object> configuration) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        String results = "";
+        try {
+            String type = (String) configuration.get("Type");
+
+            if (type.equals(this.getClass().getName())) {
+                teardown();
+                BowlingPins[] allPins = BowlingPins.values();
+                for (BowlingPins p : allPins) {
+                    int X, Y, R, level;
+                    double r, g, b;
+                    X = (int) configuration.get(p.toString() + "-" + X_SETTING);
+                    Y = (int) configuration.get(p.toString() + "-" + Y_SETTING);
+                    R = (int) configuration.get(p.toString() + "-" + RADIUS_SETTING);
+                    level = (int) configuration.get(p.toString() + "-" + LEVEL_SETTING);
+
+                    r = (double) configuration.get(p.toString() + "-" + RED_SETTING);
+                    g = (double) configuration.get(p.toString() + "-" + GREEN_SETTING);
+                    b = (double) configuration.get(p.toString() + "-" + BLUE_SETTING);
+
+                    prefs.putInt(name + "-" + p.toString() + "-" + X_SETTING, X);
+                    prefs.putInt(name + "-" + p.toString() + "-" + Y_SETTING, Y);
+                    prefs.putInt(name + "-" + p.toString() + "-" + RADIUS_SETTING, R);
+                    prefs.putInt(name + "-" + p.toString() + "-" + LEVEL_SETTING, level);
+
+                    prefs.putDouble(name + "-" + p.toString() + "-" + RED_SETTING, r);
+                    prefs.putDouble(name + "-" + p.toString() + "-" + BLUE_SETTING, g);
+                    prefs.putDouble(name + "-" + p.toString() + "-" + GREEN_SETTING, b);
+
+                }
+                setup();
+            } else {
+                results += "Incorrect device type";
+            }
+        } catch (ClassCastException e) {
+            results += e.getMessage();
+        } catch (NullPointerException e) {
+            results += "NullPointException: " + e.getMessage();
+        }
+
+        return results;
     }
 
     @Override
@@ -254,18 +326,18 @@ public class BasicPinCounter implements PinCounter {
         BowlingPins[] allPins = BowlingPins.values();
         for (BowlingPins p : allPins) {
             int X, Y, R, level;
-            X = prefs.getInt(name + "-" + p.toString() + "-" + "X", defaultX);
-            Y = prefs.getInt(name + "-" + p.toString() + "-" + "Y", defaultY);
-            R = prefs.getInt(name + "-" + p.toString() + "-" + "Radius", defaultRadius);
-            level = prefs.getInt(name + "-" + p.toString() + "-" + "Level", defaultLevel);
+            X = prefs.getInt(name + "-" + p.toString() + "-" + X_SETTING, DEFAULT_X);
+            Y = prefs.getInt(name + "-" + p.toString() + "-" + Y_SETTING, DEFAULT_Y);
+            R = prefs.getInt(name + "-" + p.toString() + "-" + RADIUS_SETTING, DEFAULT_RADIUS);
+            level = prefs.getInt(name + "-" + p.toString() + "-" + LEVEL_SETTING, DEFAULT_LEVEL);
             double r, g, b;
-            r = prefs.getDouble(name + "-" + p.toString() + "-" + "Red", defaultColor.getRed());
-            g = prefs.getDouble(name + "-" + p.toString() + "-" + "Green", defaultColor.getGreen());
-            b = prefs.getDouble(name + "-" + p.toString() + "-" + "Blue", defaultColor.getBlue());
-            
+            r = prefs.getDouble(name + "-" + p.toString() + "-" + RED_SETTING, DEFAULT_COLOR.getRed());
+            g = prefs.getDouble(name + "-" + p.toString() + "-" + GREEN_SETTING, DEFAULT_COLOR.getGreen());
+            b = prefs.getDouble(name + "-" + p.toString() + "-" + BLUE_SETTING, DEFAULT_COLOR.getBlue());
+
             PinCounterTarget pinTarget = new PinCounterTarget(level, 255, p, R, X, Y);
             addTarget(pinTarget);
-            
+
         }
         return ret;
     }
