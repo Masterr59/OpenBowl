@@ -16,45 +16,59 @@
  */
 package org.openbowl.scorer.remote;
 
+import com.google.gson.JsonSyntaxException;
 import java.util.HashMap;
 import java.util.Map;
-import org.openbowl.scorer.PinSetter;
-import com.google.gson.JsonSyntaxException;
 import org.openbowl.common.CommonHandler;
+import org.openbowl.scorer.Lane;
 
 /**
  *
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
-public class PinSetterHandler extends CommonHandler {
+public class LaneHandler extends CommonHandler {
 
-    private final PinSetter pinSetter;
-    private final int lane;
+    private final Lane lane;
 
-    public PinSetterHandler(PinSetter pinSetter, int lane) {
+    public LaneHandler(Lane lane) {
         super();
-        this.pinSetter = pinSetter;
         this.lane = lane;
-
     }
 
     @Override
     protected Map<String, Object> onGet(Map<String, String> parms) {
         Map<String, Object> map = new HashMap<>();
-        map.put("Lane", lane);
+        map.put("lane", lane.getName());
         switch (parms.getOrDefault("get", "none")) {
-            case "power":
+            case "pinSetterPower":
                 map.put(SUCCESS, true);
-                map.put("Power", pinSetter.getPowerState());
+                map.put("Power", lane.getPinSetter().getPowerState());
                 break;
-            case "config":
+            case "pinSetterConfig":
                 map.put(SUCCESS, true);
-                map.put("CurentConfig", pinSetter.getConfiguration());
+                map.put("CurentConfig", lane.getPinSetter().getConfiguration());
                 break;
-            default:
-                map.put(SUCCESS, false);
-                map.put(ERROR_MSG, "missing or unsupported request");
+            case "pinCounterConfig":
+                map.put(SUCCESS, true);
+                map.put("CurentConfig", lane.getPinSetter().getConfiguration());
                 break;
+            case "sweepDetectConfig":
+                map.put(SUCCESS, true);
+                map.put("CurentConfig", lane.getSweep().getConfiguration());
+                break;
+            case "foulDetectConfig":
+                map.put(SUCCESS, true);
+                map.put("CurentConfig", lane.getFoul().getConfiguration());
+                break;
+            case "ballDetectConfig":
+                map.put(SUCCESS, true);
+                map.put("CurentConfig", lane.getBall().getConfiguration());
+                break;
+            case "displayConfig":
+                map.put(SUCCESS, true);
+                map.put("CurentConfig", lane.getDisplay().getConfiguration());
+                break;
+
         }
         return map;
     }
@@ -62,8 +76,7 @@ public class PinSetterHandler extends CommonHandler {
     @Override
     protected Map<String, Object> onPost(Map<String, String> parms, String body) {
         Map<String, Object> map = new HashMap<>();
-        map.put("Lane", lane);
-        //System.out.println(body);
+        map.put("Lane", lane.getName());
         Map<String, Object> requestBody = new HashMap<>();
         try {
             requestBody = gson.fromJson(body, Map.class);
@@ -72,28 +85,27 @@ public class PinSetterHandler extends CommonHandler {
             map.put(ERROR_MSG, e.getMessage());
             return map;
         }
-        //System.out.println(gson.toJson(requestBody));
         try {
             switch (parms.getOrDefault("set", "none")) {
-                case "power":
+                case "pinSetterPower":
                     boolean powerState = (boolean) requestBody.get("state");
-                    pinSetter.setPower(powerState);
+                    lane.getPinSetter().setPower(powerState);
                     map.put(SUCCESS, true);
-                    map.put("Power", pinSetter.getPowerState());
+                    map.put("Power", lane.getPinSetter().getPowerState());
                     break;
-                case "config":
-                    String results = pinSetter.setConfiguration(requestBody);
+                case "pinSetterConfig":
+                    String results = lane.getPinSetter().setConfiguration(requestBody);
                     if (results.isBlank()) {
                         map.put(SUCCESS, true);
-                        map.put("CurentConfig", pinSetter.getConfiguration());
+                        map.put("CurentConfig", lane.getPinSetter().getConfiguration());
                     } else {
                         map.put(SUCCESS, false);
                         map.put(ERROR_MSG, results);
                     }
                     break;
-                case "cycle":
-                    if (pinSetter.getPowerState()) {
-                        pinSetter.cycle();
+                case "pinSetterCycle":
+                    if (lane.getPinSetter().getPowerState()) {
+                        lane.getPinSetter().cycle();
                         map.put(SUCCESS, true);
                     } else {
                         map.put(SUCCESS, false);
@@ -104,10 +116,11 @@ public class PinSetterHandler extends CommonHandler {
                     map.put(SUCCESS, false);
                     map.put(ERROR_MSG, "missing or unsupported request");
                     break;
+                
             }
         } catch (ClassCastException e) {
             map.put(SUCCESS, false);
-            map.put(ERROR_MSG, "missing or unsupported request");
+            map.put(ERROR_MSG, e.toString());
         }
         return map;
     }
