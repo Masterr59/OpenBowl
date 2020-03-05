@@ -72,7 +72,7 @@ public class DisplayConnector {
     }
 
     /**
-     * 
+     *
      * Tells the display who the current player is
      *
      * @param player The new current player
@@ -94,7 +94,7 @@ public class DisplayConnector {
     /**
      *
      * Sets the score for a given player
-     * 
+     *
      * @param g The game score card
      * @param player The player to update
      * @return The response from the display
@@ -117,7 +117,7 @@ public class DisplayConnector {
     /**
      *
      * Adds a new player on the display
-     * 
+     *
      * @param g The players scorecard
      * @return The response from the display
      */
@@ -135,7 +135,7 @@ public class DisplayConnector {
     /**
      *
      * Shows a splash / excitor video
-     * 
+     *
      * @param type The type of splash to show
      * @return the response from the display
      */
@@ -155,7 +155,7 @@ public class DisplayConnector {
     /**
      *
      * Shows a message card on the display for a given length of time
-     * 
+     *
      * @param type The type of card to show
      * @param duration How long to show it
      * @return The response from the display
@@ -185,5 +185,13 @@ public class DisplayConnector {
             }
         }
         return ret;
+    }
+
+    public String setConfiguration(Map<String, Object> configuration) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public Map<String, Object> getConfiguration() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
