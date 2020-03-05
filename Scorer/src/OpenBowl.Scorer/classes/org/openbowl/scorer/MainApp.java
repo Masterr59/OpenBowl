@@ -28,7 +28,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -38,7 +37,7 @@ import javafx.stage.Stage;
 import org.openbowl.common.AboutOpenBowl;
 import org.openbowl.common.BowlingGame;
 import org.openbowl.common.WebFunctions;
-import org.openbowl.scorer.remote.PinSetterHandler;
+import org.openbowl.scorer.remote.LaneHandler;
 
 /**
  *
@@ -116,8 +115,8 @@ public class MainApp extends Application {
         } catch (IOException e) {
             remoteControl = WebFunctions.createCustomServer(1);
         }
-        remoteControl.createContext("/pinsetter/odd/", new PinSetterHandler(oddLane.getPinSetter(), 1));
-        remoteControl.createContext("/pinsetter/even/", new PinSetterHandler(evenLane.getPinSetter(), 2));
+        remoteControl.createContext("/lane/odd/", new LaneHandler(oddLane));
+        remoteControl.createContext("/lane/even/", new LaneHandler(evenLane));
 
         remoteControl.start();
 
@@ -160,11 +159,10 @@ public class MainApp extends Application {
         Menu configMenu = new Menu("_Configure");
         MenuItem oddLaneConfig = new MenuItem("Odd Lane");
         oddLaneConfig.setOnAction(notUsed -> oddLane.configureDialog());
-        
+
         MenuItem evenLaneConfig = new MenuItem("Even Lane");
         evenLaneConfig.setOnAction(notUsed -> evenLane.configureDialog());
-        
-        
+
         configMenu.getItems().addAll(oddLaneConfig, evenLaneConfig);
 
         Menu maintMenu = new Menu("_Maintenance");
@@ -248,8 +246,8 @@ public class MainApp extends Application {
         session.addPlayer(b);
     }
 
-    private NumberedSession onAddNumberedSession(Lane l,  int numGames) {
-        NumberedSession session = new NumberedSession(l,  numGames);
+    private NumberedSession onAddNumberedSession(Lane l, int numGames) {
+        NumberedSession session = new NumberedSession(l, numGames);
         sessionQueue.add(session);
         synchronized (sessionQueue) {
             sessionQueue.notifyAll();
