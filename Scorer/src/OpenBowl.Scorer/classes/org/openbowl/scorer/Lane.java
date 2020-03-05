@@ -18,6 +18,7 @@ package org.openbowl.scorer;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -25,6 +26,7 @@ import java.util.prefs.Preferences;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import org.openbowl.common.BowlingPins;
+import static org.openbowl.scorer.BasicPinSetter.POWER_PIN_SETTING_NAME;
 
 /**
  *
@@ -96,12 +98,45 @@ public class Lane extends Node {
 
     }
 
-    public String setConfiguration(Map<String, Object> configuration) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public String setConfiguration(Map<String, Object> newConfig) {
+        String results = "";
+        try {
+            String type = (String) newConfig.get("Type");
+            double ballSweep = (double) newConfig.get(BALL_SWEEP_DISTANCE_SETTING);
+            long slowBall = (new Double((double) newConfig.get(SLOW_BALL_THRESHOLD_SETTING))).longValue();
+            long foulBall = (new Double((double) newConfig.get(FOUL_BALL_THRESHOLD_SETTING))).longValue();
+            long pinCycle = (new Double((double) newConfig.get(PIN_COUNTER_DELAY_SETTING))).longValue();
+
+            if (type.equals(this.getClass().getName())) {
+                foulSweepDistance = ballSweep;
+                slowBallThreshold = slowBall;
+                foulBallThreshold = foulBall;
+                pinCounterDelay = pinCycle;
+                prefs.putDouble(name + BALL_SWEEP_DISTANCE_SETTING, ballSweep);
+                prefs.putLong(name + SLOW_BALL_THRESHOLD_SETTING, new Double(slowBall).longValue());
+                prefs.putLong(name + FOUL_BALL_THRESHOLD_SETTING, new Double(foulBall).longValue());
+                prefs.putLong(name + PIN_COUNTER_DELAY_SETTING, new Double(pinCycle).longValue());
+            } else {
+                results += "Incorrect device type";
+            }
+        } catch (ClassCastException e) {
+            results += e.getMessage();
+        } catch (NullPointerException e) {
+            results += "NullPointException: " + e.getMessage();
+        }
+
+        return results;
+
     }
 
     public Map<String, Object> getConfiguration() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Map<String, Object> ret = new HashMap<>();
+        ret.put("Type", this.getClass().getName());
+        ret.put(BALL_SWEEP_DISTANCE_SETTING, foulSweepDistance);
+        ret.put(SLOW_BALL_THRESHOLD_SETTING, slowBallThreshold);
+        ret.put(FOUL_BALL_THRESHOLD_SETTING, foulBallThreshold);
+        ret.put(PIN_COUNTER_DELAY_SETTING, pinCounterDelay);
+        return ret;
     }
 
     public PinSetter getPinSetter() {
