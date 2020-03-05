@@ -26,7 +26,6 @@ import java.util.prefs.Preferences;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import org.openbowl.common.BowlingPins;
-import static org.openbowl.scorer.BasicPinSetter.POWER_PIN_SETTING_NAME;
 
 /**
  *
