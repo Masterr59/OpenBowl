@@ -64,11 +64,14 @@ public class LaneHandler extends CommonHandler {
                 map.put(SUCCESS, true);
                 map.put("CurentConfig", lane.getBall().getConfiguration());
                 break;
-            case "displayConfig":
+            case "displayConnectorConfig":
                 map.put(SUCCESS, true);
                 map.put("CurentConfig", lane.getDisplay().getConfiguration());
                 break;
-
+            case "laneConfig":
+                map.put(SUCCESS, true);
+                map.put("CurentConfig", lane.getConfiguration());
+                break;
         }
         return map;
     }
@@ -86,6 +89,7 @@ public class LaneHandler extends CommonHandler {
             return map;
         }
         try {
+            String results;
             switch (parms.getOrDefault("set", "none")) {
                 case "pinSetterPower":
                     boolean powerState = (boolean) requestBody.get("state");
@@ -94,7 +98,7 @@ public class LaneHandler extends CommonHandler {
                     map.put("Power", lane.getPinSetter().getPowerState());
                     break;
                 case "pinSetterConfig":
-                    String results = lane.getPinSetter().setConfiguration(requestBody);
+                    results = lane.getPinSetter().setConfiguration(requestBody);
                     if (results.isBlank()) {
                         map.put(SUCCESS, true);
                         map.put("CurentConfig", lane.getPinSetter().getConfiguration());
@@ -112,11 +116,71 @@ public class LaneHandler extends CommonHandler {
                         map.put(ERROR_MSG, "Pinsetter is off");
                     }
                     break;
+                case "pinCounterConfig":
+                    results = lane.getPinCounter().setConfiguration(requestBody);
+                    if (results.isBlank()) {
+                        map.put(SUCCESS, true);
+                        map.put("CurentConfig", lane.getPinCounter().getConfiguration());
+                    } else {
+                        map.put(SUCCESS, false);
+                        map.put(ERROR_MSG, results);
+                    }
+                    break;
+                case "sweepDetectConfig":
+                    results = lane.getSweep().setConfiguration(requestBody);
+                    if (results.isBlank()) {
+                        map.put(SUCCESS, true);
+                        map.put("CurentConfig", lane.getSweep().getConfiguration());
+                    } else {
+                        map.put(SUCCESS, false);
+                        map.put(ERROR_MSG, results);
+                    }
+                    break;
+                case "foulDetectConfig":
+                    results = lane.getFoul().setConfiguration(requestBody);
+                    if (results.isBlank()) {
+                        map.put(SUCCESS, true);
+                        map.put("CurentConfig", lane.getFoul().getConfiguration());
+                    } else {
+                        map.put(SUCCESS, false);
+                        map.put(ERROR_MSG, results);
+                    }
+                    break;
+                case "ballDetectConfig":
+                    results = lane.getBall().setConfiguration(requestBody);
+                    if (results.isBlank()) {
+                        map.put(SUCCESS, true);
+                        map.put("CurentConfig", lane.getBall().getConfiguration());
+                    } else {
+                        map.put(SUCCESS, false);
+                        map.put(ERROR_MSG, results);
+                    }
+                    break;
+                case "displayConnectorConfig":
+                    results = lane.getDisplay().setConfiguration(requestBody);
+                    if (results.isBlank()) {
+                        map.put(SUCCESS, true);
+                        map.put("CurentConfig", lane.getDisplay().getConfiguration());
+                    } else {
+                        map.put(SUCCESS, false);
+                        map.put(ERROR_MSG, results);
+                    }
+                    break;
+                case "laneConfig":
+                    results = lane.setConfiguration(requestBody);
+                    if (results.isBlank()) {
+                        map.put(SUCCESS, true);
+                        map.put("CurentConfig", lane.getConfiguration());
+                    } else {
+                        map.put(SUCCESS, false);
+                        map.put(ERROR_MSG, results);
+                    }
+                    break;
                 default:
                     map.put(SUCCESS, false);
                     map.put(ERROR_MSG, "missing or unsupported request");
                     break;
-                
+
             }
         } catch (ClassCastException e) {
             map.put(SUCCESS, false);

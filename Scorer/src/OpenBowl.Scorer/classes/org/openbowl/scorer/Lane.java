@@ -18,6 +18,7 @@ package org.openbowl.scorer;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.prefs.Preferences;
@@ -93,6 +94,14 @@ public class Lane extends Node {
         foulBallThreshold = prefs.getLong(name + FOUL_BALL_THRESHOLD_SETTING, FOUL_BALL_THRESHOLD_DEFAULT);
         pinCounterDelay = prefs.getLong(name + PIN_COUNTER_DELAY_SETTING, PIN_COUNTER_DELAY_DEFAULT);
 
+    }
+
+    public String setConfiguration(Map<String, Object> configuration) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public Map<String, Object> getConfiguration() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     public PinSetter getPinSetter() {
