@@ -139,6 +139,9 @@ public class GameHandler extends CommonHandler {
             case "newSession":
                 if (requestBody.containsKey("type")) {
                     map.put(SUCCESS, onNewSession(requestBody));
+                } else {
+                    map.put(SUCCESS, false);
+                    map.put(ERROR_MSG, "session type not found");
                 }
                 break;
             case "newPlayer":
@@ -153,6 +156,36 @@ public class GameHandler extends CommonHandler {
             case "setPlayer":
                 if (gameSession != null) {
                     map.put(SUCCESS, onSetPlayer(requestBody, gameSession));
+                } else {
+                    map.put(SUCCESS, false);
+                    map.put(ERROR_MSG, "session not found");
+                }
+                break;
+            case "pauseSession":
+                if (gameSession != null) {
+                    gameSession.pauseSession();
+                    map.put(SUCCESS, true);
+                } else {
+                    map.put(SUCCESS, false);
+                    map.put(ERROR_MSG, "session not found");
+                }
+                break;
+            case "resumeSession":
+                if (gameSession != null) {
+                    gameSession.resumeSession();
+                    map.put(SUCCESS, true);
+                } else {
+                    map.put(SUCCESS, false);
+                    map.put(ERROR_MSG, "session not found");
+                }
+                break;
+            case "abortSession":
+                if (gameSession != null) {
+                    gameSession.abortSession();
+                    map.put(SUCCESS, true);
+                } else {
+                    map.put(SUCCESS, false);
+                    map.put(ERROR_MSG, "session not found");
                 }
                 break;
             default:
@@ -194,14 +227,14 @@ public class GameHandler extends CommonHandler {
     }
 
     private boolean onSetPlayer(Map<String, Object> requestBody, BowlingSession gameSession) {
-        if(requestBody.containsKey("playerID") && requestBody.containsKey("player")){
+        if (requestBody.containsKey("playerID") && requestBody.containsKey("player")) {
             int id = (int) requestBody.get("playerID");
             String jsonGame = gson.toJson(requestBody.get("player"));
             BowlingGame b = gson.fromJson(jsonGame, BowlingGame.class);
             gameSession.getPlayers().get(id).updateTo(b);
             return true;
         }
-        
+
         return false;
     }
 }
