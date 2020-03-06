@@ -122,10 +122,10 @@ public class MainApp extends Application {
 
         oddGameHandler = new GameHandler(oddSessionQueue, oddLane);
         evenGameHandler = new GameHandler(evenSessionQueue, evenLane);
-        
+
         remoteControl.createContext("/game/odd/", oddGameHandler);
         remoteControl.createContext("/game/even/", evenGameHandler);
-        
+
         remoteControl.start();
 
         oddSessionManager = new Thread(new SessionManager(oddSessionQueue, oddGameHandler));
@@ -158,10 +158,10 @@ public class MainApp extends Application {
         testEvenPinCounter.setOnAction(notUsed -> onCountPins("Even", evenLane.getPinCounter()));
 
         MenuItem testOddGame = new MenuItem("Test adding game Odd (4)");
-        testOddGame.setOnAction(notUsed -> onTestNumberSession(oddLane, 4));
+        testOddGame.setOnAction(notUsed -> onTestNumberSession(oddLane, 4, oddSessionQueue));
 
         MenuItem testEvenGame = new MenuItem("Test adding game even (8)");
-        testEvenGame.setOnAction(notUsed -> onTestNumberSession(evenLane, 8));
+        testEvenGame.setOnAction(notUsed -> onTestNumberSession(evenLane, 8, evenSessionQueue));
 
         testMenu.getItems().addAll(testOddPinCounter, testEvenPinCounter,
                 testOddGame, testEvenGame);
@@ -242,8 +242,8 @@ public class MainApp extends Application {
         }
     }
 
-    private void onTestNumberSession(Lane l, int numGames) {
-        NumberedSession session = onAddNumberedSession(l, numGames);
+    private void onTestNumberSession(Lane l, int numGames, LinkedBlockingQueue<BowlingSession> sessionQueue) {
+        NumberedSession session = new NumberedSession(l, numGames);
         BowlingGame b = new BowlingGame("Patrick", "-1");
         b.setHandycap(5);
         session.addPlayer(b);
@@ -255,15 +255,7 @@ public class MainApp extends Application {
         b = new BowlingGame("Brian", "-1");
         b.setHandycap(19);
         session.addPlayer(b);
-    }
-
-    private NumberedSession onAddNumberedSession(Lane l, int numGames) {
-        NumberedSession session = new NumberedSession(l, numGames);
-        oddSessionQueue.add(session);
-        synchronized (oddSessionQueue) {
-            oddSessionQueue.notifyAll();
-        }
-        return session;
+        sessionQueue.add(session);
     }
 
     private class SessionManager implements Runnable {
@@ -283,23 +275,17 @@ public class MainApp extends Application {
             while (!Thread.currentThread().isInterrupted() && run) {
                 System.out.println("SessionManager is running");
                 try {
-                    if (!queue.isEmpty()) {
-                        System.out.println("Start new Session");
-                        currentSession = queue.poll();
-                        gameHandler.setCurrentSession(currentSession);
-                        sessionThread = new Thread(currentSession);
-                        sessionThread.start();
 
-                        sessionThread.join();
-                        currentSession = null;
-                        gameHandler.clearCurrentSession();
+                    System.out.println("Start new Session");
+                    currentSession = queue.take();
+                    gameHandler.setCurrentSession(currentSession);
+                    sessionThread = new Thread(currentSession);
+                    sessionThread.start();
 
-                    } else {
-                        synchronized (queue) {
-                            queue.wait();
-                        }
+                    sessionThread.join();
+                    currentSession = null;
+                    gameHandler.clearCurrentSession();
 
-                    }
                 } catch (InterruptedException ex) {
                     if (sessionThread != null && sessionThread.isAlive()) {
                         sessionThread.interrupt();
