@@ -27,7 +27,7 @@ import org.openbowl.common.BowlingFrame.ScoreType;
 public class BowlingGame {
 
     private String playerName;
-    private int playerID;
+    private String playerID;
     private int tapValue;
     private int handycap;
     private ArrayList<BowlingFrame> frames;
@@ -39,7 +39,7 @@ public class BowlingGame {
      * @param name The players name on the score card
      * @param id The ID number of the player
      */
-    public BowlingGame(String name, int id) {
+    public BowlingGame(String name, String id) {
         this.playerName = name;
         this.playerID = id;
         this.gameScore = 0;
@@ -150,7 +150,7 @@ public class BowlingGame {
         return playerName;
     }
 
-    public int getPlayerID() {
+    public String getPlayerID() {
         return playerID;
     }
 
@@ -158,7 +158,7 @@ public class BowlingGame {
         this.playerName = playerName;
     }
 
-    public void setPlayerID(int playerID) {
+    public void setPlayerID(String playerID) {
         this.playerID = playerID;
     }
 
