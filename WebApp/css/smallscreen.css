@@ -7,7 +7,10 @@
 .linksection { width: 75px; }
 .linksection a { width: 75px; }
 .status { width: 20px; height: 20px; }
-.normalBtn, .yellowBtn, .greenBtn, .redBtn, .purpleBtn, .laneBtn, .laneBtnBlue
+.normalBtn, .yellowBtn, .greenBtn,
+.redBtn, .purpleBtn, .laneBtn,
+.laneBtnBlue, .normalBtnSelected,
+.greenBtnSelected
      { width: 4em; height: 4em; padding: 0px;}
 .laneBtn, .laneBtnBlue { height: 6em; }
 

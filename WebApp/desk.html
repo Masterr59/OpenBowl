@@ -1,6 +1,7 @@
 <html>
   <head>
     <title>OpenBowlScoring | Desk</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="https://fonts.googleapis.com/css?family=Arimo&display=swap" rel="stylesheet">
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
   <link rel="stylesheet" type="text/css" href="css/stylesheet.css">
@@ -56,6 +57,10 @@
         </div>
       <div id="register">
         <div id="receipt"></div>
+        <div id="receiptTotals">
+          <div id="salesTax">Sales Tax here</div>
+          <div id="saleTotal">Total here</div>
+        </div>
         <div id="numpad">
           <div class="numcolumn">
             <div class="purpleBtn">Adjust</div>
@@ -89,6 +94,8 @@
     </div>
     </div>
 
+
+    <div id="errorMsgContainer"></div>
     <script src="js/desk.js"></script>
 
   </body>
