@@ -7,9 +7,9 @@
 .linksection { width: 75px; }
 .linksection a { width: 75px; }
 .status { width: 20px; height: 20px; }
-button { width: 4em; height: 4em; }
-.laneBtn { height: 6em; }
-#receipt { width: 245px; height: 245px; }
+.normalBtn, .yellowBtn, .greenBtn, .redBtn, .purpleBtn, .laneBtn, .laneBtnBlue
+     { width: 4em; height: 4em; padding: 0px;}
+.laneBtn, .laneBtnBlue { height: 6em; }
 
 .buttonTxtShort { display: inline-block; text-align: center;}
 .buttonTxtFull { display: none; }

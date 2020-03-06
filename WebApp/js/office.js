@@ -7,7 +7,7 @@ function start() {
 
 function display(id) {
     document.getElementById('officetitle').innerHTML = document.getElementById(id).innerHTML;
-    $("#officebody").load("officepages/" + id + ".html");
+    $("#officebody").load("../officepages/" + id + ".html");
 }
 
 $(document).ready(start);
