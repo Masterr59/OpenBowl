@@ -28,7 +28,7 @@ public class BowlingGame
 {
 
     private String playerName;
-    private int playerID;
+    private String playerID;
     private int tapValue;
     private int handicap;
     private ArrayList<BowlingFrame> frames;
@@ -40,6 +40,7 @@ public class BowlingGame
      * @param name The players name on the score card
      * @param id The ID number of the player
      */
+    public BowlingGame(String name, String id) {
         this.playerName = name;
         this.playerID = id;
         this.gameScore = 0;
@@ -132,13 +133,13 @@ public class BowlingGame
     
 /* ************************************************************ */    
     
-    /*           *
+    public String getPlayerID() {
      *  SETTERS  *
      *           */
     
     public void setHandicap(int handicap)        {  this.handicap = handicap;      }
     
-    public void setFrames(ArrayList<BowlingFrame> frames) 
+    public void setPlayerID(String playerID) {
     {
         this.frames = frames;
         scoreGame();
