@@ -72,6 +72,10 @@ public class LaneHandler extends CommonHandler {
                 map.put(SUCCESS, true);
                 map.put("CurentConfig", lane.getConfiguration());
                 break;
+            default:
+                map.put(SUCCESS, false);
+                map.put(ERROR_MSG, "missing or unsupported request");
+                break;
         }
         return map;
     }
@@ -110,6 +114,15 @@ public class LaneHandler extends CommonHandler {
                 case "pinSetterCycle":
                     if (lane.getPinSetter().getPowerState()) {
                         lane.getPinSetter().cycle();
+                        map.put(SUCCESS, true);
+                    } else {
+                        map.put(SUCCESS, false);
+                        map.put(ERROR_MSG, "Pinsetter is off");
+                    }
+                    break;
+                case "pinSetterCycleNoScore":
+                    if (lane.getPinSetter().getPowerState()) {
+                        lane.cycleNoScore();
                         map.put(SUCCESS, true);
                     } else {
                         map.put(SUCCESS, false);
