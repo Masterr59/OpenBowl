@@ -17,12 +17,14 @@
 package org.openbowl.scorer.remote;
 
 import com.google.gson.JsonSyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import org.openbowl.common.BowlingGame;
 import org.openbowl.common.CommonHandler;
 import org.openbowl.scorer.BowlingSession;
+import org.openbowl.scorer.FakeSession;
 import org.openbowl.scorer.Lane;
 import org.openbowl.scorer.NumberedSession;
 
@@ -61,10 +63,10 @@ public class GameHandler extends CommonHandler {
             if (currentSession != null) {
                 gameSession = currentSession.getUUID().equals(UUID) ? currentSession : null;
             }
-            //BowlingSession implements comparable by UUID
-            if (gameSession == null && queue.contains(UUID)) {
+            BowlingSession fake = new FakeSession(UUID);
+            if (gameSession == null) {
                 for (BowlingSession b : queue) {
-                    if (b.compareTo(UUID) == 0) {
+                    if (b.compareTo(fake) == 0) {
                         gameSession = b;
                     }
                 }
@@ -93,14 +95,31 @@ public class GameHandler extends CommonHandler {
                         map.put(ERROR_MSG, "invalid or missing player id");
                     }
                     break;
+
                 default:
                     map.put(SUCCESS, false);
                     map.put(ERROR_MSG, "missing or unsupported request");
                     break;
             }
         } else {
-            map.put(SUCCESS, false);
-            map.put(ERROR_MSG, "session not found");
+            switch (parms.getOrDefault("get", "none")) {
+                case "allSessions":
+                    ArrayList<String> allSessions = new ArrayList<>();
+                    if (currentSession != null) {
+                        allSessions.add(currentSession.getUUID());
+                    }
+                    for (BowlingSession b : queue) {
+                        allSessions.add(b.getUUID());
+                    }
+                    map.put(SUCCESS, true);
+                    map.put("allSessions", allSessions);
+                    break;
+                default:
+                    map.put(SUCCESS, false);
+                    map.put(ERROR_MSG, "session not found");
+                    break;
+            }
+
         }
         return map;
     }
@@ -118,15 +137,15 @@ public class GameHandler extends CommonHandler {
             return map;
         }
         String UUID = "";
-        if (parms.containsKey("UUID")) {
-            UUID = parms.get("UUID");
+        if (requestBody.containsKey("UUID")) {
+            UUID = (String) requestBody.get("UUID");
             if (currentSession != null) {
                 gameSession = currentSession.getUUID().equals(UUID) ? currentSession : null;
             }
-            //BowlingSession implements comparable by UUID
-            if (gameSession == null && queue.contains(UUID)) {
+            BowlingSession fake = new FakeSession(UUID);
+            if (gameSession == null) {
                 for (BowlingSession b : queue) {
-                    if (b.compareTo(UUID) == 0) {
+                    if (b.compareTo(fake) == 0) {
                         gameSession = b;
                     }
                 }
@@ -202,7 +221,7 @@ public class GameHandler extends CommonHandler {
         switch (type) {
             case "numbered":
                 if (requestBody.containsKey("games") && requestBody.containsKey("UUID")) {
-                    int games = (int) requestBody.get("games");
+                    int games = new Double((double) requestBody.get("games")).intValue();
                     String UUID = (String) requestBody.get("UUID");
                     NumberedSession n = new NumberedSession(lane, games);
                     n.setUUID(UUID);

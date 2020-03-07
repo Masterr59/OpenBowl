@@ -28,7 +28,7 @@ import org.openbowl.common.BowlingSplash;
  *
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
-public abstract class BowlingSession implements Runnable, Comparable<String>{
+public abstract class BowlingSession implements Runnable, Comparable<BowlingSession> {
 
     protected ArrayList<BowlingGame> players;
     protected Lane lane;
@@ -67,7 +67,7 @@ public abstract class BowlingSession implements Runnable, Comparable<String>{
     public void setPlayers(ArrayList<BowlingGame> players) {
         this.players = players;
     }
-    
+
     public abstract int addPlayer(BowlingGame g);
 
     public abstract void pauseSession();
@@ -192,7 +192,20 @@ public abstract class BowlingSession implements Runnable, Comparable<String>{
     }
 
     @Override
-    public int compareTo(String t) {
-        return this.UUID.compareTo(t);
+    public int compareTo(BowlingSession t) {
+        return this.UUID.compareTo(t.getUUID());
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj == null || obj.getClass() != this.getClass()) {
+            return false;
+        }
+        BowlingSession b = (BowlingSession) obj;
+        return this.compareTo(b) == 0;
+    }
+
 }

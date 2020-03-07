@@ -50,7 +50,7 @@ public class LaneHandler extends CommonHandler {
                 break;
             case "pinCounterConfig":
                 map.put(SUCCESS, true);
-                map.put("CurentConfig", lane.getPinSetter().getConfiguration());
+                map.put("CurentConfig", lane.getPinCounter().getConfiguration());
                 break;
             case "sweepDetectConfig":
                 map.put(SUCCESS, true);
