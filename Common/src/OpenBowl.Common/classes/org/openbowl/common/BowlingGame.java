@@ -139,7 +139,7 @@ public class BowlingGame {
         this.handicap = handicap;
     }
 
-    public void setPlayerID(String playerID) {
+    public String getPlayerID() {
         this.playerID = playerID;
         scoreGame();
     }
@@ -148,15 +148,32 @@ public class BowlingGame {
         return gameScore;
     }
 
-    public int getHandicap() {
+    public void setPlayerID(String playerID) {
         return handicap;
     }
 
+    /**
+     *
+     * @return The number of pins that are required to be down to count
+     * as a strike or spare
+     */
     public int getTapValue() {
         return tapValue;
     }
 
-    /* ************************************************************ */
+    /**
+     *
+     * @param tapValue The number of pins that are required to be down to count
+     * as a strike or spare
+     */
+    /**
+     *
+     * Checks if the array of pins would count as a strike or spare based on
+     * the tap value
+     * 
+     * @param pins The array of pins remaining
+     * @return If it counts as a strike or spare
+     */
     public boolean isStrikeSpare(ArrayList<BowlingPins> pins) {
         return (10 - pins.size() - tapValue) >= 0;
     }
@@ -164,7 +181,7 @@ public class BowlingGame {
     /**
      *
      * Checks if the array of pins is a noTap strike / spare
-     *
+     * 
      * @param pins The array of pins remaining
      * @return
      */
@@ -175,7 +192,7 @@ public class BowlingGame {
     /**
      *
      * Copies the incoming game to the current game
-     *
+     * 
      * @param game The game that is being copied from
      */
     public void updateTo(BowlingGame game) {
