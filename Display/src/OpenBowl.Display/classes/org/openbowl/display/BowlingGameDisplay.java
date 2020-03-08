@@ -140,8 +140,8 @@ public class BowlingGameDisplay extends Region {
         gc.setFont(new Font(gc.getFont().getName(), fontSize));
         yFont = y + yDist - (2 * fontBuffer);
         //Stroke HDCP != 0
-        if (game.getHandycap() > 0) {
-            String hdcp = String.format("%3d", game.getHandycap());
+        if (game.getHandicap() > 0) {
+            String hdcp = String.format("%3d", game.getHandicap());
             gc.strokeText(hdcp, x + fontBuffer + (7 * xDist), yFont);
             gc.fillText(hdcp, x + fontBuffer + (7 * xDist), yFont);
         }
