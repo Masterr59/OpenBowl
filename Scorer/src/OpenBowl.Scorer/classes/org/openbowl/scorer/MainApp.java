@@ -245,15 +245,15 @@ public class MainApp extends Application {
     private void onTestNumberSession(Lane l, int numGames, LinkedBlockingQueue<BowlingSession> sessionQueue) {
         NumberedSession session = new NumberedSession(l, numGames);
         BowlingGame b = new BowlingGame("Patrick", "-1");
-        b.setHandycap(5);
+        b.setHandicap(5);
         session.addPlayer(b);
         b = new BowlingGame("Marcus", "-1");
         session.addPlayer(b);
         b = new BowlingGame("Eric", "-1");
-        b.setHandycap(25);
+        b.setHandicap(25);
         session.addPlayer(b);
         b = new BowlingGame("Brian", "-1");
-        b.setHandycap(19);
+        b.setHandicap(19);
         session.addPlayer(b);
         sessionQueue.add(session);
     }
