@@ -25,6 +25,13 @@ import javafx.scene.control.Alert;
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
 public class AboutOpenBowl {
+
+    /**
+     *
+     * Shows a basic about dialog with the applications name
+     * 
+     * @param ApplicationName
+     */
     public void onAbout(String ApplicationName){
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         int year = Calendar.getInstance().get(Calendar.YEAR);

@@ -28,7 +28,7 @@ import org.openbowl.common.BowlingSplash;
  *
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
-public abstract class BowlingSession implements Runnable {
+public abstract class BowlingSession implements Runnable, Comparable<BowlingSession> {
 
     protected ArrayList<BowlingGame> players;
     protected Lane lane;
@@ -36,6 +36,7 @@ public abstract class BowlingSession implements Runnable {
     protected BooleanProperty isRunning;
     protected BowlingFrame.BallNumber currentBall;
     protected int currentPlayer;
+    protected String UUID;
 
     public BowlingSession(Lane lane) {
         this.lane = lane;
@@ -44,6 +45,7 @@ public abstract class BowlingSession implements Runnable {
         this.lane.addEventHandler(LaneEvents.BOWL_EVENT, notUsed -> onBowlEvent());
         this.isRunning = new SimpleBooleanProperty(false);
         players = new ArrayList<>();
+        this.UUID = "";
     }
 
     public ArrayList<BowlingGame> getPlayers() {
@@ -54,9 +56,19 @@ public abstract class BowlingSession implements Runnable {
         return isRunning;
     }
 
+    public String getUUID() {
+        return UUID;
+    }
+
+    public void setUUID(String UUID) {
+        this.UUID = UUID;
+    }
+
     public void setPlayers(ArrayList<BowlingGame> players) {
         this.players = players;
     }
+
+    public abstract int addPlayer(BowlingGame g);
 
     public abstract void pauseSession();
 
@@ -68,6 +80,12 @@ public abstract class BowlingSession implements Runnable {
         display.showSplash(BowlingSplash.SlowBall);
     }
 
+    /**
+     *
+     * Default action of a bowling event ie a bowler bowls a ball down the lane
+     * The player gets two balls on frames 1-9 and an optional 3rd ball on frame
+     * 10
+     */
     protected void onBowlEvent() {
         boolean foul = lane.isLastBallFoul();
         double speed = lane.getLastBallSpeed();
@@ -157,15 +175,37 @@ public abstract class BowlingSession implements Runnable {
             }
         }
     }
-    
+
+    /**
+     *
+     * Resends the scores for every player to the display
+     */
     public void refreshDisplay() {
         for (int i = 0; i < players.size(); i++) {
             display.setScore(players.get(i), i);
         }
     }
 
-    protected void incrementPlayer(){
+    protected void incrementPlayer() {
         currentPlayer = (currentPlayer + 1) % players.size();
         display.setCurentPlayer(currentPlayer);
     }
+
+    @Override
+    public int compareTo(BowlingSession t) {
+        return this.UUID.compareTo(t.getUUID());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj == null || obj.getClass() != this.getClass()) {
+            return false;
+        }
+        BowlingSession b = (BowlingSession) obj;
+        return this.compareTo(b) == 0;
+    }
+
 }

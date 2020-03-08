@@ -19,6 +19,7 @@ module OpenBowl.Common {
     requires javafx.controls;
     requires jdk.httpserver;
     requires java.net.http;
-    
+    requires java.sql;
+    requires gson;
     exports org.openbowl.common;
 }

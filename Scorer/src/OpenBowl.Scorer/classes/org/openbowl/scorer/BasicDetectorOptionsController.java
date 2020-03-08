@@ -45,11 +45,6 @@ import javafx.scene.control.SpinnerValueFactory;
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
 public class BasicDetectorOptionsController extends Dialog<Void> implements Initializable {
-
-    private final String defaultPin = "GPIO 31";
-    private final String defaultResist = "PULL_UP";
-    private final String defaultTrigger = "HIGH";
-
     @FXML
     private Spinner<String> pinNumberSpinner;
 
@@ -65,9 +60,9 @@ public class BasicDetectorOptionsController extends Dialog<Void> implements Init
     private final ButtonType okButton;
     private final String name;
     private final Preferences prefs;
-    private Detector detector;
+    private BasicDetector detector;
 
-    public BasicDetectorOptionsController(String name, Detector d) throws IOException {
+    public BasicDetectorOptionsController(String name, BasicDetector d) throws IOException {
         super();
         this.name = name;
         this.detector = d;
@@ -113,9 +108,9 @@ public class BasicDetectorOptionsController extends Dialog<Void> implements Init
         ObservableList<String> gpioRes = FXCollections.observableArrayList(resistances);
         SpinnerValueFactory<String> GPIOResFactory = new SpinnerValueFactory.ListSpinnerValueFactory<>(gpioRes);
 
-        String PinName = prefs.get(name + "PinName", defaultPin);
-        String PinState = prefs.get(name + "TriggerState", defaultTrigger);
-        String PinDirection = prefs.get(name + "PinResistance", defaultResist);
+        String PinName = prefs.get(name + detector.PIN_SETTING, detector.DEFAULT_PIN);
+        String PinState = prefs.get(name + detector.TRIGGER_SETTING, detector.DEFAULT_TRIGGER);
+        String PinDirection = prefs.get(name + detector.RESISTANCE_SETTING, detector.DEFAULT_RESISTANCE);
 
         GPIOStateFactory.setValue(PinState);
         GPIOPinFactory.setValue(PinName);
@@ -129,9 +124,9 @@ public class BasicDetectorOptionsController extends Dialog<Void> implements Init
 
     private void onOK(ActionEvent eh) {
         detector.teardown();
-        prefs.put(name + "PinName", pinNumberSpinner.getValue());
-        prefs.put(name + "TriggerState", triggerStateSpinner.getValue());
-        prefs.put(name + "PinResistance", pullDirectionSpinner.getValue());
+        prefs.put(name + detector.PIN_SETTING, pinNumberSpinner.getValue());
+        prefs.put(name + detector.TRIGGER_SETTING, triggerStateSpinner.getValue());
+        prefs.put(name + detector.RESISTANCE_SETTING, pullDirectionSpinner.getValue());
         String results = detector.setup();
         if (!results.isBlank()) {
             ErrorLabel.setText(results);

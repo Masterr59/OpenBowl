@@ -53,12 +53,6 @@ import org.openbowl.common.BowlingPins;
  */
 public class BasicPinCounterOptionsController extends Dialog<Void> implements Initializable {
 
-    private final int defaultX = 1;
-    private final int defaultY = 1;
-    private final int defaultLevel = 100;
-    private final int defaultRadius = 10;
-    private final Color defaultColor = Color.WHITE;
-
     @FXML
     private Spinner<String> pinSpinner;
 
@@ -203,19 +197,19 @@ public class BasicPinCounterOptionsController extends Dialog<Void> implements In
 
     private void loadValues(String pinName) {
         int X, Y, R;
-        X = prefs.getInt(name + "-" + pinName + "-" + "X", defaultX);
-        Y = prefs.getInt(name + "-" + pinName + "-" + "Y", defaultY);
-        R = prefs.getInt(name + "-" + pinName + "-" + "Radius", defaultRadius);
+        X = prefs.getInt(name + "-" + pinName + "-" + pinCounter.X_SETTING, pinCounter.DEFAULT_X);
+        Y = prefs.getInt(name + "-" + pinName + "-" + pinCounter.Y_SETTING, pinCounter.DEFAULT_Y);
+        R = prefs.getInt(name + "-" + pinName + "-" + pinCounter.RADIUS_SETTING, pinCounter.DEFAULT_RADIUS);
 
         xLabel.setText(String.format("%d", X));
         yLabel.setText(String.format("%d", Y));
 
         radiusSlider.setValue(R);
-        levelSlider.setValue(prefs.getInt(name + "-" + pinName + "-" + "Level", defaultLevel));
+        levelSlider.setValue(prefs.getInt(name + "-" + pinName + "-" + pinCounter.LEVEL_SETTING, pinCounter.DEFAULT_LEVEL));
         double r, g, b;
-        r = prefs.getDouble(name + "-" + pinName + "-" + "Red", defaultColor.getRed());
-        g = prefs.getDouble(name + "-" + pinName + "-" + "Green", defaultColor.getGreen());
-        b = prefs.getDouble(name + "-" + pinName + "-" + "Blue", defaultColor.getBlue());
+        r = prefs.getDouble(name + "-" + pinName + "-" + pinCounter.RED_SETTING, pinCounter.DEFAULT_COLOR.getRed());
+        g = prefs.getDouble(name + "-" + pinName + "-" + pinCounter.GREEN_SETTING, pinCounter.DEFAULT_COLOR.getGreen());
+        b = prefs.getDouble(name + "-" + pinName + "-" + pinCounter.BLUE_SETTING, pinCounter.DEFAULT_COLOR.getBlue());
         colorPicker.setValue(new Color(r, g, b, 1));
 
         drawOverlay();
@@ -223,13 +217,13 @@ public class BasicPinCounterOptionsController extends Dialog<Void> implements In
     }
 
     private void saveValues(String pinName) {
-        prefs.putInt(name + "-" + pinName + "-" + "X", Integer.parseInt(xLabel.getText()));
-        prefs.putInt(name + "-" + pinName + "-" + "Y", Integer.parseInt(yLabel.getText()));
-        prefs.putInt(name + "-" + pinName + "-" + "Radius", (int) radiusSlider.getValue());
-        prefs.putInt(name + "-" + pinName + "-" + "Level", (int) levelSlider.getValue());
-        prefs.putDouble(name + "-" + pinName + "-" + "Red", colorPicker.getValue().getRed());
-        prefs.putDouble(name + "-" + pinName + "-" + "Green", colorPicker.getValue().getGreen());
-        prefs.putDouble(name + "-" + pinName + "-" + "Blue", colorPicker.getValue().getBlue());
+        prefs.putInt(name + "-" + pinName + "-" + pinCounter.X_SETTING, Integer.parseInt(xLabel.getText()));
+        prefs.putInt(name + "-" + pinName + "-" + pinCounter.Y_SETTING, Integer.parseInt(yLabel.getText()));
+        prefs.putInt(name + "-" + pinName + "-" + pinCounter.RADIUS_SETTING, (int) radiusSlider.getValue());
+        prefs.putInt(name + "-" + pinName + "-" + pinCounter.LEVEL_SETTING, (int) levelSlider.getValue());
+        prefs.putDouble(name + "-" + pinName + "-" + pinCounter.RED_SETTING, colorPicker.getValue().getRed());
+        prefs.putDouble(name + "-" + pinName + "-" + pinCounter.GREEN_SETTING, colorPicker.getValue().getGreen());
+        prefs.putDouble(name + "-" + pinName + "-" + pinCounter.BLUE_SETTING, colorPicker.getValue().getBlue());
 
     }
 

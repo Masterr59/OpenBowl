@@ -28,7 +28,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -38,7 +37,8 @@ import javafx.stage.Stage;
 import org.openbowl.common.AboutOpenBowl;
 import org.openbowl.common.BowlingGame;
 import org.openbowl.common.WebFunctions;
-import org.openbowl.scorer.remote.PinSetterHandler;
+import org.openbowl.scorer.remote.GameHandler;
+import org.openbowl.scorer.remote.LaneHandler;
 
 /**
  *
@@ -46,17 +46,18 @@ import org.openbowl.scorer.remote.PinSetterHandler;
  */
 public class MainApp extends Application {
 
-    private final static BlockingQueue<BowlingSession> sessionQueue = new LinkedBlockingQueue<>();
+    private final static LinkedBlockingQueue<BowlingSession> oddSessionQueue = new LinkedBlockingQueue<>();
+    private final static LinkedBlockingQueue<BowlingSession> evenSessionQueue = new LinkedBlockingQueue<>();
     private final String ApplicationName = "Open Bowl - Scorer";
     private HttpServer remoteControl;
     private FakeBowlerDialogController oddBowler, evenBowler;
     private Lane oddLane, evenLane;
     private BowlingSession currentSession;
-    private Thread sessionManager;
+    private Thread oddSessionManager, evenSessionManager;
+    private GameHandler oddGameHandler, evenGameHandler;
 
     @Override
     public void start(Stage stage) throws Exception {
-        // sessionQueue = new LinkedBlockingQueue<>();
         oddLane = new Lane("odd");
         evenLane = new Lane("even");
         oddLane.setDisplay(new DisplayConnector("odd", "token"));
@@ -116,13 +117,21 @@ public class MainApp extends Application {
         } catch (IOException e) {
             remoteControl = WebFunctions.createCustomServer(1);
         }
-        remoteControl.createContext("/pinsetter/odd/", new PinSetterHandler(oddLane.getPinSetter(), 1));
-        remoteControl.createContext("/pinsetter/even/", new PinSetterHandler(evenLane.getPinSetter(), 2));
+        remoteControl.createContext("/lane/odd/", new LaneHandler(oddLane));
+        remoteControl.createContext("/lane/even/", new LaneHandler(evenLane));
+
+        oddGameHandler = new GameHandler(oddSessionQueue, oddLane);
+        evenGameHandler = new GameHandler(evenSessionQueue, evenLane);
+
+        remoteControl.createContext("/game/odd/", oddGameHandler);
+        remoteControl.createContext("/game/even/", evenGameHandler);
 
         remoteControl.start();
 
-        sessionManager = new Thread(new SessionManager(sessionQueue));
-        sessionManager.start();
+        oddSessionManager = new Thread(new SessionManager(oddSessionQueue, oddGameHandler));
+        oddSessionManager.start();
+        evenSessionManager = new Thread(new SessionManager(evenSessionQueue, oddGameHandler));
+        evenSessionManager.start();
 
         Scene scene = new Scene(root, 500, 440);
         stage.setScene(scene);
@@ -149,10 +158,10 @@ public class MainApp extends Application {
         testEvenPinCounter.setOnAction(notUsed -> onCountPins("Even", evenLane.getPinCounter()));
 
         MenuItem testOddGame = new MenuItem("Test adding game Odd (4)");
-        testOddGame.setOnAction(notUsed -> onTestNumberSession(oddLane, 4));
+        testOddGame.setOnAction(notUsed -> onTestNumberSession(oddLane, 4, oddSessionQueue));
 
         MenuItem testEvenGame = new MenuItem("Test adding game even (8)");
-        testEvenGame.setOnAction(notUsed -> onTestNumberSession(evenLane, 8));
+        testEvenGame.setOnAction(notUsed -> onTestNumberSession(evenLane, 8, evenSessionQueue));
 
         testMenu.getItems().addAll(testOddPinCounter, testEvenPinCounter,
                 testOddGame, testEvenGame);
@@ -160,11 +169,10 @@ public class MainApp extends Application {
         Menu configMenu = new Menu("_Configure");
         MenuItem oddLaneConfig = new MenuItem("Odd Lane");
         oddLaneConfig.setOnAction(notUsed -> oddLane.configureDialog());
-        
+
         MenuItem evenLaneConfig = new MenuItem("Even Lane");
         evenLaneConfig.setOnAction(notUsed -> evenLane.configureDialog());
-        
-        
+
         configMenu.getItems().addAll(oddLaneConfig, evenLaneConfig);
 
         Menu maintMenu = new Menu("_Maintenance");
@@ -217,7 +225,8 @@ public class MainApp extends Application {
             GpioController gpioController = GpioFactory.getInstance();
             gpioController.shutdown();
         }
-        sessionManager.interrupt();
+        oddSessionManager.interrupt();
+        evenSessionManager.interrupt();
         remoteControl.stop(0);
         Platform.exit();
     }
@@ -233,37 +242,31 @@ public class MainApp extends Application {
         }
     }
 
-    private void onTestNumberSession(Lane l, int numGames) {
-        NumberedSession session = onAddNumberedSession(l, numGames);
-        BowlingGame b = new BowlingGame("Patrick", -1);
-        b.setHandycap(5);
+    private void onTestNumberSession(Lane l, int numGames, LinkedBlockingQueue<BowlingSession> sessionQueue) {
+        NumberedSession session = new NumberedSession(l, numGames);
+        BowlingGame b = new BowlingGame("Patrick", "-1");
+        b.setHandicap(5);
         session.addPlayer(b);
-        b = new BowlingGame("Marcus", -1);
+        b = new BowlingGame("Marcus", "-1");
         session.addPlayer(b);
-        b = new BowlingGame("Eric", -1);
-        b.setHandycap(25);
+        b = new BowlingGame("Eric", "-1");
+        b.setHandicap(25);
         session.addPlayer(b);
-        b = new BowlingGame("Brian", -1);
-        b.setHandycap(19);
+        b = new BowlingGame("Brian", "-1");
+        b.setHandicap(19);
         session.addPlayer(b);
-    }
-
-    private NumberedSession onAddNumberedSession(Lane l,  int numGames) {
-        NumberedSession session = new NumberedSession(l,  numGames);
         sessionQueue.add(session);
-        synchronized (sessionQueue) {
-            sessionQueue.notifyAll();
-        }
-        return session;
     }
 
     private class SessionManager implements Runnable {
 
         private Thread sessionThread;
         private BlockingQueue<BowlingSession> queue;
+        private GameHandler gameHandler;
 
-        public SessionManager(BlockingQueue<BowlingSession> q) {
-            queue = q;
+        public SessionManager(BlockingQueue<BowlingSession> q, GameHandler g) {
+            this.queue = q;
+            this.gameHandler = g;
         }
 
         @Override
@@ -272,20 +275,17 @@ public class MainApp extends Application {
             while (!Thread.currentThread().isInterrupted() && run) {
                 System.out.println("SessionManager is running");
                 try {
-                    if (!sessionQueue.isEmpty()) {
-                        System.out.println("Start new Session");
-                        currentSession = queue.poll();
-                        sessionThread = new Thread(currentSession);
-                        sessionThread.start();
 
-                        sessionThread.join();
+                    System.out.println("Start new Session");
+                    currentSession = queue.take();
+                    gameHandler.setCurrentSession(currentSession);
+                    sessionThread = new Thread(currentSession);
+                    sessionThread.start();
 
-                    } else {
-                        synchronized (queue) {
-                            queue.wait();
-                        }
+                    sessionThread.join();
+                    currentSession = null;
+                    gameHandler.clearCurrentSession();
 
-                    }
                 } catch (InterruptedException ex) {
                     if (sessionThread != null && sessionThread.isAlive()) {
                         sessionThread.interrupt();

@@ -23,6 +23,8 @@ import org.openbowl.common.BowlingGame;
 
 /**
  *
+ * A bowling session with a number of games
+ * 
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
 public class NumberedSession extends BowlingSession {
@@ -39,6 +41,7 @@ public class NumberedSession extends BowlingSession {
         run = true;
     }
 
+    @Override
     public int addPlayer(BowlingGame g) {
         if (GamesRemaining > 0) {
             this.players.add(g);

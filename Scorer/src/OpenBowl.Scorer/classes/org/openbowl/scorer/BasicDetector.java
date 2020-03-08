@@ -26,6 +26,7 @@ import com.pi4j.io.gpio.RaspiPin;
 import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
@@ -35,9 +36,13 @@ import java.util.prefs.Preferences;
  */
 public class BasicDetector extends Detector {
 
-    private final String defaultPin = "GPIO 31";
-    private final String defaultResist = "PULL_UP";
-    private final String defaultTrigger = "HIGH";
+    public final String PIN_SETTING = "PinName";
+    public final String RESISTANCE_SETTING = "PinResistance";
+    public final String TRIGGER_SETTING = "TriggerState";
+
+    public final String DEFAULT_PIN = "GPIO 31";
+    public final String DEFAULT_RESISTANCE = "PULL_UP";
+    public final String DEFAULT_TRIGGER = "HIGH";
 
     private GpioController gpio;
     private GpioPinDigitalInput pin;
@@ -70,16 +75,43 @@ public class BasicDetector extends Detector {
 
     @Override
     public String setConfiguration(Map<String, Object> configuration) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String results = "";
+        try {
+            String type = (String) configuration.get("Type");
+            String newpin = (String) configuration.get(PIN_SETTING);
+            String resist = (String) configuration.get(RESISTANCE_SETTING);
+            String trigger = (String) configuration.get(TRIGGER_SETTING);
+
+            if (type.equals(this.getClass().getName())) {
+                teardown();
+                prefs.put(name + PIN_SETTING, newpin);
+                prefs.put(name + RESISTANCE_SETTING, resist);
+                prefs.put(name + TRIGGER_SETTING, trigger);
+                results += setup();
+            } else {
+                results += "Incorrect device type";
+            }
+        } catch (ClassCastException e) {
+            results += e.getMessage();
+        } catch (NullPointerException e) {
+            results += "NullPointException: " + e.getMessage();
+        }
+
+        return results;
     }
 
     @Override
     public Map<String, Object> getConfiguration() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Map<String, Object> ret = new HashMap<>();
+        ret.put("Type", this.getClass().getName());
+        ret.put(PIN_SETTING, prefs.get(name + PIN_SETTING, DEFAULT_PIN));
+        ret.put(RESISTANCE_SETTING, prefs.get(name + RESISTANCE_SETTING, DEFAULT_RESISTANCE));
+        ret.put(TRIGGER_SETTING, prefs.get(name + TRIGGER_SETTING, DEFAULT_TRIGGER));
+        return ret;
     }
 
-    public void onPinStateChange(GpioPinDigitalStateChangeEvent event) {
-        String PinTrigger = prefs.get(name + "TriggerState", defaultTrigger);
+    private void onPinStateChange(GpioPinDigitalStateChangeEvent event) {
+        String PinTrigger = prefs.get(name + TRIGGER_SETTING, DEFAULT_TRIGGER);
         PinState pinState = PinState.valueOf(PinTrigger);
         if (pinState == event.getState()) {
             fireDetectedEvent();
@@ -95,10 +127,10 @@ public class BasicDetector extends Detector {
         if (isPi) {
             gpio = GpioFactory.getInstance();
 
-            String gpioPinName = prefs.get(name + "PinName", defaultPin);
+            String gpioPinName = prefs.get(name + PIN_SETTING, DEFAULT_PIN);
             Pin gpioPinNumber = RaspiPin.getPinByName(gpioPinName);
 
-            String gpioResistance = prefs.get(name + "PinResistance", defaultResist);
+            String gpioResistance = prefs.get(name + RESISTANCE_SETTING, DEFAULT_RESISTANCE);
             PinPullResistance resistance = PinPullResistance.valueOf(gpioResistance);
             try {
                 pin = gpio.provisionDigitalInputPin(gpioPinNumber, resistance);
