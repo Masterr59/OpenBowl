@@ -139,17 +139,12 @@ public class BowlingGame {
         this.handicap = handicap;
     }
 
-    public String getPlayerID() {
-        this.playerID = playerID;
-        scoreGame();
-    }
-
     public int getGameScore() {
         return gameScore;
     }
 
     public void setPlayerID(String playerID) {
-        return handicap;
+        this.playerID = playerID;
     }
 
     /**
@@ -226,6 +221,10 @@ public class BowlingGame {
 
     public String getPlayerName() {
         return this.playerName;
+    }
+
+    public int getHandicap() {
+        return this.handicap;
     }
 
 }
