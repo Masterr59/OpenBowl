@@ -1,0 +1,20 @@
+While the java files can be compiled normally in netbeans, the C file cannot.
+
+Integrating these complex compilation steps into ANT is difficult (maybe impossible), so a manual approach was taken.
+
+
+
+Compilation instructions:
+
+1. Compile (build) like normal in NetBeans (weird stuff might happen if you don't compile the Java before the C)
+
+2. Go to MultiKeyboardLibrary/DebugVersion/src/OpenBowl.MultiKeyboardLibrary/classes and run the script named "compile" in a command line (type "./compile")
+
+	You may have to manually change the JAVA_HOME path in the script first. Open the script with your favorite text editor.
+
+		JAVA_HOME is the location of your java installation. Example: /usr/lib/jvm/java-11-openjdk-armhf
+
+	There are apparently standardization issues concerning whether or not the modulepath flag is called "-modulepath" or "--module-path". The compile script uses --module-path.
+
+3. A file named libmultikeyboardinputreader.so should have been created in the same directory as the compile script.
+   Cut and paste this file from its original location to MultiKeyboardLibrary/DebugVersion/dist

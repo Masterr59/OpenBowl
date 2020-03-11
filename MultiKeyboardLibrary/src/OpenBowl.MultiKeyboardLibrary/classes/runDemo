@@ -1,2 +1,0 @@
-# The "java" and --module-path paths are machine-specific and must be changed manually
-/usr/lib/jvm/java-11-openjdk-armhf/bin/java --module-path /home/pi/Documents/CollegeStuff/ClassFiles/Winter2020/CSCD488/OpenBowl-BrianBranch/MultiKeyboardLibrary/build/modules -Djava.library.path=. org.openbowl.multikeyboardlibrary.MultiKeyboardInputReader

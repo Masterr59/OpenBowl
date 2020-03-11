@@ -1,0 +1,2 @@
+# A script used for running the multi-keyboard library demo (release version)
+java --class-path ../../../../../ReleaseVersion/dist/OpenBowl.MultiKeyboardLibrary.jar:. -Djava.library.path=../../../../../ReleaseVersion/dist org.openbowl.multikeyboardlibrarydemo.MultiKeyboardLibraryDemo

@@ -1,0 +1,14 @@
+Run instructions (debug release):
+
+1. After you have followed the compilation steps in the multi-keyboard library's COMPILE_INSTRUCTIONS file (if necessary),
+   go to MultiKeyboardLibrary/Demo/DebugVersion/build/modules/OpenBowl.MultiKeyboardLibraryDemo and run the script named
+   "runDemo" in the command line (type "./runDemo")
+
+2. The demo class main main method optionally takes one or more integer command-line arguments representing
+   which specific device event numbers should be polled. If omitted, the demo defaults to polling all devices
+   returned by getKeyboardIdentificationData().
+
+   There is a required first command-line argument specifying whether or not non-key input events are returned to the device queues.
+   This argument must either be "true" (non-key input events are returned) or "false" (non-key input events are not returned).
+
+   If needed, place device event number parameters at the end of the "java" command in the runDemo script.
