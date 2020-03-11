@@ -1,9 +1,0 @@
-# A script used to properly compile the MultiKeyboardJavaLibrary files
-
-# The --module-path path is machine-specific and must be changed manually
-javac -h . --module-path /home/pi/Documents/CollegeStuff/ClassFiles/Winter2020/CSCD488/OpenBowl-BrianBranch/MultiKeyboardLibrary/build/modules org/openbowl/multikeyboardlibrary/MultiKeyboardInputReader.java
-
-# The JAVA_HOME path depends on your java installation, and may have to be manually changed here
-export JAVA_HOME="/usr/lib/jvm/java-11-openjdk-armhf"
-
-gcc -Wall -fPIC -I"$JAVA_HOME/include" -I"$JAVA_HOME/include/linux" -shared -o libmultikeyboardinputreader.so MultiKeyboardInputReader.c

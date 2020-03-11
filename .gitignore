@@ -14,5 +14,13 @@
 /Display/build/
 /Display/dist/
 /MultiKeyboardLibrary/nbproject/private/
-/MultiKeyboardLibrary/build/
-/MultiKeyboardLibrary/dist/
+/MultiKeyboardLibrary/ReleaseVersion/nbproject/private/
+/MultiKeyboardLibrary/DebugVersion/nbproject/private/
+/MultiKeyboardLibrary/Demo/ReleaseVersion/nbproject/private/
+/MultiKeyboardLibrary/Demo/DebugVersion/nbproject/private/
+/MultiKeyboardLibrary/ReleaseVersion/build/
+/MultiKeyboardLibrary/DebugVersion/build/
+/MultiKeyboardLibrary/Demo/ReleaseVersion/build/
+/MultiKeyboardLibrary/Demo/DebugVersion/build/
+/MultiKeyboardLibrary/Demo/ReleaseVersion/dist/
+/MultiKeyboardLibrary/Demo/DebugVersion/dist/
