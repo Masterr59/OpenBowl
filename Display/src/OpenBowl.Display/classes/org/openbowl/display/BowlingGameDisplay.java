@@ -6,9 +6,12 @@
 package org.openbowl.display;
 
 import java.util.ArrayList;
+import java.util.prefs.Preferences;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.Region;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import org.openbowl.common.BowlingFrame;
@@ -16,12 +19,29 @@ import org.openbowl.common.BowlingFrame.BallNumber;
 import org.openbowl.common.BowlingFrame.ScoreType;
 
 import org.openbowl.common.BowlingGame;
+import org.openbowl.common.ColorToHex;
 
 /**
  *
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
 public class BowlingGameDisplay extends Region {
+
+    public final Color DEFAULT_LINE_COLOR = Color.WHITE;
+    public final Color DEFAULT_TEXT_OUTLINE = Color.WHITE;
+    public final Color DEFAULT_TEXT_FILL = Color.WHITE;
+    public final Color DEFAULT_HEADER_FILL = Color.BLACK;
+    public final Color DEFAULT_SCORECARD_FILL = Color.BLACK;
+    public final double DEFAULT_HEADER_ALPHA = .5;
+    public final double DEFAULT_SCORECARD_ALPHA = 0.5;
+
+    public final String SETTING_LINE_COLOR = "Line_Color";
+    public final String SETTING_TEXT_OUTLINE = "Text_OUTLINE";
+    public final String SETTING_TEXT_FILL = "Text_Fill";
+    public final String SETTING_HEADER_FILL = "Header_Fill";
+    public final String SETTING_SCORECARD_FILL = "Scorecard_Fill";
+    public final String SETTING_HEADER_ALPHA = "Header_Alpha";
+    public final String SETTING_SCORECARD_ALPHA = "Scorecard_Alpha";
 
     private final String NAME_LABEL = "Name";
     private final String HDCP_LABEL = "HDCP";
@@ -31,8 +51,17 @@ public class BowlingGameDisplay extends Region {
     private String laneName;
     private ArrayList<BowlingGame> games;
     private int curentPlayer;
+    private Preferences prefs;
+
+    private Paint lineColor;
+    private Paint headerFill;
+    private Paint scorecardFill;
+    private Paint textFillColor;
+    private Paint textOutlineColor;
 
     public BowlingGameDisplay() {
+        prefs = Preferences.userNodeForPackage(this.getClass());
+        loadColors();
         canvas = new Canvas();
         games = new ArrayList<>();
         getChildren().add(canvas);
@@ -58,8 +87,8 @@ public class BowlingGameDisplay extends Region {
 
     /**
      *
-     * Updates a player scorecard 
-     * 
+     * Updates a player scorecard
+     *
      * @param playerNumber The player to be updated
      * @param game The new game scorecard
      */
@@ -95,11 +124,11 @@ public class BowlingGameDisplay extends Region {
         double yOffset, xOffset;
 
         gc.save();
-        //gc.strokeLine(x, y, x + (xDist * 42), y);
-        //yOffset = y + (xDist);
 
-        //gc.strokeLine(x + (xDist * 9), yOffset, x + (xDist * 42), yOffset);
-        //stroke bottom line
+        gc.setFill(scorecardFill);
+        gc.fillRect(x, y, x + (xDist * 41), (yDist * 3));
+
+        gc.setStroke(lineColor);
         yOffset = y + (yDist * 3);
         gc.strokeLine(x, yOffset, x + (xDist * 42), yOffset);
         //stroke left line
@@ -127,6 +156,9 @@ public class BowlingGameDisplay extends Region {
         xOffset = x + (xDist * 36);
         yOffset = y + yDist;
         gc.strokeLine(xOffset, yOffset, xOffset + xDist, yOffset);
+
+        gc.setStroke(textOutlineColor);
+        gc.setFill(textOutlineColor);
 
         double fontSize = getFontSize(NAME_LABEL, yDist);
         gc.setFont(new Font(gc.getFont().getName(), fontSize * 1.5));
@@ -175,9 +207,7 @@ public class BowlingGameDisplay extends Region {
                         gc.fillText(ballString, x + fontBuffer + ((10 + j + (3 * i)) * xDist), yFont);
                     }
                 }
-            }
-            
-            else if(i == 9){
+            } else if (i == 9) {
                 for (int j = 0; j < 3; j++) {
                     if (ballTypes[j] != ScoreType.NONE) {
                         String ballString = String.format("%d", ballValues[j]);
@@ -210,8 +240,7 @@ public class BowlingGameDisplay extends Region {
         //Stroke total Score
         gc.strokeText(Integer.toString(game.getGameScore()), x + fontBuffer + (39 * xDist), yFont);
         gc.fillText(Integer.toString(game.getGameScore()), x + fontBuffer + (39 * xDist), yFont);
-        
-        
+
         gc.restore();
     }
 
@@ -222,8 +251,14 @@ public class BowlingGameDisplay extends Region {
 
         double xOffset, yOffset;
         gc.save();
-        gc.strokeLine(x, y, x + (xDist * 42), y);
+
+        gc.setFill(headerFill);
+        gc.fillRect(x, y, x + (xDist * 41), yDist);
+
+        gc.setStroke(lineColor);
         yOffset = y + (xDist);
+        gc.strokeLine(x, y, x + (xDist * 42), y);
+
         gc.strokeLine(x, yOffset, x + (xDist * 42), yOffset);
         gc.strokeLine(x, y, x, yOffset);
         for (int i = 9; i < 43; i += 3) {
@@ -234,6 +269,10 @@ public class BowlingGameDisplay extends Region {
         gc.setFont(new Font(gc.getFont().getName(), fontSize));
         double fontBuffer = yDist / 10.0;
         double yFont = y + yDist - (2 * fontBuffer);
+
+        gc.setStroke(textOutlineColor);
+        gc.setFill(textFillColor);
+
         gc.strokeText(NAME_LABEL, x + fontBuffer, yFont);
         gc.fillText(NAME_LABEL, x + fontBuffer, yFont);
 
@@ -286,5 +325,22 @@ public class BowlingGameDisplay extends Region {
         canvas.setWidth(w);
 
         draw();
+    }
+
+    public void loadColors() {
+        String lineColorString = prefs.get(SETTING_LINE_COLOR, ColorToHex.colorToHex(DEFAULT_LINE_COLOR));
+        String textFillString = prefs.get(SETTING_TEXT_FILL, ColorToHex.colorToHex(DEFAULT_TEXT_FILL));
+        String textOutlineString = prefs.get(SETTING_TEXT_OUTLINE, ColorToHex.colorToHex(DEFAULT_TEXT_OUTLINE));
+        String headerFillString = prefs.get(SETTING_TEXT_FILL, ColorToHex.colorToHex(DEFAULT_HEADER_FILL));
+        String scorecardFillString = prefs.get(SETTING_TEXT_OUTLINE, ColorToHex.colorToHex(DEFAULT_SCORECARD_FILL));
+        double scorecardAlpha = prefs.getDouble(SETTING_SCORECARD_ALPHA, DEFAULT_SCORECARD_ALPHA);
+        double headerAlpha = prefs.getDouble(SETTING_HEADER_ALPHA, DEFAULT_HEADER_ALPHA);
+
+        lineColor = Color.web(lineColorString);
+        textFillColor = Color.web(textFillString);
+        textOutlineColor = Color.web(textOutlineString);
+        headerFill = Color.web(headerFillString, headerAlpha);
+        scorecardFill = Color.web(scorecardFillString, scorecardAlpha);
+
     }
 }
