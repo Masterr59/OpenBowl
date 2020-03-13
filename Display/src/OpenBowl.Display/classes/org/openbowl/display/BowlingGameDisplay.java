@@ -27,21 +27,21 @@ import org.openbowl.common.ColorToHex;
  */
 public class BowlingGameDisplay extends Region {
 
-    public final Color DEFAULT_LINE_COLOR = Color.WHITE;
-    public final Color DEFAULT_TEXT_OUTLINE = Color.WHITE;
-    public final Color DEFAULT_TEXT_FILL = Color.WHITE;
-    public final Color DEFAULT_HEADER_FILL = Color.BLACK;
-    public final Color DEFAULT_SCORECARD_FILL = Color.BLACK;
-    public final double DEFAULT_HEADER_ALPHA = .5;
-    public final double DEFAULT_SCORECARD_ALPHA = 0.5;
+    public final static Color DEFAULT_LINE_COLOR = Color.WHITE;
+    public final static Color DEFAULT_TEXT_OUTLINE = Color.WHITE;
+    public final static Color DEFAULT_TEXT_FILL = Color.WHITE;
+    public final static Color DEFAULT_HEADER_FILL = Color.BLACK;
+    public final static Color DEFAULT_SCORECARD_FILL = Color.BLACK;
+    public final static double DEFAULT_HEADER_ALPHA = .5;
+    public final static double DEFAULT_SCORECARD_ALPHA = 0.5;
 
-    public final String SETTING_LINE_COLOR = "Line_Color";
-    public final String SETTING_TEXT_OUTLINE = "Text_OUTLINE";
-    public final String SETTING_TEXT_FILL = "Text_Fill";
-    public final String SETTING_HEADER_FILL = "Header_Fill";
-    public final String SETTING_SCORECARD_FILL = "Scorecard_Fill";
-    public final String SETTING_HEADER_ALPHA = "Header_Alpha";
-    public final String SETTING_SCORECARD_ALPHA = "Scorecard_Alpha";
+    public final static String SETTING_LINE_COLOR = "Line_Color";
+    public final static String SETTING_TEXT_OUTLINE = "Text_Outline";
+    public final static String SETTING_TEXT_FILL = "Text_Fill";
+    public final static String SETTING_HEADER_FILL = "Header_Fill";
+    public final static String SETTING_SCORECARD_FILL = "Scorecard_Fill";
+    public final static String SETTING_HEADER_ALPHA = "Header_Alpha";
+    public final static String SETTING_SCORECARD_ALPHA = "Scorecard_Alpha";
 
     private final String NAME_LABEL = "Name";
     private final String HDCP_LABEL = "HDCP";
@@ -331,8 +331,8 @@ public class BowlingGameDisplay extends Region {
         String lineColorString = prefs.get(SETTING_LINE_COLOR, ColorToHex.colorToHex(DEFAULT_LINE_COLOR));
         String textFillString = prefs.get(SETTING_TEXT_FILL, ColorToHex.colorToHex(DEFAULT_TEXT_FILL));
         String textOutlineString = prefs.get(SETTING_TEXT_OUTLINE, ColorToHex.colorToHex(DEFAULT_TEXT_OUTLINE));
-        String headerFillString = prefs.get(SETTING_TEXT_FILL, ColorToHex.colorToHex(DEFAULT_HEADER_FILL));
-        String scorecardFillString = prefs.get(SETTING_TEXT_OUTLINE, ColorToHex.colorToHex(DEFAULT_SCORECARD_FILL));
+        String headerFillString = prefs.get(SETTING_HEADER_FILL, ColorToHex.colorToHex(DEFAULT_HEADER_FILL));
+        String scorecardFillString = prefs.get(SETTING_SCORECARD_FILL, ColorToHex.colorToHex(DEFAULT_SCORECARD_FILL));
         double scorecardAlpha = prefs.getDouble(SETTING_SCORECARD_ALPHA, DEFAULT_SCORECARD_ALPHA);
         double headerAlpha = prefs.getDouble(SETTING_HEADER_ALPHA, DEFAULT_HEADER_ALPHA);
 

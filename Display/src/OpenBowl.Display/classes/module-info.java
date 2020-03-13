@@ -7,6 +7,7 @@
 module OpenBowl.Display {
     requires javafx.controls;
     requires javafx.fxml;
+    requires javafx.media;
     requires OpenBowl.Common;
     requires java.prefs;
     requires java.desktop;

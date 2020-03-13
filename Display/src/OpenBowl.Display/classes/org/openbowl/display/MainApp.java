@@ -23,6 +23,9 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.StackPane;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaView;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import org.openbowl.common.AboutOpenBowl;
@@ -33,8 +36,11 @@ import org.openbowl.common.WebFunctions;
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
 public class MainApp extends Application {
+
     public final String BACKGROUND_SETTING = "Background";
     public final String BACKGROUND_VALUE = "/org/openbowl/display/images/Background_default.jpg";
+    public final String MEDIA_FOLDER_SETTING = "Media_Folder";
+    public final String MEDIA_FOLDER_VALUE = "Default";
 
     private final int ODD = 0;
     private final int EVEN = 1;
@@ -43,8 +49,12 @@ public class MainApp extends Application {
     private Stage Stages[];
     private BowlingGameDisplay Game[];
     private ImageView[] Background;
+    private ImageView[] MessageCardView;
     private HttpServer server;
     private Preferences prefs;
+    private Media[] media;
+    private MediaPlayer[] mediaPlayer;
+    private MediaView[] mediaView;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -55,10 +65,16 @@ public class MainApp extends Application {
         Stages[EVEN] = new Stage();
 
         Background = new ImageView[NUM_GAMES];
+        MessageCardView = new ImageView[NUM_GAMES];
+        media = new Media[NUM_GAMES];
+        mediaPlayer = new MediaPlayer[NUM_GAMES];
+        mediaView = new MediaView[NUM_GAMES];
         Game = new BowlingGameDisplay[NUM_GAMES];
         for (int i = 0; i < NUM_GAMES; i++) {
             Game[i] = new BowlingGameDisplay();
             Background[i] = new ImageView();
+            mediaView[i] = new MediaView();
+            MessageCardView[i] = new ImageView();
         }
 
         setBackground();
@@ -85,6 +101,7 @@ public class MainApp extends Application {
         server = WebFunctions.createDefaultServer();
         server.createContext("/gamedisplay/odd/", new BowlingGameDisplayHandler(1, Game[ODD]));
         server.createContext("/gamedisplay/even/", new BowlingGameDisplayHandler(2, Game[EVEN]));
+        server.createContext("/system/", new DisplaySystemHandler(this));
         server.start();
     }
 
@@ -120,7 +137,7 @@ public class MainApp extends Application {
         about.onAbout(ApplicationName);
     }
 
-    private void onQuit() {
+    public void onQuit() {
         server.stop(0);
         Platform.exit();
     }
@@ -139,7 +156,7 @@ public class MainApp extends Application {
 
         Background[display].fitHeightProperty().bind(stack.heightProperty());
         Background[display].fitWidthProperty().bind(stack.widthProperty());
-        
+
         Game[display].prefHeightProperty().bind(stack.heightProperty());
         Game[display].prefWidthProperty().bind(stack.widthProperty());
 
@@ -147,12 +164,12 @@ public class MainApp extends Application {
         stack.getChildren().add(Game[display]);
 
         Scene scene = new Scene(stack);
-        
+
         scene.setCursor(Cursor.NONE);
         Stages[display].setScene(scene);
 
         Stages[display].show();
-        
+
         Stages[display].setOnCloseRequest(notUsed -> onQuit());
     }
 
@@ -160,11 +177,11 @@ public class MainApp extends Application {
         game.reset();
     }
 
-    public void setBackground(){
+    public void setBackground() {
         String defaultBackground = getClass().getResource(BACKGROUND_VALUE).toExternalForm();
         String backgroundURL = prefs.get(BACKGROUND_SETTING, defaultBackground);
         File tmp = new File(backgroundURL);
-        if(!defaultBackground.equals(backgroundURL) && !tmp.isFile() ){
+        if (!defaultBackground.equals(backgroundURL) && !tmp.isFile()) {
             System.out.println("Display - Background image not found");
             System.out.println(backgroundURL);
             backgroundURL = defaultBackground;
@@ -175,5 +192,5 @@ public class MainApp extends Application {
             Background[i].setPreserveRatio(false);
         }
     }
-    
+
 }
