@@ -58,4 +58,21 @@ public class MediaFilters {
 
         };
     }
+    
+    public static FilenameFilter createImageFileFilter() {
+        return new FilenameFilter() {
+            private final String[] extensions = {"bmp", "gif", "jpg", "jpeg", "png"};
+
+            @Override
+            public boolean accept(File file, String name) {
+                for (String ext : extensions) {
+                    if (name.endsWith(ext) || name.endsWith(ext.toUpperCase())) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+        };
+    }
 }
