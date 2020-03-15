@@ -6,22 +6,28 @@
 package org.openbowl.display;
 
 import com.sun.net.httpserver.HttpServer;
+import java.io.File;
+import java.util.prefs.Preferences;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaView;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import org.openbowl.common.AboutOpenBowl;
 import org.openbowl.common.WebFunctions;
 
@@ -31,18 +37,40 @@ import org.openbowl.common.WebFunctions;
  */
 public class MainApp extends Application {
 
+    public final String BACKGROUND_SETTING = "Background";
+    public final String BACKGROUND_VALUE = "/org/openbowl/display/images/Background_default.jpg";
+    public final static String MEDIA_FOLDER_SETTING = "Media_Folder";
+    public final static String MEDIA_FOLDER_VALUE = "Default";
+
+    private final int ODD = 0;
+    private final int EVEN = 1;
+    private final int NUM_GAMES = 2;
     private final String ApplicationName = "Open Bowl - Display";
-    private Stage primaryStage, secondaryStage;
-    private BowlingGameDisplay oddGame, evenGame;
+    private Stage Stages[];
+    private StackPane stackPanes[];
+    private BowlingGameDisplay Game[];
+    private ImageView[] Background;
     private HttpServer server;
+    private Preferences prefs;
 
     @Override
     public void start(Stage stage) throws Exception {
-        primaryStage = stage;
-        secondaryStage = new Stage();
-        oddGame = new BowlingGameDisplay();
-        evenGame = new BowlingGameDisplay();
-        
+        prefs = Preferences.userNodeForPackage(this.getClass());
+
+        Stages = new Stage[NUM_GAMES];
+        Stages[ODD] = stage;
+        Stages[EVEN] = new Stage();
+
+        Background = new ImageView[NUM_GAMES];
+        stackPanes = new StackPane[NUM_GAMES];
+        Game = new BowlingGameDisplay[NUM_GAMES];
+        for (int i = 0; i < NUM_GAMES; i++) {
+            stackPanes[i] = new StackPane();
+            Game[i] = new BowlingGameDisplay();
+            Background[i] = new ImageView();
+        }
+
+        setBackground();
         ObservableList<Screen> screens = Screen.getScreens();//Get list of Screens
         System.out.println("NumScreens " + screens.size());
         double width = 0;
@@ -55,18 +83,22 @@ public class MainApp extends Application {
         if (screens.size() > 1) {
             leftBounds = screens.get(0).getVisualBounds();
             rightBounds = screens.get(1).getVisualBounds();
-        }
-        else{
+        } else {
             Rectangle2D bounds = screens.get(0).getVisualBounds();
-            leftBounds = new Rectangle2D(bounds.getMinX(),bounds.getMinY(),bounds.getWidth() / 2, bounds.getHeight());
-            rightBounds = new Rectangle2D(bounds.getWidth() / 2.0,bounds.getMinY(),bounds.getWidth() / 2, bounds.getHeight());
+            leftBounds = new Rectangle2D(bounds.getMinX(), bounds.getMinY(), bounds.getWidth() / 2, bounds.getHeight());
+            rightBounds = new Rectangle2D(bounds.getWidth() / 2.0, bounds.getMinY(), bounds.getWidth() / 2, bounds.getHeight());
         }
-        setupStage(primaryStage, leftBounds, false, 0, oddGame);
-        setupStage(secondaryStage, rightBounds, false, 1, evenGame);
+        setupStage(leftBounds, false, 0, ODD);
+        setupStage(rightBounds, false, 1, EVEN);
 
         server = WebFunctions.createDefaultServer();
-        server.createContext("/gamedisplay/odd/", new BowlingGameDisplayHandler(1, oddGame));
-        server.createContext("/gamedisplay/even/", new BowlingGameDisplayHandler(2, evenGame));
+        server.createContext("/gamedisplay/odd/", new BowlingGameDisplayHandler(1, Game[ODD]));
+        server.createContext("/gamedisplay/even/", new BowlingGameDisplayHandler(2, Game[EVEN]));
+        server.createContext("/system/", new DisplaySystemHandler(this));
+        server.createContext("/splash/odd/", new SplashHandler(stackPanes[ODD]));
+        server.createContext("/splash/even/", new SplashHandler(stackPanes[EVEN]));
+        server.createContext("/message/odd/", new MessageHandler(stackPanes[ODD]));
+        server.createContext("/message/even/", new MessageHandler(stackPanes[EVEN]));
         server.start();
     }
 
@@ -79,10 +111,10 @@ public class MainApp extends Application {
         quitMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.Q,
                 KeyCombination.CONTROL_DOWN));
         quitMenuItem.setOnAction(notUsed -> onQuit());
-        
+
         MenuItem resetMenuItem = new MenuItem("_Reset Game");
         resetMenuItem.setOnAction(notUsed -> onResetGame(game));
-        
+
         fileMenu.getItems().addAll(resetMenuItem, quitMenuItem);
 
         Menu helpMenu = new Menu("_Help");
@@ -102,34 +134,66 @@ public class MainApp extends Application {
         about.onAbout(ApplicationName);
     }
 
-    private void onQuit() {
+    public void onQuit() {
         server.stop(0);
         Platform.exit();
     }
 
-    private void setupStage(Stage stage, Rectangle2D bounds, boolean fullscreen, int id, BowlingGameDisplay game) {
+    private void setupStage(Rectangle2D bounds, boolean fullscreen, int id, int display) {
         //stage.initStyle(StageStyle.UNDECORATED);
-        stage.setX(bounds.getMinX());
-        stage.setY(bounds.getMinY());
-        stage.setFullScreen(fullscreen);
+        Stages[display].setX(bounds.getMinX());
+        Stages[display].setY(bounds.getMinY());
+        Stages[display].setFullScreen(fullscreen);
         if (!fullscreen) {
-            stage.setWidth(bounds.getWidth());
-            stage.setHeight(bounds.getHeight());
+            Stages[display].setWidth(bounds.getWidth());
+            Stages[display].setHeight(bounds.getHeight());
         }
-        Label label = new Label("Screen " + id);
-        BorderPane root = new BorderPane();
-        root.setTop(buildMenuBar(game));
-        root.setCenter(game);
-        root.setBottom(label);
-        //stage.setTitle(ApplicationName);
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
 
-        stage.show();
+        Background[display].fitHeightProperty().bind(stackPanes[display].heightProperty());
+        Background[display].fitWidthProperty().bind(stackPanes[display].widthProperty());
+
+        Game[display].prefHeightProperty().bind(stackPanes[display].heightProperty());
+        Game[display].prefWidthProperty().bind(stackPanes[display].widthProperty());
+
+        stackPanes[display].getChildren().add(Background[display]);
+        stackPanes[display].getChildren().add(Game[display]);
+
+        Scene scene = new Scene(stackPanes[display]);
+
+        scene.setCursor(Cursor.NONE);
+        Stages[display].setScene(scene);
+
+        Stages[display].show();
+
+        Stages[display].setOnCloseRequest(notUsed -> onQuit());
     }
 
     private void onResetGame(BowlingGameDisplay game) {
         game.reset();
+    }
+
+    private void setBackground() {
+        String defaultBackground = getClass().getResource(BACKGROUND_VALUE).toExternalForm();
+        String backgroundURL = prefs.get(BACKGROUND_SETTING, defaultBackground);
+        File tmp = new File(backgroundURL);
+        if (!defaultBackground.equals(backgroundURL) && !tmp.isFile()) {
+            System.out.println("Display - Background image not found");
+            System.out.println(backgroundURL);
+            backgroundURL = defaultBackground;
+        }
+        for (int i = 0; i < NUM_GAMES; i++) {
+
+            Background[i].setImage(new Image(backgroundURL));
+            Background[i].setPreserveRatio(false);
+        }
+    }
+    
+    public void applyTheme(){
+        setBackground();
+        for (int i = 0; i < NUM_GAMES; i++) {
+            Game[i].loadColors();
+            Game[1].draw();
+        }
     }
 
 }
