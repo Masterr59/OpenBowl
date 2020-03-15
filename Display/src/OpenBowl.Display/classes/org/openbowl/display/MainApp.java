@@ -97,6 +97,8 @@ public class MainApp extends Application {
         server.createContext("/system/", new DisplaySystemHandler(this));
         server.createContext("/splash/odd/", new SplashHandler(stackPanes[ODD]));
         server.createContext("/splash/even/", new SplashHandler(stackPanes[EVEN]));
+        server.createContext("/message/odd/", new MessageHandler(stackPanes[ODD]));
+        server.createContext("/message/even/", new MessageHandler(stackPanes[EVEN]));
         server.start();
     }
 

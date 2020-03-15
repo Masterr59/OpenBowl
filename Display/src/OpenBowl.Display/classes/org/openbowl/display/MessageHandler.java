@@ -10,15 +10,13 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.prefs.Preferences;
 import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
-import javafx.scene.media.MediaView;
-import org.openbowl.common.BowlingSplash;
 import org.openbowl.common.CommonHandler;
 import org.openbowl.common.MediaFilters;
 
@@ -26,26 +24,22 @@ import org.openbowl.common.MediaFilters;
  *
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
-public class SplashHandler extends CommonHandler {
+public class MessageHandler extends CommonHandler {
 
-    private final String DEFAULT_SPLASH = "/org/openbowl/display/images/Splash_Default.mp4";
+    private final String DEFAULT_IMAGE = "/org/openbowl/display/images/Default.jpg";
 
-    private Media media;
-    private MediaPlayer mediaPlayer;
-    private final MediaView mediaView;
     private final StackPane stack;
     private final Preferences prefs;
-    private final BooleanProperty onScreen;
     private final Random rand;
+    private final ImageView imageView;
+    private Timer timer;
 
-    public SplashHandler(StackPane stack) {
+    public MessageHandler(StackPane stack) {
         this.stack = stack;
-        rand = new Random();
-        prefs = Preferences.userNodeForPackage(this.getClass());
-
-        mediaView = new MediaView();
-        onScreen = new SimpleBooleanProperty(false);
-        onScreen.addListener(notUsed -> onScreenChanged());
+        this.rand = new Random();
+        this.prefs = Preferences.userNodeForPackage(this.getClass());
+        this.imageView = new ImageView();
+        this.timer = new Timer();
     }
 
     @Override
@@ -73,9 +67,10 @@ public class SplashHandler extends CommonHandler {
         }
         try {
             switch (parms.getOrDefault("set", "none")) {
-                case "splash":
-                    if (requestBody.containsKey("type")) {
-                        map.putAll(onSetSplash((String) requestBody.get("type")));
+                case "card":
+                    if (requestBody.containsKey("type") && requestBody.containsKey("duration")) {
+                        int duration = new Double((double) requestBody.get("duration")).intValue();
+                        map.putAll(onSetCard((String) requestBody.get("type"), duration));
 
                     } else {
                         map.put(SUCCESS, false);
@@ -94,34 +89,37 @@ public class SplashHandler extends CommonHandler {
         return map;
     }
 
-    private Map<String, Object> onSetSplash(String typeString) {
+    private Map<String, Object> onSetCard(String cardType, int duration) {
         Map<String, Object> map = new HashMap<>();
         try {
             String mediaPref = prefs.get(MainApp.MEDIA_FOLDER_SETTING, MainApp.MEDIA_FOLDER_VALUE);
-            BowlingSplash splashType = BowlingSplash.valueOf(typeString);
             String homeDir = System.getProperty("user.home");
             String mediaDir = homeDir + File.separator + "Media"
                     + File.separator + mediaPref + File.separator
-                    + "Videos" + File.separator + splashType.toString() + File.separator;
+                    + "Cards" + File.separator + cardType + File.separator;
             //System.out.println("media dir: " + mediaDir);
             map.put(SUCCESS, true);
             map.put("path", mediaDir);
             File dir = new File(mediaDir);
-            String splashPlath = getClass().getResource(DEFAULT_SPLASH).toExternalForm();
+            String cardPath = getClass().getResource(DEFAULT_IMAGE).toExternalForm();
             if (dir.exists() && dir.isDirectory()) {
-                String[] fileList = dir.list(MediaFilters.createVideoFileFilter());
+                String[] fileList = dir.list(MediaFilters.createImageFileFilter());
                 if (fileList.length > 0) {
                     int i = rand.nextInt() % fileList.length;
                     File m = new File(mediaDir + fileList[i]);
                     if (m.isFile()) {
-                        //System.out.println(mediaDir + fileList[i]);
-                        splashPlath = new File(mediaDir + fileList[i]).toURI().toString();
+                        cardPath = new File(mediaDir + fileList[i]).toURI().toString();
                     }
                 }
             }
-            media = new Media(splashPlath);
-            System.out.println("Playing Media: " + splashPlath);
-            showSplash();
+            if (cardType.equals("NONE")) {
+                System.out.println("removing card");
+                timer.schedule(new RemoveCardTask(), 1);
+            } else {
+                System.out.println("Showing Card: " + cardPath);
+                imageView.setImage(new Image(cardPath));
+                showCard(duration);
+            }
 
         } catch (IllegalArgumentException e) {
             map.put(SUCCESS, false);
@@ -131,39 +129,35 @@ public class SplashHandler extends CommonHandler {
         return map;
     }
 
-    private void showSplash() {
-        onScreen.setValue(Boolean.TRUE);
+    private void showCard(int duration) {
+        if (duration >= 0) {
+            timer.schedule(new RemoveCardTask(), duration);
+        }
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
+                stack.getChildren().add(imageView);
 
-                mediaPlayer = new MediaPlayer(media);
-                mediaView.setMediaPlayer(mediaPlayer);
-                mediaView.setPreserveRatio(false);
-                mediaView.fitHeightProperty().bind(stack.heightProperty());
-                mediaView.fitWidthProperty().bind(stack.widthProperty());
-                mediaPlayer.setOnEndOfMedia(new Runnable() {
-                    @Override
-                    public void run() {
-                        onScreen.setValue(Boolean.FALSE);
-                    }
-                });
-                stack.getChildren().add(mediaView);
-                mediaPlayer.play();
             }
         });
-
     }
 
-    private void onScreenChanged() {
-        if (!onScreen.get()) {
+    private class RemoveCardTask extends TimerTask {
+
+        @Override
+        public void run() {
+            timer.cancel();
+            timer = new Timer();
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
-                    stack.getChildren().remove(mediaView);
+                    stack.getChildren().remove(imageView);
+
                 }
             });
+
         }
+
     }
 
 }
