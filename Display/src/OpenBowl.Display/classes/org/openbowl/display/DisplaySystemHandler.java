@@ -121,16 +121,16 @@ public class DisplaySystemHandler extends SystemHandler {
             double headerAlpha = (double) map.get(BowlingGameDisplay.SETTING_HEADER_ALPHA);
             String backgroundURL = (String) map.get(app.BACKGROUND_SETTING);
             String mediaFolder = (String) map.get(app.MEDIA_FOLDER_SETTING);
-            
+
             prefs.put(BowlingGameDisplay.SETTING_LINE_COLOR, lineColorString);
             prefs.put(BowlingGameDisplay.SETTING_TEXT_FILL, textFillString);
             prefs.put(BowlingGameDisplay.SETTING_TEXT_OUTLINE, textOutlineString);
             prefs.put(BowlingGameDisplay.SETTING_HEADER_FILL, headerFillString);
             prefs.put(BowlingGameDisplay.SETTING_SCORECARD_FILL, scorecardFillString);
-            
+
             prefs.putDouble(BowlingGameDisplay.SETTING_SCORECARD_ALPHA, scorecardAlpha);
             prefs.putDouble(BowlingGameDisplay.SETTING_HEADER_ALPHA, headerAlpha);
-            
+
             prefs.put(app.BACKGROUND_SETTING, backgroundURL);
             prefs.put(app.MEDIA_FOLDER_SETTING, mediaFolder);
             onGetTheme(ret);

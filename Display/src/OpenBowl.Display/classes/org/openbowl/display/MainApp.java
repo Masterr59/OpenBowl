@@ -39,22 +39,19 @@ public class MainApp extends Application {
 
     public final String BACKGROUND_SETTING = "Background";
     public final String BACKGROUND_VALUE = "/org/openbowl/display/images/Background_default.jpg";
-    public final String MEDIA_FOLDER_SETTING = "Media_Folder";
-    public final String MEDIA_FOLDER_VALUE = "Default";
+    public final static String MEDIA_FOLDER_SETTING = "Media_Folder";
+    public final static String MEDIA_FOLDER_VALUE = "Default";
 
     private final int ODD = 0;
     private final int EVEN = 1;
     private final int NUM_GAMES = 2;
     private final String ApplicationName = "Open Bowl - Display";
     private Stage Stages[];
+    private StackPane stackPanes[];
     private BowlingGameDisplay Game[];
     private ImageView[] Background;
-    private ImageView[] MessageCardView;
     private HttpServer server;
     private Preferences prefs;
-    private Media[] media;
-    private MediaPlayer[] mediaPlayer;
-    private MediaView[] mediaView;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -65,16 +62,12 @@ public class MainApp extends Application {
         Stages[EVEN] = new Stage();
 
         Background = new ImageView[NUM_GAMES];
-        MessageCardView = new ImageView[NUM_GAMES];
-        media = new Media[NUM_GAMES];
-        mediaPlayer = new MediaPlayer[NUM_GAMES];
-        mediaView = new MediaView[NUM_GAMES];
+        stackPanes = new StackPane[NUM_GAMES];
         Game = new BowlingGameDisplay[NUM_GAMES];
         for (int i = 0; i < NUM_GAMES; i++) {
+            stackPanes[i] = new StackPane();
             Game[i] = new BowlingGameDisplay();
             Background[i] = new ImageView();
-            mediaView[i] = new MediaView();
-            MessageCardView[i] = new ImageView();
         }
 
         setBackground();
@@ -102,6 +95,8 @@ public class MainApp extends Application {
         server.createContext("/gamedisplay/odd/", new BowlingGameDisplayHandler(1, Game[ODD]));
         server.createContext("/gamedisplay/even/", new BowlingGameDisplayHandler(2, Game[EVEN]));
         server.createContext("/system/", new DisplaySystemHandler(this));
+        server.createContext("/splash/odd/", new SplashHandler(stackPanes[ODD]));
+        server.createContext("/splash/even/", new SplashHandler(stackPanes[EVEN]));
         server.start();
     }
 
@@ -152,18 +147,16 @@ public class MainApp extends Application {
             Stages[display].setHeight(bounds.getHeight());
         }
 
-        StackPane stack = new StackPane();
+        Background[display].fitHeightProperty().bind(stackPanes[display].heightProperty());
+        Background[display].fitWidthProperty().bind(stackPanes[display].widthProperty());
 
-        Background[display].fitHeightProperty().bind(stack.heightProperty());
-        Background[display].fitWidthProperty().bind(stack.widthProperty());
+        Game[display].prefHeightProperty().bind(stackPanes[display].heightProperty());
+        Game[display].prefWidthProperty().bind(stackPanes[display].widthProperty());
 
-        Game[display].prefHeightProperty().bind(stack.heightProperty());
-        Game[display].prefWidthProperty().bind(stack.widthProperty());
+        stackPanes[display].getChildren().add(Background[display]);
+        stackPanes[display].getChildren().add(Game[display]);
 
-        stack.getChildren().add(Background[display]);
-        stack.getChildren().add(Game[display]);
-
-        Scene scene = new Scene(stack);
+        Scene scene = new Scene(stackPanes[display]);
 
         scene.setCursor(Cursor.NONE);
         Stages[display].setScene(scene);
@@ -177,7 +170,7 @@ public class MainApp extends Application {
         game.reset();
     }
 
-    public void setBackground() {
+    private void setBackground() {
         String defaultBackground = getClass().getResource(BACKGROUND_VALUE).toExternalForm();
         String backgroundURL = prefs.get(BACKGROUND_SETTING, defaultBackground);
         File tmp = new File(backgroundURL);
@@ -190,6 +183,14 @@ public class MainApp extends Application {
 
             Background[i].setImage(new Image(backgroundURL));
             Background[i].setPreserveRatio(false);
+        }
+    }
+    
+    public void applyTheme(){
+        setBackground();
+        for (int i = 0; i < NUM_GAMES; i++) {
+            Game[i].loadColors();
+            Game[1].draw();
         }
     }
 
