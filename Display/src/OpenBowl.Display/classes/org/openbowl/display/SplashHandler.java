@@ -105,7 +105,7 @@ public class SplashHandler extends CommonHandler {
             String mediaDir = homeDir + File.separator + "Media"
                     + File.separator + mediaPref + File.separator
                     + splashType.toString() + File.separator;
-            System.out.println("media dir: " + mediaDir);
+            //System.out.println("media dir: " + mediaDir);
             map.put(SUCCESS, true);
             map.put("path", mediaDir);
             File dir = new File(mediaDir);
@@ -116,12 +116,13 @@ public class SplashHandler extends CommonHandler {
                     int i = rand.nextInt() % fileList.length;
                     File m = new File(mediaDir + fileList[i]);
                     if (m.isFile()) {
-                        System.out.println(mediaDir + fileList[i]);
+                        //System.out.println(mediaDir + fileList[i]);
                         splashPlath = new File(mediaDir + fileList[i]).toURI().toString();
                     }
                 }
             }
             media = new Media(splashPlath);
+            System.out.println("Playing Media: " + splashPlath);
             showSplash();
 
         } catch (IllegalArgumentException e) {
