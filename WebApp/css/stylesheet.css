@@ -311,7 +311,7 @@ html {
 .normalBtn, .greenBtn, .yellowBtn,
 .purpleBtn, .redBtn, .laneBtn,
 .laneBtnBlue, .buttonPost, .normalBtnSelected,
-.greenBtnSelected
+.greenBtnSelected, .numBtn
 {
   display: flex;
   align-items: center;
@@ -334,8 +334,9 @@ html {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  hyphens: auto;
 }
-.normalBtn:hover
+.normalBtn:hover, .numBtn:hover
 {
   background-color: #6B8FB0;
 }
@@ -530,6 +531,7 @@ html {
 
 #salesTax, #saleTotal
 {
+  border: 1px solid #000;
   font-weight: bold;
   margin: 3px;
   width: 50%;

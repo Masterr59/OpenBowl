@@ -63,10 +63,13 @@ var minSelect = 0;
 var maxSelect = 0;
 var laneIsSelected = false;
 var numOfSales = 0;
+var totalPrice = 0;
+var salesTax = 1.09;
 
 function start() {  
     displayLanes();
     displaySubDepartments();
+    updateTotal();
 
     $(".laneBtn").click(function() {
         selectLanes(this);
@@ -89,7 +92,12 @@ function start() {
         displayPackages(this);
     });
 
-
+    $(".numBtn").click(function() {
+        if (selectedSale != -1)
+        {
+            addQuantity(this);
+        }
+    });
 }
 
 function addSale(subID, selectedProdID, clickedButton) {
@@ -100,7 +108,7 @@ function addSale(subID, selectedProdID, clickedButton) {
     var selectedProdName = products[subID][selectedProdID];
     var selectedModName = modifiers[subID][selectedProdID][selectedModID];
     var selectedModPrice = modifierPrices[subID][selectedProdID][selectedModID];
-    var quantity = 1;
+    var quantity = 0;
 
     laneIsSelected = false;
     sales.push(new Array());
@@ -109,35 +117,69 @@ function addSale(subID, selectedProdID, clickedButton) {
     sales[numOfSales][2] = maxSelect;
     sales[numOfSales][3] = selectedProdName;
     sales[numOfSales][4] = selectedModName;
-    sales[numOfSales][5] = selectedModPrice;
+    sales[numOfSales][5] = selectedModPrice * sales[numOfSales][0];
+    sales[numOfSales][6] = selectedModPrice;
+
+    const priceString = sales[numOfSales][5].toLocaleString('us-US', { style: 'currency', currency: 'USD'});
 
     $("#receipt").append(
-        "<div class=\"receipt_sale\" id=\"receipt_sale" + numOfSales +"\">" +
+        "<div class=\"receipt_sale\" id=\"receipt_sale" + numOfSales +"\" onclick=\"selectSale(" + numOfSales + ")\">" +
         "<div class=\"row1\"><b>" + getSaleQuantity(numOfSales) + "&nbsp;" + selectedProdName + "</b></div>" +
-        "<div class=\"row2\">[" + getLaneFormat() + "]</div>" +
+        "<div class=\"row2\">[" + getLaneFormat(minSelect,maxSelect) + "]</div>" +
         "<div class=\"row3\">" +
         "<div>" + selectedModName + "</div>" +
-        "<div><b>$" + selectedModPrice * sales[numOfSales][0] + "</b></div>" +
+        "<div class=\"productPrice\"><b>" + priceString + "</b></div>" +
         "</div>" +
         "</div>"
     );
 
+    updateTotal();
+
     numOfSales++;
-
-    $("#receipt .receipt_sale").click(function() {
-        selectSale(this);
-    });
+    
 }
-function updateTotal() {
-
-}
-function selectSale(clickedButton) {
-    clearReceiptSelections();
+function addQuantity(clickedButton) {
     const s = "#" + $(clickedButton).attr('id');
+    var matches = s.match(/(\d+)/);
+    var selectedNum = parseInt(matches[0]);
+    var newSaleString = sales[selectedSale][0] + "" + selectedNum;
+    var newQuantity = parseInt(newSaleString);
+    
+    sales[selectedSale][0] = newQuantity;
+    sales[selectedSale][5] = sales[selectedSale][6] * newQuantity;
+    const newPrice = sales[selectedSale][5];
+    
+    const priceString = newPrice.toLocaleString('us-US', { style: 'currency', currency: 'USD'});
+    
+    $("#receipt_sale" + selectedSale).html(
+        "<div class=\"row1\"><b>" + newQuantity + "&nbsp;" + sales[selectedSale][3] + "</b></div>" +
+        "<div class=\"row2\">[" + getLaneFormat(sales[selectedSale][1], sales[selectedSale][2]) + "]</div>" +
+        "<div class=\"row3\">" +
+        "<div>" + sales[selectedSale][4] + "</div>" +
+        "<div class=\"productPrice\"><b>" + priceString + "</b></div>" +
+        "</div>"
+    );
+    updateTotal();
+}
+function selectSale(num) {
+    clearReceiptSelections();
+    const s = "#receipt_sale" + num;
     const selectedSaleBtn = document.querySelector(s);
     var matches = s.match(/(\d+)/);
-    var selectedSaleID = parseInt(matches[0]);
+    var selectedSaleID = num;
+    selectedSale = selectedSaleID;
     selectedSaleBtn.classList = "receipt_sale_selected";
+}
+function updateTotal() {
+    var i;
+    for (i = 0; i < sales.length; i++)
+    {
+        totalPrice += sales[i][5];
+    }
+    const s = totalPrice.toLocaleString('us-US', { style: 'currency', currency: 'USD'});
+    const salesTaxString = salesTax.toLocaleString('us-US', { style: 'currency', currency: 'USD'});
+    $("#saleTotal").html(s);
+    $("#salesTax").html(salesTaxString);
 }
 function clearReceiptSelections() {
     var i;
@@ -293,11 +335,11 @@ function displayModifiers(clickedButton, subID) {
 function getSaleQuantity(saleID) {
     return sales[saleID][0];
 }
-function getLaneFormat() {
-    if (minSelect == maxSelect)
-        return minSelect;
+function getLaneFormat(min, max) {
+    if (min == max)
+        return min;
     else
-        return minSelect + "-" + maxSelect;
+        return min + "-" + max;
 }
 function displayErrorMsg(msg) {
     $("#errorMsgContainer").html("");
