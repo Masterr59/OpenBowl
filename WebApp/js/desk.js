@@ -1,5 +1,12 @@
 var numOfLanes = 24;
-var subDepartments = ["Bowling", "Birthdays", "Pro Shop", "Tournament Lockers"];
+var maxNumOfLanesPerPage = 24;
+var maxNumOfProductsPerPage = 4;
+var currentLanePage = 1;
+var currentSubDptPage = 1;
+var currentPackagePage = 1;
+var currentProductsPage = 1;
+var currentModifiersPage = 1;
+var subDepartments = ["Bowling", "Birthdays", "Pro Shop", "Tournament Lockers", "Test", "Test 2", "Test 3", "Test 4", "Test 5"];
 var packages = ["Nachos Pins Pepsi", "Pizza Pins Pepsi"];
 var products = [
                 ["Game Bowling", "Ladies Night", "Food Fight", "2hr fun w/shoes Adult"],
@@ -87,16 +94,21 @@ function start() {
         selectSale(this);
     });
 
-    $("#subdptDiv .greenBtn").click(function() {
-        displayProducts(this);
-        displayPackages(this);
-    });
+    
 
     $(".numBtn").click(function() {
         if (selectedSale != -1)
         {
             addQuantity(this);
         }
+    });
+    $("#subdepartments_down_arrow").click(function() {
+        currentSubDptPage++;
+        displaySubDepartments();
+    });
+    $("#subdepartments_up_arrow").click(function() {
+        currentSubDptPage--;
+        displaySubDepartments();
     });
 }
 
@@ -172,6 +184,7 @@ function selectSale(num) {
 }
 function updateTotal() {
     var i;
+    totalPrice = 0;
     for (i = 0; i < sales.length; i++)
     {
         totalPrice += sales[i][5];
@@ -251,9 +264,10 @@ function toggleLaneButtons(isLaneSelected) {
 }
 function clearSubDepartmentBtns() {
     var subdptID;
-    for (subdptID = 0; subdptID < subDepartments.length; subdptID++)
+    for (subdptID = 0; subdptID < maxNumOfProductsPerPage; subdptID++)
     {
         var s = "#subdpt" + subdptID;
+        console.log("Trying to select: " + s);
         var selectedBtn = document.querySelector(s);
         selectedBtn.classList = "greenBtn";
     }
@@ -276,10 +290,42 @@ function displayLanes() {
 }
 function displaySubDepartments() {
     var subdptID;
-    for (subdptID = 0; subdptID < subDepartments.length; subdptID++)
+    var numOfSubDpts = subDepartments.length;
+
+    $("#subdptDiv").html("");
+
+    if (currentSubDptPage > 1)
     {
-        $("#subdptDiv").append("<div class=\"greenBtn\" id=\"subdpt" + subdptID + "\">" + subDepartments[subdptID] + "</div>");
+        document.querySelector("#subdepartments_up_arrow").classList = "arrow_panel_enabled";
     }
+    else
+    {
+        document.querySelector("#subdepartments_up_arrow").classList = "arrow_panel";
+    }
+
+    if (numOfSubDpts - (currentSubDptPage * maxNumOfProductsPerPage) > 0)
+    {
+        console.log("If: " + currentSubDptPage * maxNumOfProductsPerPage);
+        document.querySelector("#subdepartments_down_arrow").classList = "arrow_panel_enabled";
+        for (subdptID = currentSubDptPage * maxNumOfProductsPerPage - maxNumOfProductsPerPage; subdptID < currentSubDptPage * maxNumOfProductsPerPage; subdptID++)
+        {
+            $("#subdptDiv").append("<div class=\"greenBtn\" id=\"subdpt" + subdptID + "\">" + subDepartments[subdptID] + "</div>");
+        }
+    }
+    else
+    {
+        console.log("Else: " + (currentSubDptPage * maxNumOfProductsPerPage - maxNumOfProductsPerPage));
+        document.querySelector("#subdepartments_down_arrow").classList = "arrow_panel";
+        for (subdptID = currentSubDptPage * maxNumOfProductsPerPage - maxNumOfProductsPerPage; subdptID < currentSubDptPage * maxNumOfProductsPerPage - maxNumOfProductsPerPage + 1; subdptID++)
+        {
+            $("#subdptDiv").append("<div class=\"greenBtn\" id=\"subdpt" + subdptID + "\">" + subDepartments[subdptID] + "</div>");
+        }
+    }
+    $("#subdptDiv .greenBtn").click(function() {
+        displayProducts(this);
+        displayPackages(this);
+    });
+    
 }
 function displayPackages(clickedButton) {
     var pkgID;
@@ -303,6 +349,7 @@ function displayProducts(clickedButton) {
     {
         $("#prodDiv").append("<div class=\"normalBtn\" id=\"prod" + prodID + "\">" + products[selectedSubID][prodID] + "</div>");
     }
+
     $("#prodDiv .normalBtn").click(function() {
         displayModifiers(this, selectedSubID);
     });

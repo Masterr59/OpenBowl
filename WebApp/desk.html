@@ -25,11 +25,11 @@
           <div class="lanepanel">
             <div><h3>Lanes</h3></div>
             <div class="tester">
-              <div class="product_panel_child" id="laneDiv">
+              <div class="product_panel_child" id="laneDiv" style="justify-content: center;">
               </div>
               <div class="panelsidebar" id="ps2">
-                <div class="greenBtn">Up</div>
-                <div class="greenBtn">Down</div>
+                <div class="greenBtn" id="laneUpBtn">Up</div>
+                <div class="greenBtn" id="laneDownBtn">Down</div>
                 <div class="greenBtn" id="clearBtn">Clear</div>
                 <div class="normalBtn">Get Receipt</div>
                 <div class="normalBtn">Other</div>
@@ -39,19 +39,51 @@
           <div class="product_panel_parent">
             <div class="product_panel">
               <div><h3>Sub Departments</h3></div>
-              <div class="product_panel_child" id="subdptDiv"></div>
+              <div style="display: flex; flex-direction: column; width: 100%;">
+                <div class="arrow_panel" id="subdepartments_up_arrow">
+                  <div class="arrowBtn" id="upBtnMini"><i class="fa fa-chevron-up"></i></div>
+                </div>
+                <div class="product_panel_child" id="subdptDiv" style="justify-content: center;"></div>
+                <div class="arrow_panel" id="subdepartments_down_arrow">
+                  <div class="arrowBtn" id="downBtnMini"><i class="fa fa-chevron-down"></i></div>
+                </div>
+              </div>
             </div>
             <div class="product_panel">
               <div><h3>Packages</h3></div>
-              <div class="product_panel_child" id="pkgDiv"></div>
+              <div style="display: flex; flex-direction: column; width: 100%">
+                <div class="arrow_panel" id="packages_up_arrow">
+                  <div class="arrowBtn" id="upBtnMini"><i class="fa fa-chevron-up"></i></div>
+                </div>
+                <div class="product_panel_child" id="pkgDiv" style="justify-content: center;"></div>
+                <div class="arrow_panel" id="packages_down_arrow">
+                  <div class="arrowBtn" id="downBtnMini"><i class="fa fa-chevron-down"></i></div>
+                </div>
+              </div>
             </div>
             <div class="product_panel">
               <div><h3>Products</h3></div>
-              <div class="product_panel_child" id="prodDiv"></div>
+              <div style="display: flex; flex-direction: column; width: 100%">
+                <div class="arrow_panel" id="products_up_arrow">
+                  <div class="arrowBtn" id="upBtnMini"><i class="fa fa-chevron-up"></i></div>
+                </div>
+                <div class="product_panel_child" id="prodDiv" style="justify-content: center;"></div>
+                <div class="arrow_panel" id="products_down_arrow">
+                  <div class="arrowBtn" id="downBtnMini"><i class="fa fa-chevron-down"></i></div>
+                </div>
+              </div>
             </div>
             <div class="product_panel">
               <div><h3>Modifiers</h3></div>
-              <div class="product_panel_child" id="modDiv"></div>
+              <div style="display: flex; flex-direction: column; width: 100%">
+                <div class="arrow_panel" id="modifiers_up_arrow">
+                  <div class="arrowBtn" id="upBtnMini"><i class="fa fa-chevron-up"></i></div>
+                </div>
+                <div class="product_panel_child" id="modDiv" style="justify-content: center;"></div>
+                <div class="arrow_panel" id="modifiers_down_arrow">
+                  <div class="arrowBtn" id="downBtnMini"><i class="fa fa-chevron-down"></i></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
