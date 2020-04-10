@@ -1,22 +1,22 @@
 var numOfLanes = 24;
 var maxNumOfLanesPerPage = 24;
-var maxNumOfProductsPerPage = 4;
-var currentLanePage = 1;
-var currentSubDptPage = 1;
-var currentPackagePage = 1;
-var currentProductsPage = 1;
-var currentModifiersPage = 1;
-var subDepartments = ["Bowling", "Birthdays", "Pro Shop", "Tournament Lockers", "Test", "Test 2", "Test 3", "Test 4", "Test 5"];
-var packages = ["Nachos Pins Pepsi", "Pizza Pins Pepsi"];
+var maxNumOfProductsPerPage = 6;
+var currentLanePage = 0;
+var currentSubDptPage = 0;
+var currentPackagePage = 0;
+var currentProductsPage = 0;
+var currentModifiersPage = 0;
+var subDepartments = ["Bowling", "Birthdays", "Pro Shop", "Tournament Lockers", "Test 5", "Test 6", "Test 7", "Test 8", "Test 9", "Test 10", "Test 11"];
+var packages = ["Nachos Pins Pepsi", "Pizza Pins Pepsi", "Test1", "Test2", "Test3", "Test4", "Test5"];
 var products = [
-                ["Game Bowling", "Ladies Night", "Food Fight", "2hr fun w/shoes Adult"],
-                ["Birthday Prod1", "Birthday Prod2", "Birthday Prod3"],
+                ["Game Bowling", "Ladies Night", "Food Fight", "2hr fun w/shoes Adult", "Test1", "Test2", "Test3", "Test4", "Test5"],
+                ["Birthday Prod1", "Birthday Prod2", "Birthday Prod3", "Test1", "Test2", "Test3", "Test4", "Test5"],
                 ["Pro Shop Prod1", "Pro Shop Prod2", "Pro Shop Prod3", "Pro Shop Prod4"],
                 ["T. Locker 1", "T. Locker 2", "T. Locker 3"]
                ];
 var modifiers = [
                     [
-                        ["League/24/7 $4.00", "Senior/Kids/24/7 $4.00"],
+                        ["League/24/7 $4.00", "Senior/Kids/24/7 $4.00", "Test 1", "Test 2", "Test 3", "Test 4", "Test 5"],
                         ["Ladies Night Mod1 $5.00", "Ladies Night Mod2 $4.50"],
                         ["Food Fight Mod1 $3.30", "Food Fight Mod2 $3.75"],
                         ["2hr fun Mod1 $5.15", "2hr fun Mod2 $4.99"]
@@ -66,6 +66,8 @@ var sales = [];
 
 var selectedLane = 0;
 var selectedSale = -1;
+var selectedSubID = -1;
+var selectedProdID = -1;
 var minSelect = 0;
 var maxSelect = 0;
 var laneIsSelected = false;
@@ -81,7 +83,6 @@ function start() {
     $(".laneBtn").click(function() {
         selectLanes(this);
     });
-
     $("#clearBtn").click(function() {
         toggleLaneButtons(false);
         laneIsSelected = false;
@@ -89,13 +90,9 @@ function start() {
         maxSelect = 0;
         selectedLane = 0;
     });
-
     $("#laneSaleBtn").click(function() {
         selectSale(this);
     });
-
-    
-
     $(".numBtn").click(function() {
         if (selectedSale != -1)
         {
@@ -103,12 +100,28 @@ function start() {
         }
     });
     $("#subdepartments_down_arrow").click(function() {
-        currentSubDptPage++;
-        displaySubDepartments();
+        scrollSubDepartment(1);
     });
     $("#subdepartments_up_arrow").click(function() {
-        currentSubDptPage--;
-        displaySubDepartments();
+        scrollSubDepartment(0);
+    });
+    $("#packages_down_arrow").click(function() {
+        scrollPackages(1);
+    });
+    $("#packages_up_arrow").click(function() {
+        scrollPackages(0);
+    });
+    $("#products_down_arrow").click(function() {
+        scrollProducts(1);
+    });
+    $("#products_up_arrow").click(function() {
+        scrollProducts(0);
+    });
+    $("#modifiers_down_arrow").click(function() {
+        scrollModifiers(1);
+    });
+    $("#modifiers_up_arrow").click(function() {
+        scrollModifiers(0);
     });
 }
 
@@ -267,7 +280,6 @@ function clearSubDepartmentBtns() {
     for (subdptID = 0; subdptID < maxNumOfProductsPerPage; subdptID++)
     {
         var s = "#subdpt" + subdptID;
-        console.log("Trying to select: " + s);
         var selectedBtn = document.querySelector(s);
         selectedBtn.classList = "greenBtn";
     }
@@ -289,12 +301,63 @@ function displayLanes() {
     }
 }
 function displaySubDepartments() {
-    var subdptID;
+    var subdptID = 0;
     var numOfSubDpts = subDepartments.length;
+    var numberOfPages = Math.floor(numOfSubDpts/maxNumOfProductsPerPage);
+    var i = 0;
+    for (i = 0; i <= numberOfPages; i++)
+    {
+        var s = "#sub_page" + i;
+        $("#subdptDiv").append("<div class=\"sub_page\" id=\""+ s + "\"></div>");
+        for (subdptID; subdptID < i * maxNumOfProductsPerPage + maxNumOfProductsPerPage; subdptID++)
+        {
+            if (subDepartments[subdptID] != null)
+            {
+                $(document.getElementById(s)).append("<div class=\"greenBtn\" id=\"subdpt" + subdptID + "\">" + subDepartments[subdptID] + "</div>");
+            }
+            else
+            {
+                subdptID = i * maxNumOfProductsPerPage + maxNumOfProductsPerPage;
+            }
+        }
+    }
+    document.getElementById("#sub_page0").classList = "sub_page_active";
+    if (numberOfPages > 0)
+    {
+        document.querySelector("#subdepartments_down_arrow").classList = "arrow_panel_enabled";
+    }
+    $("#subdptDiv .greenBtn").click(function() {
+        displayProducts(this);
+        displayPackages(this);
+    });
+}
 
-    $("#subdptDiv").html("");
-
-    if (currentSubDptPage > 1)
+function scrollSubDepartment(direction)
+{
+    var numOfSubDpts = subDepartments.length;
+    var numberOfPages = Math.floor(numOfSubDpts/maxNumOfProductsPerPage);
+    
+    if (direction == 1)
+    {
+        document.getElementById("#sub_page" + currentSubDptPage).classList = "sub_page";
+        document.getElementById("#sub_page" + (currentSubDptPage + 1)).classList = "sub_page_active";
+        currentSubDptPage++;
+    }
+    else
+    {
+        document.getElementById("#sub_page" + (currentSubDptPage - 1)).classList = "sub_page_active";
+        document.getElementById("#sub_page" + currentSubDptPage).classList = "sub_page";
+        currentSubDptPage--;
+    }
+    if (currentSubDptPage < numberOfPages)
+    {
+        document.querySelector("#subdepartments_down_arrow").classList = "arrow_panel_enabled";
+    }
+    else
+    {
+        document.querySelector("#subdepartments_down_arrow").classList = "arrow_panel";
+    }
+    if (currentSubDptPage > 0)
     {
         document.querySelector("#subdepartments_up_arrow").classList = "arrow_panel_enabled";
     }
@@ -302,36 +365,133 @@ function displaySubDepartments() {
     {
         document.querySelector("#subdepartments_up_arrow").classList = "arrow_panel";
     }
-
-    if (numOfSubDpts - (currentSubDptPage * maxNumOfProductsPerPage) > 0)
+}
+function scrollPackages(direction)
+{
+    var numOfPackages = packages.length;
+    var numberOfPages = Math.floor(numOfPackages/maxNumOfProductsPerPage);
+    
+    if (direction == 1)
     {
-        console.log("If: " + currentSubDptPage * maxNumOfProductsPerPage);
-        document.querySelector("#subdepartments_down_arrow").classList = "arrow_panel_enabled";
-        for (subdptID = currentSubDptPage * maxNumOfProductsPerPage - maxNumOfProductsPerPage; subdptID < currentSubDptPage * maxNumOfProductsPerPage; subdptID++)
-        {
-            $("#subdptDiv").append("<div class=\"greenBtn\" id=\"subdpt" + subdptID + "\">" + subDepartments[subdptID] + "</div>");
-        }
+        document.getElementById("#pkg_page" + currentPackagePage).classList = "pkg_page";
+        document.getElementById("#pkg_page" + (currentPackagePage + 1)).classList = "pkg_page_active";
+        currentPackagePage++;
     }
     else
     {
-        console.log("Else: " + (currentSubDptPage * maxNumOfProductsPerPage - maxNumOfProductsPerPage));
-        document.querySelector("#subdepartments_down_arrow").classList = "arrow_panel";
-        for (subdptID = currentSubDptPage * maxNumOfProductsPerPage - maxNumOfProductsPerPage; subdptID < currentSubDptPage * maxNumOfProductsPerPage - maxNumOfProductsPerPage + 1; subdptID++)
-        {
-            $("#subdptDiv").append("<div class=\"greenBtn\" id=\"subdpt" + subdptID + "\">" + subDepartments[subdptID] + "</div>");
-        }
+        document.getElementById("#pkg_page" + (currentPackagePage - 1)).classList = "pkg_page_active";
+        document.getElementById("#pkg_page" + currentPackagePage).classList = "pkg_page";
+        currentPackagePage--;
     }
-    $("#subdptDiv .greenBtn").click(function() {
-        displayProducts(this);
-        displayPackages(this);
-    });
-    
+    if (currentPackagePage < numberOfPages)
+    {
+        document.querySelector("#packages_down_arrow").classList = "arrow_panel_enabled";
+    }
+    else
+    {
+        document.querySelector("#packages_down_arrow").classList = "arrow_panel";
+    }
+    if (currentPackagePage > 0)
+    {
+        document.querySelector("#packages_up_arrow").classList = "arrow_panel_enabled";
+    }
+    else
+    {
+        document.querySelector("#packages_up_arrow").classList = "arrow_panel";
+    }
+}
+function scrollProducts(direction)
+{
+    var numOfProducts = products[selectedSubID].length;
+    var numberOfPages = Math.floor(numOfProducts/maxNumOfProductsPerPage);
+    if (direction == 1)
+    {
+        document.getElementById("#prod_page" + currentProductsPage).classList = "prod_page";
+        document.getElementById("#prod_page" + (currentProductsPage + 1)).classList = "prod_page_active";
+        currentProductsPage++;
+    }
+    else
+    {
+        document.getElementById("#prod_page" + (currentProductsPage - 1)).classList = "prod_page_active";
+        document.getElementById("#prod_page" + currentProductsPage).classList = "prod_page";
+        currentProductsPage--;
+    }
+    if (currentProductsPage < numberOfPages)
+    {
+        document.querySelector("#products_down_arrow").classList = "arrow_panel_enabled";
+    }
+    else
+    {
+        document.querySelector("#products_down_arrow").classList = "arrow_panel";
+    }
+    if (currentProductsPage > 0)
+    {
+        document.querySelector("#products_up_arrow").classList = "arrow_panel_enabled";
+    }
+    else
+    {
+        document.querySelector("#products_up_arrow").classList = "arrow_panel";
+    }
+}
+function scrollModifiers(direction)
+{
+    var numOfModifiers = modifiers[selectedSubID][selectedProdID].length;
+    var numberOfPages = Math.floor(numOfModifiers/maxNumOfProductsPerPage);
+    if (direction == 1)
+    {
+        document.getElementById("#mod_page" + currentModifiersPage).classList = "mod_page";
+        document.getElementById("#mod_page" + (currentModifiersPage + 1)).classList = "mod_page_active";
+        currentModifiersPage++;
+    }
+    else
+    {
+        document.getElementById("#mod_page" + (currentModifiersPage - 1)).classList = "mod_page_active";
+        document.getElementById("#mod_page" + currentModifiersPage).classList = "mod_page";
+        currentModifiersPage--;
+    }
+    if (currentModifiersPage < numberOfPages)
+    {
+        document.querySelector("#modifiers_down_arrow").classList = "arrow_panel_enabled";
+    }
+    else
+    {
+        document.querySelector("#modifiers_down_arrow").classList = "arrow_panel";
+    }
+    if (currentModifiersPage > 0)
+    {
+        document.querySelector("#modifiers_up_arrow").classList = "arrow_panel_enabled";
+    }
+    else
+    {
+        document.querySelector("#modifiers_up_arrow").classList = "arrow_panel";
+    }
 }
 function displayPackages(clickedButton) {
-    var pkgID;
-    for (pkgID = 0; pkgID < packages.length; pkgID++)
+    var pkgID = 0;
+
+    var numOfPackages = packages.length;
+    var numberOfPages = Math.floor(numOfPackages/maxNumOfProductsPerPage);
+    var i = 0;
+    for (i = 0; i <= numberOfPages; i++)
     {
-        $("#pkgDiv").append("<div class=\"yellowBtn\" id=\"pkg" + pkgID + "\">" + packages[pkgID] + "</div>");
+        var s = "#pkg_page" + i;
+        $("#pkgDiv").append("<div class=\"pkg_page\" id=\""+ s + "\"></div>");
+        for (pkgID; pkgID < i * maxNumOfProductsPerPage + maxNumOfProductsPerPage; pkgID++)
+        {
+            if (packages[pkgID] != null)
+            {
+                $(document.getElementById(s)).append("<div class=\"yellowBtn\" id=\"pkg" + pkgID + "\">" + packages[pkgID] + "</div>");
+            }
+            else
+            {
+                pkgID = i * maxNumOfProductsPerPage + maxNumOfProductsPerPage;
+            }
+        }
+    }
+    document.getElementById("#pkg_page0").classList = "pkg_page_active";
+    if (numberOfPages > 0)
+    {
+        document.querySelector("#packages_down_arrow").classList = "arrow_panel_enabled";
     }
 }
 function displayProducts(clickedButton) {
@@ -340,14 +500,36 @@ function displayProducts(clickedButton) {
     $("#pkgDiv").html("");
     $("#prodDiv").html("");
     $("#modDiv").html("");
+    document.querySelector("#products_up_arrow").classList = "arrow_panel";
+    document.querySelector("#products_down_arrow").classList = "arrow_panel";
     const s = "#" + $(clickedButton).attr('id');
-    const selectedBtn = document.querySelector(s);
     var matches = s.match(/(\d+)/);
-    var selectedSubID = parseInt(matches[0]);
-    var prodID;
-    for (prodID = 0; prodID < products[selectedSubID].length; prodID++)
+    currentProductsPage = 0;
+    selectedSubID = parseInt(matches[0]);
+    var prodID = 0;
+    var numOfProducts = products[selectedSubID].length;
+    var numberOfPages = Math.floor(numOfProducts/maxNumOfProductsPerPage);
+    var i = 0;
+    for (i = 0; i <= numberOfPages; i++)
     {
-        $("#prodDiv").append("<div class=\"normalBtn\" id=\"prod" + prodID + "\">" + products[selectedSubID][prodID] + "</div>");
+        var x = "#prod_page" + i;
+        $("#prodDiv").append("<div class=\"prod_page\" id=\""+ x + "\"></div>");
+        for (prodID; prodID < i * maxNumOfProductsPerPage + maxNumOfProductsPerPage; prodID++)
+        {
+            if (products[selectedSubID][prodID] != null)
+            {
+                $(document.getElementById(x)).append("<div class=\"normalBtn\" id=\"prod" + prodID + "\">" + products[selectedSubID][prodID] + "</div>");
+            }
+            else
+            {
+                prodID = i * maxNumOfProductsPerPage + maxNumOfProductsPerPage;
+            }
+        }
+    }
+    document.getElementById("#prod_page0").classList = "prod_page_active";
+    if (numberOfPages > 0)
+    {
+        document.querySelector("#products_down_arrow").classList = "arrow_panel_enabled";
     }
 
     $("#prodDiv .normalBtn").click(function() {
@@ -358,15 +540,39 @@ function displayModifiers(clickedButton, subID) {
     clearProdBtns(subID);
     clickedButton.classList = "normalBtnSelected";
     $("#modDiv").html("");
+    document.querySelector("#modifiers_up_arrow").classList = "arrow_panel";
+    document.querySelector("#modifiers_down_arrow").classList = "arrow_panel";
     const s = "#" + $(clickedButton).attr('id');
     const selectedBtn = document.querySelector(s);
     var matches = s.match(/(\d+)/);
-    var selectedProdID = parseInt(matches[0]);
-    var modID;
-    for (modID = 0; modID < modifiers[subID][selectedProdID].length; modID++)
+    currentModifiersPage = 0;
+    selectedProdID = parseInt(matches[0]);
+    var modID = 0;
+    var numOfModifiers = modifiers[selectedSubID][selectedProdID].length;
+    var numberOfPages = Math.floor(numOfModifiers/maxNumOfProductsPerPage);
+    var i = 0;
+    for (i = 0; i <= numberOfPages; i++)
     {
-        $("#modDiv").append("<div class=\"purpleBtn\" id=\"mod" + modID + "\">" + modifiers[subID][selectedProdID][modID] + "</div>");
+        var x = "#mod_page" + i;
+        $("#modDiv").append("<div class=\"mod_page\" id=\""+ x + "\"></div>");
+        for (modID; modID < i * maxNumOfProductsPerPage + maxNumOfProductsPerPage; modID++)
+        {
+            if (modifiers[selectedSubID][selectedProdID][modID] != null)
+            {
+                $(document.getElementById(x)).append("<div class=\"purpleBtn\" id=\"mod" + modID + "\">" + modifiers[subID][selectedProdID][modID] + "</div>");
+            }
+            else
+            {
+                modID = i * maxNumOfProductsPerPage + maxNumOfProductsPerPage;
+            }
+        }
     }
+    document.getElementById("#mod_page0").classList = "mod_page_active";
+    if (numberOfPages > 0)
+    {
+        document.querySelector("#modifiers_down_arrow").classList = "arrow_panel_enabled";
+    }
+
 
     $("#modDiv .purpleBtn").click(function() {
         if (minSelect != 0 && maxSelect != 0)

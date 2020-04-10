@@ -517,6 +517,18 @@ html {
   box-sizing: border-box;
   border-radius: 5px;
   margin: 5px 5px 5px 5px;
+  width: 100%;
+}
+
+.sub_page, .pkg_page, .prod_page, .mod_page
+{
+  display: none;
+}
+.sub_page_active, .pkg_page_active, .prod_page_active, .mod_page_active
+{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .middlecontainer
