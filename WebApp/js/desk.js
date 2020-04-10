@@ -502,6 +502,8 @@ function displayProducts(clickedButton) {
     $("#modDiv").html("");
     document.querySelector("#products_up_arrow").classList = "arrow_panel";
     document.querySelector("#products_down_arrow").classList = "arrow_panel";
+    document.querySelector("#modifiers_up_arrow").classList = "arrow_panel";
+    document.querySelector("#modifiers_down_arrow").classList = "arrow_panel";
     const s = "#" + $(clickedButton).attr('id');
     var matches = s.match(/(\d+)/);
     currentProductsPage = 0;
