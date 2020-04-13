@@ -335,6 +335,7 @@ html {
   -ms-user-select: none;
   user-select: none;
   hyphens: auto;
+  box-shadow: inset 0px -4px 4px rgba(0, 0, 0, 0.25);
 }
 .normalBtn:hover, .numBtn:hover
 {
@@ -342,8 +343,9 @@ html {
 }
 .normalBtnSelected
 {
+  box-shadow: inset 0px 4px 4px rgba(0, 0, 0, 0.25);
   background-color: #3a556e;
-  border: 2px solid #6B8FB0;
+  border: 2px solid #3a556e;
 }
 
 .saveBtn
@@ -416,8 +418,9 @@ html {
 }
 .greenBtnSelected
 {
+  box-shadow: inset 0px 4px 4px rgba(0, 0, 0, 0.25);
   background-color: #40663f;
-  border: 2px solid #5B8F5A;
+  border: 2px solid #40663f;
 }
 .greenBtn:hover
 {
@@ -434,6 +437,7 @@ html {
 }
 .laneBtnBlue
 {
+  box-shadow: inset 0px 4px 4px rgba(0, 0, 0, 0.25);
   background-color: #00aac4;
   height: 100px;
 }
@@ -449,6 +453,7 @@ html {
   box-sizing: border-box;
   border-radius: 5px;
   margin: 5px 5px 5px 5px;
+  box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.25);
 }
 .arrow_panel
 {
@@ -479,7 +484,26 @@ html {
 {
     margin: 0px;
 }
-
+.laneNumText
+{
+  width: 75px;
+  height: 40px;
+  background: #333;
+  box-shadow: inset 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 5px 0px 5px 0px;
+  color: #ffffff;
+  cursor: default;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
 .tester
 {
     display: flex;
@@ -499,10 +523,13 @@ html {
   border-radius: 5px;
   margin: 5px 5px 5px 5px;
   width: 100%;
+  box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.25);
 }
 
 .product_panel_parent{
   display: flex;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .product_panel_child{
@@ -516,15 +543,16 @@ html {
   background-color: #444444;
   box-sizing: border-box;
   border-radius: 5px;
-  margin: 5px 5px 5px 5px;
   width: 100%;
+  margin: 0px 2px 0px 2px;
+  box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.25);
 }
 
-.sub_page, .pkg_page, .prod_page, .mod_page
+.sub_page, .pkg_page, .prod_page, .mod_page, .lane_page
 {
   display: none;
 }
-.sub_page_active, .pkg_page_active, .prod_page_active, .mod_page_active
+.sub_page_active, .pkg_page_active, .prod_page_active, .mod_page_active, .lane_page_active
 {
   display: flex;
   flex-wrap: wrap;
@@ -534,6 +562,9 @@ html {
 .middlecontainer
 {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 #receipt
@@ -575,14 +606,14 @@ html {
 
 #register
 {
-  height: 100%;
+  height: 99%;
   display: flex;
   flex-direction: column;
   align-items: center;
   background-color: #444444;
   box-sizing: border-box;
   border-radius: 5px;
-  margin: 5px 5px 5px 15px;
+  margin: 5px 5px 5px 5px;
 }
 
 .receipt_sale, .receipt_sale_selected

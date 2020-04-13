@@ -15,7 +15,7 @@
         <div class="panelsidebar" id="ps1">
           <h3><div class="status"></div><div id="status_text">Online</div></h3>
           <div class="greenBtn">Quick Keys</div>
-          <div class="normalBtn">Lane Sales</div>
+          <div class="normalBtnSelected">Lane Sales</div>
           <div class="normalBtn">Lane Status</div>
           <div class="normalBtn">General Sales</div>
           <div class="redBtn">Lane Control</div>
@@ -25,11 +25,18 @@
           <div class="lanepanel">
             <div><h3>Lanes</h3></div>
             <div class="tester">
-              <div class="product_panel_child" id="laneDiv" style="justify-content: center;">
+              <div style="display: flex; flex-direction: column; width: 100%;">
+                <div class="arrow_panel" id="lanes_up_arrow">
+                  <div class="arrowBtn" id="upBtnMini"><i class="fa fa-chevron-up"></i></div>
+                </div>
+                <div class="product_panel_child" id="laneDiv" style="justify-content: center; height: 100%;"></div>
+                <div class="arrow_panel" id="lanes_down_arrow">
+                  <div class="arrowBtn" id="downBtnMini"><i class="fa fa-chevron-down"></i></div>
+                </div>
               </div>
-              <div class="panelsidebar" id="ps2">
-                <div class="greenBtn" id="laneUpBtn">Up</div>
-                <div class="greenBtn" id="laneDownBtn">Down</div>
+              <div class="panelsidebar" id="ps2" style="box-shadow: none; align-items: center;">
+                <div class="laneNumText" id="laneNumMin"></div>
+                <div class="laneNumText" id="laneNumMax"></div>
                 <div class="greenBtn" id="clearBtn">Clear</div>
                 <div class="normalBtn">Get Receipt</div>
                 <div class="normalBtn">Other</div>
@@ -39,7 +46,7 @@
           <div class="product_panel_parent">
             <div class="product_panel">
               <div><h3>Sub Departments</h3></div>
-              <div style="display: flex; flex-direction: column; width: 100%;">
+              <div style="display: flex; flex-direction: column;">
                 <div class="arrow_panel" id="subdepartments_up_arrow">
                   <div class="arrowBtn" id="upBtnMini"><i class="fa fa-chevron-up"></i></div>
                 </div>
@@ -51,7 +58,7 @@
             </div>
             <div class="product_panel">
               <div><h3>Packages</h3></div>
-              <div style="display: flex; flex-direction: column; width: 100%">
+              <div style="display: flex; flex-direction: column;">
                 <div class="arrow_panel" id="packages_up_arrow">
                   <div class="arrowBtn" id="upBtnMini"><i class="fa fa-chevron-up"></i></div>
                 </div>
@@ -63,7 +70,7 @@
             </div>
             <div class="product_panel">
               <div><h3>Products</h3></div>
-              <div style="display: flex; flex-direction: column; width: 100%">
+              <div style="display: flex; flex-direction: column;">
                 <div class="arrow_panel" id="products_up_arrow">
                   <div class="arrowBtn" id="upBtnMini"><i class="fa fa-chevron-up"></i></div>
                 </div>
@@ -75,7 +82,7 @@
             </div>
             <div class="product_panel">
               <div><h3>Modifiers</h3></div>
-              <div style="display: flex; flex-direction: column; width: 100%">
+              <div style="display: flex; flex-direction: column;">
                 <div class="arrow_panel" id="modifiers_up_arrow">
                   <div class="arrowBtn" id="upBtnMini"><i class="fa fa-chevron-up"></i></div>
                 </div>

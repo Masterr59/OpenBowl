@@ -16,6 +16,8 @@
 
 .laneBtn, .laneBtnBlue { height: 6em; }
 
+.laneNumText{ width: 4em; }
+
 .buttonTxtShort { display: inline-block; text-align: center;}
 .buttonTxtFull { display: none; }
 
