@@ -18,137 +18,238 @@ package org.openbowl.common;
 
 import java.util.ArrayList;
 
+
 /**
  *
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
-public class BowlingFrame implements Comparable<BowlingFrame> {
+public class BowlingFrame
+{
 
-    public enum ScoreType {
-        NONE,
-        MECHANICAL,
-        USER,
-        ADMIN
-    }
-
-    public enum BallNumber {
-        ONE,
-        TWO,
-        BONUS,
-        NONE
-    }
-
-    private final boolean[] isBallFoul;
-    private final ArrayList<BowlingPins>[] balls;
-    private int frameScore;
-    private BallNumber currentBall;
-    private final ScoreType ballType[];
-    private double speed[];
-
-    public BowlingFrame() {
-        int numBalls = BallNumber.values().length;
-        isBallFoul = new boolean[numBalls];
-        balls = new ArrayList[numBalls];
-        ballType = new ScoreType[numBalls];
-        speed = new double[numBalls];
-        for (BallNumber b : BallNumber.values()) {
-            isBallFoul[b.ordinal()] = false;
-            balls[b.ordinal()] = new ArrayList<>();
-            ballType[b.ordinal()] = ScoreType.NONE;
-            speed[b.ordinal()] = 0;
-        }
-        this.frameScore = -1;
-        this.currentBall = BallNumber.NONE;
-    }
-
-    /**
-     *
-     * Adds a ball to the frame and sets the ScoreType to mechanical
-     * 
-     * @param p The pins that were still standing for this ball
-     * @param foul If this ball was foul
-     * @param speed The speed of the ball in fps
-     */
-    public void addBall(ArrayList<BowlingPins> p, boolean foul, double speed) {
-        switch (currentBall) {
-            case NONE:
-                setBall(p, foul, BallNumber.ONE, ScoreType.MECHANICAL, speed);
-                currentBall = BallNumber.ONE;
-                break;
-            case ONE:
-                setBall(p, foul, BallNumber.TWO, ScoreType.MECHANICAL, speed);
-                currentBall = BallNumber.TWO;
-                break;
-            case TWO:
-                setBall(p, foul, BallNumber.BONUS, ScoreType.MECHANICAL, speed);
-                currentBall = BallNumber.BONUS;
-                break;
-        }
-    }
-
-    /**
-     *
-     * Manually sets a ball in the frame, should be used for changing a score 
-     * 
-     * @param p The pins that were still standing for this ball
-     * @param foul If this ball was foul
-     * @param b The ball number in the frame
-     * @param t The type of scoring for this ball
-     * @param speed The speed of the ball in fps
-     */
-    public void setBall(ArrayList<BowlingPins> p, boolean foul, BallNumber b, ScoreType t, double speed) {
-        int ballNum = b.ordinal();
-        balls[ballNum] = p;
-        isBallFoul[ballNum] = foul;
-        ballType[ballNum] = t;
-        this.speed[ballNum] = speed;
-    }
-
-    public boolean isBallFoul(BallNumber b) {
-        return isBallFoul[b.ordinal()];
-    }
-
-    public ArrayList<BowlingPins> getBallPins(BallNumber b) {
-        return balls[b.ordinal()];
-    }
-
-    public ScoreType getScoreType(BallNumber b) {
-        return ballType[b.ordinal()];
-    }
-
-    public int getFrameScore() {
-        return frameScore;
-    }
-
-    public void setFrameScore(int frameScore) {
-        this.frameScore = frameScore;
-    }
-
-    public BallNumber getCurrentBall() {
-        return currentBall;
-    }
-
-    @Override
-    public int compareTo(BowlingFrame t) {
-        for (BallNumber b : BallNumber.values()) {
-            if (!this.balls[b.ordinal()].equals(t.getBallPins(b))
-                    || this.isBallFoul[b.ordinal()] != t.isBallFoul(b)) {
-                return 1;
-            }
-        }
-        return 0;
-    }
-
-    @Override
-    public String toString() {
-        String ret = "Frame: ";
-        for (int i = 0; i < 3; i++) {
-            ret += "B" + i + " -> ";
-            ret += ballType[i];
-            ret += ": " + balls[i].size();
-            ret += " " ;
-        }
-        return ret;
-    }
+   private final boolean mIs10thFrame;
+   private final Ball[] mBalls;
+   private final double[] mBallSpeeds;
+   private ArrayList<BowlingPins>[] mPins;
+   private int mCurrentBallIndex;
+   private boolean mIsFinished;
+   
+   public BowlingFrame(boolean is10thFrame)
+   {
+      mIs10thFrame = is10thFrame;
+      
+      if (is10thFrame)
+      {
+         mBalls = new Ball[3];
+         mBallSpeeds = new double[3];
+         mPins = new ArrayList[3];
+      }
+         
+      else
+      {
+         mBalls = new Ball[2];
+         mBallSpeeds = new double[2];
+         mPins = new ArrayList[2];
+      }
+         
+      mCurrentBallIndex = 0;
+      mIsFinished = false;
+   }
+   
+   public void addBall(ArrayList<BowlingPins> remainingPins, boolean foul, double speed)
+   {
+	if (!mIsFinished)
+	{
+		switch (mCurrentBallIndex)
+		{
+		    case 0: addFirstBall(remainingPins, foul, speed);
+		      break;
+		    case 1: addSecondBall(remainingPins, foul, speed);
+		       break;
+		    default: addThirdBall(remainingPins, foul, speed);
+		       break;
+		}
+	}
+	   
+	checkFinished();
+   }
+   
+   private void addFirstBall(ArrayList<BowlingPins> remainingPins, boolean foul, double speed)
+   {
+       int pinsRemaining = remainingPins.size();
+       mPins[0] = remainingPins;
+       mBallSpeeds[0] = speed;
+	   if (foul)
+	   {
+		mBalls[0] = Ball.FOUL;
+                mCurrentBallIndex++;
+	   }
+	   else if (pinsRemaining == 0)
+	   {
+		   mBalls[0] = Ball.STRIKE;
+		   if (!mIs10thFrame)
+		       finishFrame();
+		   else
+			mCurrentBallIndex++;
+	   }
+	   else
+	   {
+		   switch (pinsRemaining)
+		   {
+		      case 1:  mBalls[0] = Ball.NINE;
+		         break;
+		      case 2:  mBalls[0] = Ball.EIGHT;
+		         break;
+		      case 3:  mBalls[0] = Ball.SEVEN;
+		         break;
+		      case 4:  mBalls[0] = Ball.SIX;
+		         break;
+		      case 5:  mBalls[0] = Ball.FIVE;
+		         break;
+		      case 6:  mBalls[0] = Ball.FOUR;
+		         break;
+		      case 7:  mBalls[0] = Ball.THREE;
+		         break;
+		      case 8:  mBalls[0] = Ball.TWO;
+		         break;
+		      case 9:  mBalls[0] = Ball.ONE;
+		         break;
+		      default:   mBalls[0] = Ball.ZERO;
+		         break;
+		   }
+		   
+		   mCurrentBallIndex++;
+	   }
+   }
+   
+   private void addSecondBall(ArrayList<BowlingPins> remainingPins, boolean foul, double speed)
+   {
+       int pinsRemaining = remainingPins.size();
+       mPins[1] = remainingPins;
+       mBallSpeeds[1] = speed;
+	   if (foul)
+	   {
+		mBalls[1] = Ball.FOUL;
+                mCurrentBallIndex++;
+	   }
+	   else if (pinsRemaining == 0)
+	   {
+		   if (mIs10thFrame)
+		   {
+			   if (mBalls[0].equals(Ball.STRIKE))
+			      mBalls[1] = Ball.STRIKE;
+			   else
+				  mBalls[1] = Ball.SPARE;
+			   mCurrentBallIndex++;
+		   }
+		   else
+		   {
+			   mBalls[1] = Ball.SPARE;
+			   finishFrame();
+		   }
+	   }
+	   else
+	   {
+		   addSecondBallHelper(pinsRemaining);
+		   
+	   }
+   }
+   
+   private void addSecondBallHelper(int pinsRemaining)
+   {
+	   if (!BallUtil.isNum(mBalls[0]))
+		   mBalls[1] = BallUtil.toBall(10 - pinsRemaining);
+	   else
+	   {
+		   int prevBallCount = BallUtil.toInt(mBalls[0]);
+		   int currentBallCount = 10 - pinsRemaining - prevBallCount;
+		   mBalls[1] = BallUtil.toBall(currentBallCount);
+	   }
+	   
+	   if (mIs10thFrame)
+		   finishFrame();
+	   else
+	      mCurrentBallIndex++;
+   }
+   
+   private void addThirdBall(ArrayList<BowlingPins> remainingPins, boolean foul, double speed)
+   {
+       int pinsRemaining = remainingPins.size();
+       mPins[2] = remainingPins;
+       mBallSpeeds[2] = speed;
+       
+	   if (foul)
+		   mBalls[2] = Ball.FOUL;
+	   else if (pinsRemaining <= 0)
+	       mBalls[2] = Ball.STRIKE;
+	   else
+		   mBalls[2] = BallUtil.toBall(10 - pinsRemaining); 
+	   finishFrame();
+   }
+   
+   private void finishFrame()
+   {
+	   mCurrentBallIndex++;
+	   while (mCurrentBallIndex < mBalls.length)
+	   {
+		   mBalls[mCurrentBallIndex] = Ball.NOTUSED;
+		   mCurrentBallIndex++;
+	   }
+	   
+	   checkFinished();
+   }
+   
+   private void checkFinished()
+   {
+	   if (mCurrentBallIndex >= mBalls.length)
+		   mIsFinished = true;
+	   else
+		   mIsFinished = false;
+   }
+   
+   public boolean isFinished() { return mIsFinished; }
+   
+   
+   public boolean is10thFrame() {  return mIs10thFrame;  }
+   
+   @Override
+   public String toString()
+   {
+	   String result = "[";
+	   for (int x = 0; x < mBalls.length; x++)
+	   {
+		   if (mBalls[x] == null)
+		      result += " ";
+		   else
+		      result += BallUtil.toChar(mBalls[x]);
+		   
+		   result += " ";
+	   }
+	   
+	   result += "]";
+	   
+	   return result;
+   }
+   
+   private void checkBallIndex(int index)
+   {
+       if (index <0 || index > 3 || (index ==3 && !mIs10thFrame))
+           throw new IllegalArgumentException("Ball index was out of bounds");
+   }
+   
+   /*****************************
+   *          GETTERS           *
+   *****************************/
+   public Ball getBall(int index)
+   {
+       checkBallIndex(index);
+       return mBalls[index];
+   }
+   
+   public Ball[] getBalls() { return mBalls; }
+   public double getSpeed(int index)
+   {
+       checkBallIndex(index);
+       return mBallSpeeds[index];
+   }
 
 }

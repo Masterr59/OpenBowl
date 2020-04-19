@@ -17,214 +17,120 @@
 package org.openbowl.common;
 
 import java.util.ArrayList;
-import org.openbowl.common.BowlingFrame.BallNumber;
-import org.openbowl.common.BowlingFrame.ScoreType;
+
 
 /**
  *
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
-public class BowlingGame {
-
-    private String playerName;
-    private String playerID;
-    private int tapValue;
-    private int handicap;
-    private ArrayList<BowlingFrame> frames;
-    private BowlingFrame currentFrame;
-    private int gameScore;
-
-    /**
-     *
-     * @param name The players name on the score card
-     * @param id The ID number of the player
-     */
-    public BowlingGame(String name, String id) {
-        this.playerName = name;
-        this.playerID = id;
-        this.gameScore = 0;
-        this.tapValue = 10;
-        this.handicap = 0;
-        this.frames = new ArrayList<>();
-        this.currentFrame = new BowlingFrame();
-        this.frames.add(currentFrame);
-    }
-
-    /**
-     *
-     * Resets / clears a game of all scoring
-     */
-    public void reset() {
-        this.gameScore = 0;
-        this.frames = new ArrayList<>();
-        this.currentFrame = new BowlingFrame();
-        this.frames.add(currentFrame);
-    }
-
-    /**
-     *
-     * Adds a ball to the game
-     *
-     * @param pins An Array of pins remaining
-     * @param foul If this ball is foul
-     * @param speed The speed of the ball in fps
-     */
-    public void addBall(ArrayList<BowlingPins> pins, boolean foul, double speed) {
-        switch (currentFrame.getCurrentBall()) {
-            case NONE:
-                this.currentFrame.addBall(pins, foul, speed);
-                break;
-            case ONE:
-                this.currentFrame.addBall(pins, foul, speed);
-                if (this.frames.size() < 10) {
-                    this.currentFrame = new BowlingFrame();
-                    this.frames.add(currentFrame);
-                }
-                break;
-            case TWO:
-                if (this.frames.size() == 10) {
-                    this.currentFrame.addBall(pins, foul, speed);
-                    this.currentFrame = new BowlingFrame();
-                    this.frames.add(currentFrame);
-                }
-                break;
-        }
-        scoreGame();
-    }
-
-    /**
-     *
-     * Adds an empty ball to the frame that is NOT scored
-     *
-     */
-    public void addEmptyBall() {
-        switch (currentFrame.getCurrentBall()) {
-            case NONE:
-                this.currentFrame.setBall(new ArrayList<BowlingPins>(), false, BallNumber.ONE, ScoreType.NONE, 0.0);
-                break;
-            case ONE:
-                this.currentFrame.setBall(new ArrayList<BowlingPins>(), false, BallNumber.TWO, ScoreType.NONE, 0.0);
-                if (this.frames.size() < 10) {
-                    this.currentFrame = new BowlingFrame();
-                    this.frames.add(currentFrame);
-                }
-                break;
-            case TWO:
-                if (this.frames.size() == 10) {
-                    this.currentFrame.setBall(new ArrayList<BowlingPins>(), false, BallNumber.BONUS, ScoreType.NONE, 0.0);
-                    this.currentFrame = new BowlingFrame();
-                    this.frames.add(currentFrame);
-                }
-                break;
-        }
-
-        scoreGame();
-    }
-
-    public void addFrame(BowlingFrame f) {
-        this.frames.add(f);
-        scoreGame();
-    }
-
-    public ArrayList<BowlingFrame> getFrames() {
-        return frames;
-    }
+public class BowlingGame
+{
+   private BowlingFrame[] mFrames;
+   private int mFrameIndex;
+   private String mPlayerName;
+   private int mHandicap;
+   private boolean mFinishedFrame;
+   private String mPlayerUUID;
 
 
-    public String getPlayerID() {
-        return this.playerID;
-    }
+   public BowlingGame(String playerName, int handicap, String playerUUID)
+   {
+      mFrames = new BowlingFrame[10];
+      mFrameIndex = 0;
+      mPlayerName = playerName;
+      mHandicap = handicap;
+      mFinishedFrame = false;
+      mPlayerUUID = playerUUID;
+   }
+   
+   
+   public void bowled(ArrayList<BowlingPins> remainingPins, boolean foul, double speed)
+   {	   
+      if (mFrames[mFrameIndex] == null)
+		  initFrame();
+		  
+      if (!mFrames[mFrameIndex].isFinished())
+      {
+         mFrames[mFrameIndex].addBall(remainingPins, foul, speed);
+         if (mFrames[mFrameIndex].isFinished())
+             mFinishedFrame = true;
+      }
+      else
+      {
+            mFrameIndex++;
+            if (!isFinished())
+            {
+                initFrame();
+                mFrames[mFrameIndex].addBall(remainingPins, foul, speed);
+            }
+       }
+   }
+   
+   private void initFrame()
+   {
+        if (mFrameIndex == mFrames.length-1)
+           mFrames[mFrameIndex] = new BowlingFrame(true);
+        else
+           mFrames[mFrameIndex] = new BowlingFrame(false);
+   }
+   
+   
+   public boolean isFinished()
+   {  
+	  if (mFrameIndex >= mFrames.length)
+		  return true;
+	  else if (mFrameIndex == mFrames.length - 1) 
+	  {
+            if ( mFrames[mFrameIndex] != null && mFrames[mFrameIndex].isFinished())
+                return true;
+	  }
+	  
+	  return false;
+   }
+   
+   public void reset()
+   {
+       mFrames = new BowlingFrame[10];
+       mFrameIndex = 0;
+       mFinishedFrame = false;
+   }
+   
+   public void setHandicap(int handicap) { handicap = mHandicap; }
+   public void setFinishedFrame(boolean finishedFrame)
+   {
+       mFinishedFrame = finishedFrame;
+   }
+   public void updateTo(BowlingGame bg)
+   {
+       mFrames = bg.getFrames();
+       mFrameIndex = bg.getFrameIndex();
+       mPlayerName = bg.getPlayerName();
+       mHandicap = bg.getHandicap();
+       mFinishedFrame = bg.getFinishedFrame();
+       mPlayerUUID = bg.getPlayerUUID();
+   }
+   
+   public boolean getFinishedFrame() { return mFinishedFrame; }
+   public BowlingFrame[] getFrames() { return mFrames;        }
+   public int getFrameIndex()        { return mFrameIndex;    }
+   public String getPlayerName()     { return mPlayerName;    }
+   public int getHandicap()          { return mHandicap;      }
+   public String getPlayerUUID()     { return mPlayerUUID;    }
 
-    public void setHandicap(int handicap) {
-        this.handicap = handicap;
-    }
-
-    public int getGameScore() {
-        return gameScore;
-    }
-
-    public void setPlayerID(String playerID) {
-        this.playerID = playerID;
-    }
-
-    /**
-     *
-     * @return The number of pins that are required to be down to count
-     * as a strike or spare
-     */
-    public int getTapValue() {
-        return tapValue;
-    }
-
-    /**
-     *
-     * @param tapValue The number of pins that are required to be down to count
-     * as a strike or spare
-     */
-    /**
-     *
-     * Checks if the array of pins would count as a strike or spare based on
-     * the tap value
-     * 
-     * @param pins The array of pins remaining
-     * @return If it counts as a strike or spare
-     */
-    public boolean isStrikeSpare(ArrayList<BowlingPins> pins) {
-        return (10 - pins.size() - tapValue) >= 0;
-    }
-
-    /**
-     *
-     * Checks if the array of pins is a noTap strike / spare
-     * 
-     * @param pins The array of pins remaining
-     * @return
-     */
-    public boolean isNoTap(ArrayList<BowlingPins> pins) {
-        return !pins.isEmpty() && isStrikeSpare(pins);
-    }
-
-    /**
-     *
-     * Copies the incoming game to the current game
-     * 
-     * @param game The game that is being copied from
-     */
-    public void updateTo(BowlingGame game) {
-        this.playerName = game.getPlayerName();
-        this.playerID = game.getPlayerID();
-        this.handicap = game.getHandicap();
-        this.frames = game.getFrames();
-        scoreGame();
-    }
-
-    private void scoreGame() {
-        //to do
-
-    }
-
-    @Override
-    public String toString() {
-        String ret = playerName;
-        ret += " ";
-        for (BowlingFrame f : frames) {
-
-            ret += "|";
-            ret += (f.getScoreType(BowlingFrame.BallNumber.ONE) != ScoreType.NONE) ? f.getBallPins(BowlingFrame.BallNumber.ONE).size() : " ";
-            ret += "|";
-            ret += (f.getScoreType(BowlingFrame.BallNumber.TWO) != ScoreType.NONE) ? f.getBallPins(BowlingFrame.BallNumber.TWO).size() : " ";
-            ret += "|";
-            ret += (f.getScoreType(BowlingFrame.BallNumber.BONUS) != ScoreType.NONE) ? f.getBallPins(BowlingFrame.BallNumber.BONUS).size() : " ";
-        }
-        return ret;
-    }
-
-    public String getPlayerName() {
-        return this.playerName;
-    }
-
-    public int getHandicap() {
-        return this.handicap;
-    }
-
+   
+   @Override
+   public String toString()
+   {
+	   String result = mPlayerName + ": ";
+	   for (int x = 0; x < mFrames.length; x++)
+	   {
+		   if (mFrames[x] == null)
+			   result += "[  ]";
+		   else
+			   result += mFrames[x].toString();
+	   }
+           result += "handicap: " + mHandicap + " Score: (tbd)";
+	   
+	   return result;
+   }
 }

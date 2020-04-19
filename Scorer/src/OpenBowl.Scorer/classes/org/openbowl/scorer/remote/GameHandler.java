@@ -237,8 +237,9 @@ public class GameHandler extends CommonHandler {
     private boolean onNewPlayer(Map<String, Object> requestBody, BowlingSession session) {
         if (requestBody.containsKey("playerName") && requestBody.containsKey("playerUUID")) {
             String name = (String) requestBody.get("playerName");
+            int handicap = (int) requestBody.get("handicap");
             String playerUUID = (String) requestBody.get("playerUUID");
-            int i = session.addPlayer(new BowlingGame(name, playerUUID));
+            int i = session.addPlayer(new BowlingGame(name, handicap, playerUUID));
             return i >= 0;
         }
 
