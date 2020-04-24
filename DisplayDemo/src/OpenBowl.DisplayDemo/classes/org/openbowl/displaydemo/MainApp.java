@@ -26,6 +26,7 @@ public class MainApp {
         if(args.length == 1){
             System.out.printf("Display Address: %s\n", args[0]);
             DemoGame game = new DemoGame(args[0]);
+            //DemoSimple game = new DemoSimple(args[0]);
             game.runDemo();
         }
         else{
