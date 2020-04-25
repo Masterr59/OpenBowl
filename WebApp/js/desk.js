@@ -94,6 +94,21 @@ function start() {
         minSelect = 0;
         maxSelect = 0;
         selectedLane = 0;
+        if (selectedSale != -1)
+        {
+            sales[selectedSale][1] = 0;
+            sales[selectedSale][2] = 0;
+            updateSale();
+        }
+    });
+    $("#erase").click(function(){
+        if (selectedSale != -1)
+        {
+            sales[selectedSale][0] = 0;
+            sales[selectedSale][5] = 0;
+            updateSale();
+            updateTotal();
+        }
     });
     $("#laneSaleBtn").click(function() {
         selectSale(this);
@@ -186,19 +201,15 @@ function addQuantity(clickedButton) {
     
     sales[selectedSale][0] = newQuantity;
     sales[selectedSale][5] = sales[selectedSale][6] * newQuantity;
-    const newPrice = sales[selectedSale][5];
     
-    const priceString = newPrice.toLocaleString('us-US', { style: 'currency', currency: 'USD'});
-    
-    $("#receipt_sale" + selectedSale).html(
-        "<div class=\"row1\"><b>" + newQuantity + "&nbsp;" + sales[selectedSale][3] + "</b></div>" +
-        "<div class=\"row2\">[" + getLaneFormat(sales[selectedSale][1], sales[selectedSale][2]) + "]</div>" +
-        "<div class=\"row3\">" +
-        "<div>" + sales[selectedSale][4] + "</div>" +
-        "<div class=\"productPrice\"><b>" + priceString + "</b></div>" +
-        "</div>"
-    );
+    updateSale();
     updateTotal();
+}
+function changeLaneForSale()
+{
+    sales[selectedSale][1] = minSelect;
+    sales[selectedSale][2] = maxSelect;
+    updateSale();
 }
 function clearReceiptSelections() {
     var i;
@@ -429,10 +440,17 @@ function getSaleQuantity(saleID) {
     return sales[saleID][0];
 }
 function getLaneFormat(min, max) {
-    if (min == max)
-        return min;
+    if (min == 0 && max == 0)
+    {
+        return "-";
+    }
     else
-        return min + "-" + max;
+    {
+        if (min == max)
+            return min;
+        else
+            return min + "-" + max;
+    }
 }
 function scrollLanes(direction)
 {
@@ -638,6 +656,10 @@ function selectLanes(clickedButton) {
         laneIsSelected = false;
         $("#laneNumMax").html(maxSelect);
     }
+    if (selectedSale != -1)
+    {
+        changeLaneForSale();
+    }
     $("#laneNumMin").html(minSelect);
 }
 function selectSale(num) {
@@ -671,6 +693,19 @@ function toggleLaneButtons(isLaneSelected) {
     }
     $("#laneNumMin").html("");
     $("#laneNumMax").html("");
+}
+function updateSale() {
+    //refreshes html for selected sale
+    const newPrice = sales[selectedSale][5];
+    const priceString = newPrice.toLocaleString('us-US', { style: 'currency', currency: 'USD'});
+    $("#receipt_sale" + selectedSale).html(
+        "<div class=\"row1\"><b>" + sales[selectedSale][0] + "&nbsp;" + sales[selectedSale][3] + "</b></div>" +
+        "<div class=\"row2\">[" + getLaneFormat(sales[selectedSale][1], sales[selectedSale][2]) + "]</div>" +
+        "<div class=\"row3\">" +
+        "<div>" + sales[selectedSale][4] + "</div>" +
+        "<div class=\"productPrice\"><b>" + priceString + "</b></div>" +
+        "</div>"
+    );
 }
 function updateTotal() {
     var i;
