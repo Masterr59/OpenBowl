@@ -87,12 +87,22 @@ public class BowlingGameDisplayHandler extends CommonHandler {
                     }
                     break;
                 case "newPlayer":
-
                     try {
                         BowlingGame newPlayer = gson.fromJson(body, BowlingGame.class);
                         game.addPlayer(newPlayer);
                         map.put(SUCCESS, true);
                         map.put("player", game.getNumPlayers() - 1);
+
+                    } catch (Exception e) {
+                        map.put(SUCCESS, false);
+                        map.put(ERROR_MSG, e.toString());
+                    }
+                    break;
+                case "newGame":
+                    try {
+                        game.reset();
+                        map.put(SUCCESS, true);
+                        
 
                     } catch (Exception e) {
                         map.put(SUCCESS, false);
