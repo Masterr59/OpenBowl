@@ -213,4 +213,16 @@ public class DisplayConnector {
         ret.put(ENDPOINT_SETTING, prefs.get(name + ENDPOINT_SETTING, DEFAULT_ENDPOINT));
         return ret;
     }
+
+    public Map<String, Object> newGame() {
+        String parms = "?set=newGame";
+        String response = "{}";
+        try {
+            response = WebFunctions.doHttpPostRequest(address, "gamedisplay/" + endpoint + "/" + parms, "{}", authToken);
+        } catch (InterruptedException | IOException ex) {
+            Logger.getLogger(DisplayConnector.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return processResponse(response);
+    }
+
 }
