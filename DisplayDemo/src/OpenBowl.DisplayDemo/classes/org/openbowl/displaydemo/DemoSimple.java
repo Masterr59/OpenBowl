@@ -16,7 +16,6 @@
  */
 package org.openbowl.displaydemo;
 
-import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,10 +49,10 @@ public class DemoSimple {
 
         this.game = new HashMap<>();
 
-        this.game.put(FRED, new BowlingGame(FRED, FRED));
-        this.game.put(BARNEY, new BowlingGame(BARNEY, BARNEY));
-        this.game.put(SLATE, new BowlingGame(SLATE, SLATE));
-        this.game.put(GAZOO, new BowlingGame(GAZOO, GAZOO));
+        this.game.put(FRED, new BowlingGame(FRED, 0, FRED));
+        this.game.put(BARNEY, new BowlingGame(BARNEY, 0, BARNEY));
+        this.game.put(SLATE, new BowlingGame(SLATE, 0, SLATE));
+        this.game.put(GAZOO, new BowlingGame(GAZOO, 0, GAZOO));
 
         this.game.get(SLATE).setHandicap(19);
 
@@ -82,12 +81,12 @@ public class DemoSimple {
             Thread.sleep(500);
             display.newPlayer(game.get(GAZOO));
             Thread.sleep(2000);
-            for(BowlingSplash sp : BowlingSplash.values()){
-                display.showSplash(sp);
-                long time = sp == BowlingSplash.PerfectGame ? 31000 : 5500;
-                time = sp == BowlingSplash.Foul ? 7000 : time;
-                Thread.sleep(time);
-            }
+//            for(BowlingSplash sp : BowlingSplash.values()){
+//                display.showSplash(sp);
+//                long time = sp == BowlingSplash.PerfectGame ? 31000 : 5500;
+//                time = sp == BowlingSplash.Foul ? 7000 : time;
+//                Thread.sleep(time);
+//            }
             
             
             
@@ -95,4 +94,5 @@ public class DemoSimple {
             System.out.println("Thread Interupted");
         }
     }
+    
 }
