@@ -313,6 +313,7 @@ html {
 .laneBtnBlue, .buttonPost, .normalBtnSelected,
 .greenBtnSelected, .numBtn, .arrowBtn
 {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -633,6 +634,30 @@ html {
 {
   display: flex;
   justify-content: space-between;
+}
+.modifier_icon
+{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 5px;
+  right: -5px;
+  background-color: #3a556e;
+  border-radius: 0px 10px 10px 0px;
+  width: 5px;
+  height: 15px;
+  font-size: 8pt;
+}
+#datetime
+{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 10pt;
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
 
 #numpad

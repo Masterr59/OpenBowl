@@ -35,10 +35,11 @@ class SubDepartment {
     }
 }
 class Package {
-    constructor(pkgID, pkgName){
+    constructor(pkgID, pkgName, containsLane){
         this.pkgID = pkgID;
         this.pkgName = pkgName;
         this.packageProducts = new Array();
+        this.containsLane = containsLane;
     }
     addProduct(product) {
         this.packageProducts.push(product);
@@ -86,7 +87,8 @@ const saleTypes = {
 
 function start() {  
     init();
-
+    var d = new Date();
+    $("#receipt").append("<div id=\"datetime\">" + (d.getMonth()+1) + "/" + d.getDate() + "/" + d.getFullYear() + " " + d.getHours() + ":" + d.getMinutes() + "</div>");
     $(".laneBtn").click(function() {
         selectLanes(this);
     });
@@ -171,7 +173,7 @@ function addSale(saleType, selectedProdID, clickedButton) {
 
         laneIsSelected = false;
         sales.push(new Sale(quantity, minSelect, maxSelect, selectedProdName, selectedModName, selectedModPrice * quantity, selectedModPrice, 3));
-
+        sales[numOfSales].hasLanes = true;
         const priceString = sales[numOfSales].totalPrice.toLocaleString('us-US', { style: 'currency', currency: 'USD'});
 
         $("#receipt").append(
@@ -229,15 +231,24 @@ function addSale(saleType, selectedProdID, clickedButton) {
         var selectedProdPrice = packages[selectedProdID].pkgPrice;
         var quantity = 0;
         var secondRow = "";
+        if (packages[selectedProdID].containsLane)
+        {
+            secondRow = "&nbsp;[" + getLaneFormat(minSelect,maxSelect) + "]";
+        }
 
         laneIsSelected = false;
         sales.push(new Sale(quantity, minSelect, maxSelect, selectedPkgName, "No Modifier", 0, 0, 1));
 
+        if (packages[selectedProdID].containsLane)
+            sales[numOfSales].hasLanes = true;
+        else
+            sales[numOfSales].hasLanes = false;
+
         $("#receipt").append(
             "<div class=\"receipt_sale_selected\" id=\"receipt_sale" + numOfSales +"\" onclick=\"selectSale(" + numOfSales + ")\">" +
             "<div class=\"row1\" id=\"row1_sale" + numOfSales + "\"><b>" + sales[numOfSales].quantity + "&nbsp;" + selectedPkgName + "</b></div>" +
-            "<div class=\"row2\">" + secondRow + "</div>" +
             "<div class=\"row3\" id=\"row3_"+selectedSubID+"_"+selectedProdID+"\" style=\"flex-direction: column;\">" +
+            "<div class=\"row2\">" + secondRow + "</div>" +
             "</div>" +
             "</div>"
         );
@@ -247,7 +258,6 @@ function addSale(saleType, selectedProdID, clickedButton) {
             const priceString = packages[selectedProdID].packageProducts[i].prodPrice.toLocaleString('us-US', { style: 'currency', currency: 'USD'});
             $("#receipt #receipt_sale" + numOfSales + " #row3_"+selectedSubID+"_"+selectedProdID).append(
                 "<div class=\"row1\"><b>&nbsp;..." + selectedProdName + "</b></div>" +
-                "<div class=\"row2\">" + secondRow + "</div>" +
                 "<div class=\"row3\">" +
                 "<div>&nbsp;@" + priceString + "</div>" +
                 "<div class=\"productPrice\"><b>" + priceString + "</b></div>" +
@@ -466,6 +476,9 @@ function displayProducts(clickedButton) {
             if (products[prodID] != null)
             {
                 $(document.getElementById(x)).append("<div class=\"normalBtn\" id=\"prod" + prodID + "\">" + products[prodID].prodName + "</div>");
+                if (products[prodID].hasModifiers) {
+                    $("#prod" + prodID).append("<div class=\"modifier_icon\"></div>")
+                }
             }
             else
             {
@@ -579,8 +592,11 @@ function init() {
         subDepartments.push(new SubDepartment(1,"SubDpt #" + subdptID));
         for (var pkgID = 0; pkgID < numOfPackages; pkgID++)
         {
+            var hasLanes = Math.floor( Math.random() * 2);
+            if (hasLanes == 1){hasLanes = true;}
+            else {hasLanes = false;}
             var numOfPackageProducts = Math.floor( Math.random() * 5) + 1;
-            subDepartments[subdptID].addPackage(new Package(1, "SubDpt #" + subdptID + " Package #" + pkgID));
+            subDepartments[subdptID].addPackage(new Package(1, "SubDpt #" + subdptID + " Package #" + pkgID, hasLanes));
             for (var prodID = 0; prodID < numOfPackageProducts; prodID++)
             {
                 //Test generation
@@ -854,6 +870,7 @@ function selectSale(num) {
     var selectedSaleID = num;
     selectedSale = selectedSaleID;
     selectedSaleBtn.classList = "receipt_sale_selected";
+    console.log(sales[selectedSale].hasLanes);
 }
 function toggleLaneButtons(isLaneSelected) {
     var laneID;
@@ -908,6 +925,12 @@ function updateSale() {
     }
     else
     {
+        if (sales[selectedSale].hasLanes)
+        {
+            $("#receipt_sale" + selectedSale + " .row2").html(
+                "<div class=\"row2\">"+ secondRow +"</div>"
+            );
+        }
         $("#row1_sale" + selectedSale).html(
             "<b>" + sales[selectedSale].quantity + "&nbsp;" + sales[selectedSale].prodName + "</b>"
         );
