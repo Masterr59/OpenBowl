@@ -7,6 +7,7 @@ package org.openbowl.display;
 
 import com.google.gson.JsonSyntaxException;
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -14,6 +15,8 @@ import java.util.prefs.Preferences;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.geometry.Bounds;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.layout.StackPane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -29,6 +32,7 @@ import org.openbowl.common.MediaFilters;
 public class SplashHandler extends CommonHandler {
 
     private final String DEFAULT_SPLASH = "/org/openbowl/display/images/Splash_Default.mp4";
+    private final String PI_DEFAULT_SPLASH = "/home/pi/Media/Default/Videos/default_animation.mp4";
 
     private Media media;
     private MediaPlayer mediaPlayer;
@@ -37,9 +41,12 @@ public class SplashHandler extends CommonHandler {
     private final Preferences prefs;
     private final BooleanProperty onScreen;
     private final Random rand;
+    private String SplashPath;
+    private int ScreenNumber;
 
-    public SplashHandler(StackPane stack) {
+    public SplashHandler(StackPane stack, int screen) {
         this.stack = stack;
+        this.ScreenNumber = screen;
         rand = new Random();
         prefs = Preferences.userNodeForPackage(this.getClass());
 
@@ -107,7 +114,7 @@ public class SplashHandler extends CommonHandler {
             map.put(SUCCESS, true);
             map.put("path", mediaDir);
             File dir = new File(mediaDir);
-            String splashPlath = getClass().getResource(DEFAULT_SPLASH).toExternalForm();
+            SplashPath = getClass().getResource(DEFAULT_SPLASH).toExternalForm();
             if (dir.exists() && dir.isDirectory()) {
                 String[] fileList = dir.list(MediaFilters.createVideoFileFilter());
                 if (fileList.length > 0) {
@@ -115,12 +122,12 @@ public class SplashHandler extends CommonHandler {
                     File m = new File(mediaDir + fileList[i]);
                     if (m.isFile()) {
                         //System.out.println(mediaDir + fileList[i]);
-                        splashPlath = new File(mediaDir + fileList[i]).toURI().toString();
+                        SplashPath = new File(mediaDir + fileList[i]).toURI().toString();
                     }
                 }
             }
-            media = new Media(splashPlath);
-            System.out.println("Playing Media: " + splashPlath);
+            media = new Media(SplashPath);
+            System.out.printf("Screen %d - Playing Media: %s\n", ScreenNumber, SplashPath);
             showSplash();
 
         } catch (IllegalArgumentException e) {
@@ -136,21 +143,51 @@ public class SplashHandler extends CommonHandler {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-
-                mediaPlayer = new MediaPlayer(media);
-                mediaView.setMediaPlayer(mediaPlayer);
-                mediaView.setPreserveRatio(false);
-                mediaView.fitHeightProperty().bind(stack.heightProperty());
-                mediaView.fitWidthProperty().bind(stack.widthProperty());
-                mediaPlayer.setOnEndOfMedia(new Runnable() {
-                    @Override
-                    public void run() {
-                        onScreen.setValue(Boolean.FALSE);
+                if (!isPi()) {
+                    mediaPlayer = new MediaPlayer(media);
+                    mediaView.setMediaPlayer(mediaPlayer);
+                    mediaView.setPreserveRatio(false);
+                    mediaView.fitHeightProperty().bind(stack.heightProperty());
+                    mediaView.fitWidthProperty().bind(stack.widthProperty());
+                    mediaPlayer.setOnEndOfMedia(new Runnable() {
+                        @Override
+                        public void run() {
+                            onScreen.setValue(Boolean.FALSE);
+                        }
+                    });
+                    stack.getChildren().add(mediaView);
+                    mediaPlayer.play();
+                } else {
+                    SplashPath = SplashPath.startsWith("jar")? PI_DEFAULT_SPLASH : SplashPath.substring(5);
+                    Bounds b = stack.localToScene(stack.getBoundsInLocal());
+                    String windowLocation = Double.toString(b.getMinX());
+                    windowLocation += "," + Double.toString(b.getMinY());
+                    double width = b.getMaxX() - b.getMinX();
+                    double height = b.getMaxY() - b.getMinY();
+                    windowLocation += "," + Double.toString(width);
+                    windowLocation += "," + Double.toString(height);
+                    
+                    String command = "omxplayer --no-keys --layer 99 --win " + windowLocation + " " + SplashPath;
+                    
+                    try {
+                        
+                        Process p = Runtime.getRuntime().exec(command);
+                        p.getOutputStream().close();
+                        
+                        int exitValue = p.waitFor();
+                        if (exitValue != 0) {
+                            System.out.println("omxplayer Abnormal process termination");
+                            System.out.println("Command: " + command);
+                            System.out.println(new String(p.getErrorStream().readAllBytes()));
+                        }
+                    } catch (InterruptedException ex) {
+                        System.out.println("omxplayer process inturpted");
+                    } catch (IOException ex) {
+                        System.out.println("omxplayer io exception: " + ex.toString());
                     }
-                });
-                stack.getChildren().add(mediaView);
-                mediaPlayer.play();
+                }
             }
+
         });
 
     }
@@ -164,6 +201,16 @@ public class SplashHandler extends CommonHandler {
                 }
             });
         }
+    }
+
+    private boolean isPi() {
+        if (System.getProperty("os.name").equals("Linux")) {
+            if (System.getProperty("os.arch").equals("x86") || System.getProperty("os.arch").equals("amd64")) {
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 
 }
