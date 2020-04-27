@@ -90,11 +90,11 @@ public class DemoGame {
             this.game = new HashMap<>();
             this.display = new DisplayConnector("even", "none");
             for (String s : players) {
-                this.game.put(s, new BowlingGame(s, 0, s));
+                int hdcp = s.equals(JANE)? 10 : 0;
+                hdcp = s.equals(ELROY)? 42 : 0;
+                this.game.put(s, new BowlingGame(s, hdcp, s));
             }
 
-            this.game.get(JUDY).setHandicap(10);
-            this.game.get(ELROY).setHandicap(42);
 
             Map<String, Object> displaySettings = new HashMap<>();
             displaySettings.put(this.display.ADDRESS_SETTING, displayAddress);
@@ -206,7 +206,7 @@ public class DemoGame {
 
             this.game.put(FRED, new BowlingGame(FRED, 0, FRED));
             this.game.put(BARNEY, new BowlingGame(BARNEY, 0, BARNEY));
-            this.game.put(SLATE, new BowlingGame(SLATE, 0, SLATE));
+            this.game.put(SLATE, new BowlingGame(SLATE, 19, SLATE));
             this.game.put(GAZOO, new BowlingGame(GAZOO, 0, GAZOO));
 
             this.game.get(SLATE).setHandicap(19);

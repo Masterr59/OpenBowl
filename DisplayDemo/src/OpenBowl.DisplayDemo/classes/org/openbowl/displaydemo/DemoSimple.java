@@ -51,10 +51,9 @@ public class DemoSimple {
 
         this.game.put(FRED, new BowlingGame(FRED, 0, FRED));
         this.game.put(BARNEY, new BowlingGame(BARNEY, 0, BARNEY));
-        this.game.put(SLATE, new BowlingGame(SLATE, 0, SLATE));
+        this.game.put(SLATE, new BowlingGame(SLATE, 19, SLATE));
         this.game.put(GAZOO, new BowlingGame(GAZOO, 0, GAZOO));
 
-        this.game.get(SLATE).setHandicap(19);
 
         this.display = new DisplayConnector("odd", "none");
 
@@ -69,6 +68,7 @@ public class DemoSimple {
 
     public void runDemo() {
         try {
+            display.newGame();
             display.showMessageCard("Welcome", -1);
             Thread.sleep(3000);
             display.showMessageCard("NONE", -1);
@@ -81,12 +81,12 @@ public class DemoSimple {
             Thread.sleep(500);
             display.newPlayer(game.get(GAZOO));
             Thread.sleep(2000);
-//            for(BowlingSplash sp : BowlingSplash.values()){
-//                display.showSplash(sp);
-//                long time = sp == BowlingSplash.PerfectGame ? 31000 : 5500;
-//                time = sp == BowlingSplash.Foul ? 7000 : time;
-//                Thread.sleep(time);
-//            }
+            for(BowlingSplash sp : BowlingSplash.values()){
+                display.showSplash(sp);
+                long time = sp == BowlingSplash.PerfectGame ? 31000 : 5500;
+                time = sp == BowlingSplash.Foul ? 7000 : time;
+                Thread.sleep(time);
+            }
             
             
             
