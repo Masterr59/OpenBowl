@@ -27,6 +27,8 @@ import java.util.Map;
  */
 public class AuthorizedUser {
 
+    public static final AuthorizedUser NON_USER = new AuthorizedUser("", Calendar.getInstance());
+
     public static final String AUTHKEYWORD = "x-auth-bearer";
     private final String Token;
     private final Calendar expire;
