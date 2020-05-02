@@ -26,26 +26,44 @@ import org.openbowl.common.UserRole;
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
 public class MockDB implements DatabaseConnector {
-    private final String DEFAULT_USERNAME = "OpenBowl";
-    private final String DEFAULT_PASSWORD = "Password4OpenBowl";
+
+    private final String ADMIN = "Admin";
+    private final String MANAGER = "Manager";
+    private final String DESK = "Desk";
+    private final String RESTAURANT = "Restaurant";
     private final String DEFAULT_TOKEN = "yZ9Ut95MG3xdf5gc6WgT";
 
     @Override
     public AuthorizedUser login(String UserName, String Password) {
-        if (UserName.equals(DEFAULT_USERNAME) && Password.equals(DEFAULT_PASSWORD)) {
-            ArrayList<UserRole> roles = new ArrayList<>();
-            for (UserRole ur : UserRole.values()) {
-                if (ur != UserRole.NONE) {
-                    roles.add(ur);
+        ArrayList<UserRole> roles = new ArrayList<>();
+        AuthorizedUser ret;
+        Calendar exp = Calendar.getInstance();
+        exp.add(Calendar.YEAR, 10);
+        switch (UserName) {
+            case ADMIN:
+                for (UserRole ur : UserRole.values()) {
+                    if (ur != UserRole.NONE) {
+                        roles.add(ur);
+                    }
                 }
-            }
-            Calendar exp = Calendar.getInstance();
-            exp.add(Calendar.YEAR, 10);
-            AuthorizedUser ret = new AuthorizedUser(DEFAULT_TOKEN, exp, 99, DEFAULT_USERNAME, roles);
-            return ret;
-        } else {
-            return null;
+                break;
+            case MANAGER:
+                roles.add(UserRole.GENERATE_REPORTS);
+                roles.add(UserRole.TRANSACTION_ADD);
+                roles.add(UserRole.TRANSACTION_DELETE);
+                roles.add(UserRole.SCORE_MACHINE);
+                break;
+            case DESK:
+                roles.add(UserRole.TRANSACTION_ADD);
+                roles.add(UserRole.SCORE_MACHINE);
+                break;
+            case RESTAURANT:
+                roles.add(UserRole.TRANSACTION_ADD);
         }
+
+        ret = new AuthorizedUser(DEFAULT_TOKEN, exp, 99, UserName, roles);
+        return ret;
+
     }
 
 }
