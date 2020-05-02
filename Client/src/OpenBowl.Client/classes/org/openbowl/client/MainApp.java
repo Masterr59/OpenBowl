@@ -18,10 +18,12 @@ package org.openbowl.client;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.geometry.Side;
 import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TabPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -37,14 +39,25 @@ public class MainApp extends Application {
 
     private final String ApplicationName = "Open Bowl - Client";
 
+    private TabPane mTabPane;
+    private TabLogin mLoginTab;
+
     @Override
     public void start(Stage stage) throws Exception {
         BorderPane root = new BorderPane();
         root.setTop(buildMenuBar());
 
         stage.setTitle(ApplicationName);
-        root.setTop(buildMenuBar());
 
+        mTabPane = new TabPane();
+        mTabPane.setRotateGraphic(true);
+        mTabPane.setSide(Side.LEFT);
+
+        mLoginTab = new TabLogin();
+
+        mTabPane.getTabs().add(mLoginTab);
+
+        root.setCenter(mTabPane);
         Scene scene = new Scene(root, 500, 440);
         stage.setScene(scene);
         stage.show();
@@ -63,11 +76,20 @@ public class MainApp extends Application {
         quitMenuItem.setOnAction(actionEvent -> Platform.exit());
         fileMenu.getItems().add(quitMenuItem);
 
+        Menu managerMenu = new Menu("_Manager");
+        MenuItem managerLogin = new MenuItem("Login");
+        managerLogin.setOnAction(not_used -> onManagerLogin());
+
+        MenuItem managerLogout = new MenuItem("Logout");
+        managerLogout.setOnAction(not_used -> onManagerLogout());
+
+        managerMenu.getItems().addAll(managerLogin, managerLogout);
+
         Menu helpMenu = new Menu("_Help");
         MenuItem aboutMenuItem = new MenuItem("_About");
         aboutMenuItem.setOnAction(actionEvent -> onAbout());
         helpMenu.getItems().add(aboutMenuItem);
-        menuBar.getMenus().addAll(fileMenu, helpMenu);
+        menuBar.getMenus().addAll(fileMenu, managerMenu, helpMenu);
         return menuBar;
     }
 
@@ -79,5 +101,12 @@ public class MainApp extends Application {
         AboutOpenBowl about = new AboutOpenBowl();
         about.onAbout(ApplicationName);
     }
-}
 
+    private void onManagerLogin() {
+        mLoginTab.getManagerLogin().set(true);
+    }
+
+    private void onManagerLogout() {
+        mLoginTab.getManagerLogin().set(false);
+    }
+}
