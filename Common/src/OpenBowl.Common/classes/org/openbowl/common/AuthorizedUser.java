@@ -16,6 +16,7 @@
  */
 package org.openbowl.common;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -26,12 +27,12 @@ import java.util.Map;
  */
 public class AuthorizedUser {
 
-    /**
-     *
-     */
     public static final String AUTHKEYWORD = "x-auth-bearer";
     private final String Token;
     private final Calendar expire;
+    private int User_ID;
+    private String Username;
+    private ArrayList<UserRole> Roles;
 
     /**
      *
@@ -43,6 +44,16 @@ public class AuthorizedUser {
     public AuthorizedUser(String Token, Calendar expire) {
         this.Token = Token;
         this.expire = expire;
+        this.User_ID = -1;
+        this.Username = "NONE";
+        this.Roles = new ArrayList<>();
+    }
+
+    public AuthorizedUser(String Token, Calendar expire, int User_ID, String Username, ArrayList<UserRole> Roles) {
+        this(Token, expire);
+        this.User_ID = User_ID;
+        this.Username = Username;
+        this.Roles.addAll(Roles);
     }
 
     /**
@@ -72,6 +83,18 @@ public class AuthorizedUser {
     public boolean isExpired() {
         Calendar now = Calendar.getInstance();
         return now.before(expire);
+    }
+
+    public boolean isAuthorized(UserRole role) {
+        return Roles.contains(role);
+    }
+
+    public int getUser_ID() {
+        return User_ID;
+    }
+
+    public String getUsername() {
+        return Username;
     }
 
 }
