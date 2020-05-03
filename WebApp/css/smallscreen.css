@@ -11,7 +11,8 @@
 .normalBtn, .yellowBtn, .greenBtn,
 .redBtn, .purpleBtn, .laneBtn,
 .laneBtnBlue, .normalBtnSelected,
-.greenBtnSelected, .numBtn
+.greenBtnSelected, .purpleBtnSelected,
+.purpleBtnDisabled, .numBtn
      { width: 4em; height: 4em; padding: 0px;}
 
 .laneBtn, .laneBtnBlue { height: 6em; }

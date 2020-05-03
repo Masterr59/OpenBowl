@@ -311,7 +311,8 @@ html {
 .normalBtn, .greenBtn, .yellowBtn,
 .purpleBtn, .redBtn, .laneBtn,
 .laneBtnBlue, .buttonPost, .normalBtnSelected,
-.greenBtnSelected, .numBtn, .arrowBtn
+.greenBtnSelected, .purpleBtnSelected, .purpleBtnDisabled,
+.numBtn, .arrowBtn
 {
   position: relative;
   display: flex;
@@ -396,6 +397,16 @@ html {
 .yellowBtn:hover
 {
   background-color: #C3C062;
+}
+.purpleBtnSelected
+{
+  box-shadow: inset 0px 4px 4px rgba(0, 0, 0, 0.25);
+  background-color: #726385;
+  border: 2px solid #726385;
+}
+.purpleBtnDisabled
+{
+  background-color: #726385;
 }
 .purpleBtn
 {
@@ -531,6 +542,7 @@ html {
   display: flex;
   justify-content: space-between;
   width: 100%;
+  margin: 5px 5px 5px 5px;
 }
 
 .product_panel_child{
@@ -574,9 +586,7 @@ html {
   background-color: #fff;
   width: 97%;
   height: 100%;
-  border-radius: 5px 5px 0px 0px;
   border: 1px solid #212121;
-  margin: 5px 0px 0px 0px;
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -657,7 +667,47 @@ html {
   font-weight: bold;
   font-size: 10pt;
   margin-top: 5px;
-  margin-bottom: 5px;
+  background-color: #fff;
+  color: #000;
+  width: 97%;
+  border-radius: 5px 5px 0px 0px;
+  padding: 5px 0px 5px 0px;
+}
+
+.popupPanel
+{
+  display: none;
+}
+.screenPanel
+{
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.blackBG
+{
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+  opacity: 50%;
+}
+
+.adjustmentPanel
+{
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 50%;
+  opacity: 100%;
 }
 
 #numpad

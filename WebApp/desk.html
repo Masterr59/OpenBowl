@@ -14,15 +14,15 @@
       <div id="panel">
         <div class="panelsidebar" id="ps1">
           <h3><div class="status"></div><div id="status_text">Online</div></h3>
-          <div class="greenBtn">Quick Keys</div>
-          <div class="normalBtnSelected">Lane Sales</div>
-          <div class="normalBtn">Lane Status</div>
-          <div class="normalBtn">General Sales</div>
-          <div class="redBtn">Lane Control</div>
-          <div class="redBtn">Log Off</div>
+          <div class="greenBtn" id="quickKeysBtn">Quick Keys</div>
+          <div class="normalBtnSelected" id="laneSalesBtn">Lane Sales</div>
+          <div class="normalBtn" id="laneStatusBtn">Lane Status</div>
+          <div class="normalBtn" id="generalSalesBtn">General Sales</div>
+          <div class="redBtn" id="laneControlBtn">Lane Control</div>
+          <div class="redBtn" id="logOffBtn">Log Off</div>
         </div>
-        <div class="middlecontainer">
-          <div class="lanepanel">
+        <div class="middlecontainer" id="laneSalesPanel">
+          <div class="lanepanel" id="lanePanel">
             <div><h3>Lanes</h3></div>
             <div class="tester">
               <div style="display: flex; flex-direction: column; width: 100%;">
@@ -43,7 +43,19 @@
               </div>
             </div>
           </div>
-          <div class="product_panel_parent">
+          <div class="product_panel_parent" id="laneSalesTypes">
+            <div class="product_panel" id="departmentsPanel">
+              <div><h3>Departments</h3></div>
+              <div style="display: flex; flex-direction: column;">
+                <div class="arrow_panel" id="departments_up_arrow">
+                  <div class="arrowBtn" id="upBtnMini"><i class="fa fa-chevron-up"></i></div>
+                </div>
+                <div class="product_panel_child" id="dptDiv" style="justify-content: center;"></div>
+                <div class="arrow_panel" id="departments_down_arrow">
+                  <div class="arrowBtn" id="downBtnMini"><i class="fa fa-chevron-down"></i></div>
+                </div>
+              </div>
+            </div>
             <div class="product_panel">
               <div><h3>Sub Departments</h3></div>
               <div style="display: flex; flex-direction: column;">
@@ -56,7 +68,7 @@
                 </div>
               </div>
             </div>
-            <div class="product_panel">
+            <div class="product_panel" id="packagesPanel">
               <div><h3>Packages</h3></div>
               <div style="display: flex; flex-direction: column;">
                 <div class="arrow_panel" id="packages_up_arrow">
@@ -95,6 +107,7 @@
           </div>
         </div>
       <div id="register">
+        <div id="datetime"></div>
         <div id="receipt"></div>
         <div id="receiptTotals">
           <div id="salesTax">Sales Tax here</div>
@@ -109,7 +122,7 @@
             <div class="normalBtn" id="erase"><i class="fa fa-eraser"></i></div>
           </div>
           <div class="numcolumn">
-            <div class="purpleBtn">Special</div>
+            <div class="purpleBtn" id="specialBtn">Special</div>
             <div class="numBtn" id="num8">8</div>
             <div class="numBtn" id="num5">5</div>
             <div class="numBtn" id="num2">2</div>
@@ -131,8 +144,57 @@
         </div>
       </div>
     </div>
+    <div class="popupPanel" id="adjustPanel">
+      <div class="screenPanel">
+        <div class="blackBG"></div>
+        <div class="adjustmentPanel">
+          <div class="product_panel" style="box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.5);">
+            <div><h3>Adjust</h3></div>
+            <div style="display: flex; flex-direction: column;">
+              <div class="product_panel_child" style="justify-content: center;">
+                <div class="purpleBtn">Round Up</div>
+                <div class="purpleBtn">Round Down</div>
+                <div class="purpleBtn">Void Item</div>
+                <div class="purpleBtn">Delete Item</div>
+                <div class="purpleBtn">Tax Exempt</div>
+                <div class="purpleBtn">Open Price</div>
+                <div class="purpleBtn">Discounts</div>
+                <div class="purpleBtn">Split Item</div>
+                <div class="purpleBtn">Separate Tabs</div>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top: 15px; opacity: 75%;">Click outside to close</div>
+        </div>
+      </div>
     </div>
 
+    <div class="popupPanel" id="specialPanel">
+      <div class="screenPanel">
+        <div class="blackBG"></div>
+        <div class="adjustmentPanel">
+          <div class="product_panel" style="box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.5);">
+            <div><h3>Special</h3></div>
+            <div style="display: flex; flex-direction: column;">
+              <div class="product_panel_child" style="justify-content: center;">
+                <div class="purpleBtn">Refund</div>
+                <div class="purpleBtn">Banking</div>
+                <div class="purpleBtn">League Payments</div>
+                <div class="purpleBtn">Accounts</div>
+                <div class="purpleBtn">End Shift</div>
+                <div class="purpleBtn">Refresh Prices</div>
+                <div class="purpleBtn">Show Bowlers</div>
+                <div class="purpleBtn">Lockers</div>
+                <div class="purpleBtn">Print Old Receipts</div>
+                <div class="purpleBtn">Cash Out Report</div>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top: 15px; opacity: 75%;">Click outside to close</div>
+        </div>
+      </div>
+    </div>
+    
 
     <div id="errorMsgContainer"></div>
     <script src="js/desk.js"></script>

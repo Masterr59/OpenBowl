@@ -8,6 +8,7 @@ var currentProductsPage = 0;
 var currentModifiersPage = 0;
 var subDepartments = [];
 var sales = [];
+var taxTypes = [];
 
 var selectedLane = 0;
 var selectedSale = -1;
@@ -18,7 +19,7 @@ var maxSelect = 0;
 var laneIsSelected = false;
 var numOfSales = 0;
 var totalPrice = 0;
-var salesTax = 1.09;
+var salesTax = 0;
 
 class SubDepartment {
     constructor(subdptID, subdptName) {
@@ -46,12 +47,13 @@ class Package {
     }
 }
 class Product {
-    constructor(prodID, prodName, prodPrice, hasModifiers, containsLane){
+    constructor(prodID, prodName, prodPrice, hasModifiers, containsLane, taxType){
         this.prodID = prodID;
         this.prodName = prodName;
         this.prodPrice = prodPrice;
         this.hasModifiers = hasModifiers;
         this.containsLane = containsLane;
+        this.taxType = taxTypes[taxType];
         this.prodModifiers = new Array();
     }
     addModifier(modifier) {
@@ -78,6 +80,13 @@ class Sale {
         this.hasLanes = false;
     }
 }
+class TaxType {
+    constructor(taxTypeID, taxTypeName, taxRate) {
+        this.taxTypeID = taxTypeID;
+        this.taxTypeName = taxTypeName;
+        this.taxRate = taxRate;
+    }
+}
 
 const saleTypes = {
     PACKAGE:  1,
@@ -88,7 +97,16 @@ const saleTypes = {
 function start() {  
     init();
     var d = new Date();
-    $("#receipt").append("<div id=\"datetime\">" + (d.getMonth()+1) + "/" + d.getDate() + "/" + d.getFullYear() + " " + d.getHours() + ":" + d.getMinutes() + "</div>");
+    $("#datetime").append((d.getMonth()+1) + "/" + d.getDate() + "/" + d.getFullYear() + " " + d.getHours() + ":" + d.getMinutes() + "</div>");
+    $("#laneSalesBtn").click(function() {
+        displayPanel(1);
+    });
+    $("#laneStatusBtn").click(function() {
+        displayPanel(2);
+    });
+    $("#generalSalesBtn").click(function() {
+        displayPanel(3);
+    });
     $(".laneBtn").click(function() {
         selectLanes(this);
     });
@@ -123,6 +141,14 @@ function start() {
             addQuantity(this);
         }
     });
+    $("#adjustBtn").click(function() {
+        $("#adjustPanel").show();
+        document.querySelector("#adjustBtn").classList = "purpleBtnSelected";
+    });
+    $("#specialBtn").click(function() {
+        $("#specialPanel").show();
+        document.querySelector("#specialBtn").classList = "purpleBtnSelected";
+    });
     $("#subdepartments_down_arrow").click(function() {
         scrollSubDepartment(1);
     });
@@ -152,6 +178,9 @@ function start() {
     });
     $("#lanes_up_arrow").click(function() {
         scrollLanes(0);
+    });
+    $(".blackBG").click(function() {
+        clearPopUps();
     });
 }
 
@@ -295,6 +324,11 @@ function changeLaneForSale()
     }
     updateSale();
 }
+function clearPopUps() {
+    $(".popupPanel").hide();
+    document.querySelector("#adjustBtn").classList = "purpleBtn";
+    document.querySelector("#specialBtn").classList = "purpleBtn";
+}
 function clearReceiptSelections() {
     var i;
     for (i = 0; i < sales.length; i++)
@@ -358,6 +392,35 @@ function displayLanes() {
     if (numberOfPages > 0)
     {
         document.querySelector("#lanes_down_arrow").classList = "arrow_panel_enabled";
+    }
+}
+function displayPanel(n) {
+    switch (n) {
+        case 1:
+            $("#lanePanel").show();
+            $("#laneSalesTypes").show();
+            $("#departmentsPanel").hide();
+            $("#packagesPanel").show();
+            document.querySelector("#laneSalesBtn").classList = "normalBtnSelected";
+            document.querySelector("#laneStatusBtn").classList = "normalBtn";
+            document.querySelector("#generalSalesBtn").classList = "normalBtn";
+            break;
+        case 2:
+            $("#lanePanel").show();
+            $("#laneSalesTypes").hide();
+            document.querySelector("#laneSalesBtn").classList = "normalBtn";
+            document.querySelector("#laneStatusBtn").classList = "normalBtnSelected";
+            document.querySelector("#generalSalesBtn").classList = "normalBtn";
+            break;
+        case 3:
+            $("#lanePanel").hide();
+            $("#laneSalesTypes").show();
+            $("#departmentsPanel").show();
+            $("#packagesPanel").hide();
+            document.querySelector("#laneSalesBtn").classList = "normalBtn";
+            document.querySelector("#laneStatusBtn").classList = "normalBtn";
+            document.querySelector("#generalSalesBtn").classList = "normalBtnSelected";
+            break;
     }
 }
 function displaySubDepartments() {
@@ -506,6 +569,7 @@ function displayProducts(clickedButton) {
             {
                 displayErrorMsg("Error: No lane(s) selected!");
             }
+            document.querySelector("#prodDiv .normalBtnSelected").classList = "normalBtn";
         }
         else
         {
@@ -583,7 +647,16 @@ function getLaneFormat(min, max) {
 }
 function init() {
 
+    $("#departmentsPanel").hide();
+    $("#laneSalesPanel").show();
+    $("#laneStatusPanel").hide();
+    $("#generalSalesPanel").hide();
+
     var numOfSubDpts = Math.floor( Math.random() * 7) + 1;
+
+    //load tax types
+    taxTypes.push(new TaxType(1, "Bowling", 8.1));
+    taxTypes.push(new TaxType(2, "Restaurant", 8.0));
 
     for (var subdptID = 0; subdptID < numOfSubDpts; subdptID++)
     {
@@ -606,11 +679,11 @@ function init() {
                 var hasMods = Math.floor( Math.random() * 2);
                 if (hasMods == 1) {hasMods = true;}
                 else {hasMods = false;}
-
                 var price =  Math.floor(Math.random() * 15) + 1;
+                var tt = Math.floor( Math.random() * 2);
                 //Test generation end
-                
-                subDepartments[subdptID].subdptPackages[pkgID].addProduct(new Product(1, "Pkg #" + pkgID + " PkgProd #" + prodID, price, hasMods, hasLanes));
+                //var tt = get taxtype id from product and replace the below constructor with this (tt)
+                subDepartments[subdptID].subdptPackages[pkgID].addProduct(new Product(1, "Pkg #" + pkgID + " PkgProd #" + prodID, price, hasMods, hasLanes, tt));
             }
         }
         for (var prodID = 0; prodID < numOfProducts; prodID++)
@@ -635,8 +708,9 @@ function init() {
                 }
             }
             var price =  Math.floor(Math.random() * 15) + 1;
+            var tt = Math.floor( Math.random() * 2);
             //Test generation end
-            subDepartments[subdptID].addProduct(new Product(1, "SubDpt #" + subdptID + " Product #" + prodID, price, hasMods, hasLanes));
+            subDepartments[subdptID].addProduct(new Product(1, "SubDpt #" + subdptID + " Product #" + prodID, price, hasMods, hasLanes, tt));
             for (var modID = 0; modID < numOfModifiers; modID++)
             {
                 price =  Math.floor(Math.random() * 15) + 1;
