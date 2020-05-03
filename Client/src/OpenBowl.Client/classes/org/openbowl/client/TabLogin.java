@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 patrick
+ * Copyright (C) 2020 Open Bowl <http://www.openbowlscoring.org/>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,21 +17,14 @@
 package org.openbowl.client;
 
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.Separator;
-import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.openbowl.common.AuthorizedUser;
@@ -39,7 +32,7 @@ import org.openbowl.common.Styles;
 
 /**
  *
- * @author patrick
+ * @author Open Bowl <http://www.openbowlscoring.org/>
  */
 public class TabLogin extends CommonTab {
 
