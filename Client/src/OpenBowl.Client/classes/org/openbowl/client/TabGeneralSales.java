@@ -23,12 +23,12 @@ import org.openbowl.common.AuthorizedUser;
  *
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
-public class TabMechanic extends CommonTab {
+public class TabGeneralSales extends CommonTab {
 
-    private final String HEADER_TEXT = "Mechanic";
-    private final String TAB_TEXT = "Mech.";
+    private final String HEADER_TEXT = "General Sales";
+    private final String TAB_TEXT = "Gen. Sales";
 
-    public TabMechanic(ObjectProperty<AuthorizedUser> User, ObjectProperty<AuthorizedUser> Manager, DatabaseConnector db) {
+    public TabGeneralSales(ObjectProperty<AuthorizedUser> User, ObjectProperty<AuthorizedUser> Manager, DatabaseConnector db) {
         super(User, Manager, db);
         this.setText(TAB_TEXT);
         this.setHeaderLabel(HEADER_TEXT);

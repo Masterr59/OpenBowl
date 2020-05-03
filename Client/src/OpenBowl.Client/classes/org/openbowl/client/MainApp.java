@@ -34,6 +34,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import org.openbowl.common.AboutOpenBowl;
 import org.openbowl.common.AuthorizedUser;
+import org.openbowl.common.UserRole;
 
 /**
  *
@@ -47,6 +48,13 @@ public class MainApp extends Application {
     private DatabaseConnector dbConnector;
     private TabLogin UserLoginTab, ManagerLoginTab;
     private TabUser UserTab;
+    private TabDesk DeskTab;
+    private TabOffice OfficeTab;
+    private TabMechanic MechTab;
+    private TabReservations RsrvTab;
+    private TabCompetitions CompTab;
+    private TabBowlers BowlerTab;
+    private TabGeneralSales SalesTab;
     private ObjectProperty<AuthorizedUser> User;
     private ObjectProperty<AuthorizedUser> Manager;
 
@@ -62,6 +70,14 @@ public class MainApp extends Application {
         User.addListener((Obs, oldU, newU) -> onUserChange(newU));
         Manager.addListener((Obs, oldU, newU) -> onManagerChange(newU));
 
+        DeskTab = new TabDesk(User, Manager, dbConnector);
+        OfficeTab = new TabOffice(User, Manager, dbConnector);
+        MechTab = new TabMechanic(User, Manager, dbConnector);
+        RsrvTab = new TabReservations(User, Manager, dbConnector);
+        CompTab = new TabCompetitions(User, Manager, dbConnector);
+        BowlerTab = new TabBowlers(User, Manager, dbConnector);
+        SalesTab = new TabGeneralSales(User, Manager, dbConnector);
+
         BorderPane root = new BorderPane();
         root.setTop(buildMenuBar());
 
@@ -74,7 +90,7 @@ public class MainApp extends Application {
         root.setCenter(mTabPane);
         Scene scene = new Scene(root, 500, 440);
         scene.getStylesheets().add(getClass().getResource("DarkMode.css").toExternalForm());
-        
+
         stage.setScene(scene);
         stage.show();
 
@@ -132,6 +148,7 @@ public class MainApp extends Application {
             ManagerLoginTab.getManagerLogin().set(true);
             ManagerLoginTab.getManager().bindBidirectional(Manager);
             mTabPane.getTabs().add(ManagerLoginTab);
+            mTabPane.getSelectionModel().select(ManagerLoginTab);
         }
     }
 
@@ -145,6 +162,7 @@ public class MainApp extends Application {
             UserLoginTab = new TabLogin(dbConnector);
             UserLoginTab.getUser().bindBidirectional(User);
             mTabPane.getTabs().add(UserLoginTab);
+            mTabPane.getSelectionModel().select(UserLoginTab);
         }
     }
 
@@ -154,18 +172,107 @@ public class MainApp extends Application {
 
     private void onUserChange(AuthorizedUser newU) {
         synchronized (mTabPane) {
-            mTabPane.getTabs().remove(UserLoginTab);
-            mTabPane.getTabs().remove(UserTab);
+            mTabPane.getTabs().clear();
             if (newU != AuthorizedUser.NON_USER) {
                 UserTab = new TabUser(newU, dbConnector);
                 mTabPane.getTabs().add(UserTab);
+
+                if (DeskTabAuthorized(newU)) {
+                    DeskTab.setStyleManager(false);
+                    mTabPane.getTabs().add(DeskTab);
+                }
+                if (SalesTabAuthorized(newU)) {
+                    SalesTab.setStyleManager(false);
+                    mTabPane.getTabs().add(SalesTab);
+                }
+                if (OfficeTabAuthorized(newU)) {
+                    OfficeTab.setStyleManager(false);
+                    mTabPane.getTabs().add(OfficeTab);
+                }
+                if (MechTabAuthorized(newU)) {
+                    MechTab.setStyleManager(false);
+                    mTabPane.getTabs().add(MechTab);
+                }
+                if (RsrvTabAuthorized(newU)) {
+                    RsrvTab.setStyleManager(false);
+                    mTabPane.getTabs().add(RsrvTab);
+                }
+                if (CompTabAuthorized(newU)) {
+                    CompTab.setStyleManager(false);
+                    mTabPane.getTabs().add(CompTab);
+                }
+                if (BowlersTabAuthorized(newU)) {
+                    BowlerTab.setStyleManager(false);
+                    mTabPane.getTabs().add(BowlerTab);
+                }
             }
         }
     }
 
-    private void onManagerChange(AuthorizedUser newU) {
+    private void onManagerChange(AuthorizedUser newM) {
+        onUserChange(User.get()); //reset
         synchronized (mTabPane) {
             mTabPane.getTabs().remove(ManagerLoginTab);
+            if (!mTabPane.getTabs().contains(DeskTab) && DeskTabAuthorized(newM)) {
+                DeskTab.setStyleManager(true);
+                mTabPane.getTabs().add(DeskTab);
+            }
+            if (!mTabPane.getTabs().contains(SalesTab) && SalesTabAuthorized(newM)) {
+                SalesTab.setStyleManager(true);
+                mTabPane.getTabs().add(SalesTab);
+            }
+            if (!mTabPane.getTabs().contains(OfficeTab) && OfficeTabAuthorized(newM)) {
+                OfficeTab.setStyleManager(true);
+                mTabPane.getTabs().add(OfficeTab);
+            }
+            if (!mTabPane.getTabs().contains(MechTab) && MechTabAuthorized(newM)) {
+                MechTab.setStyleManager(true);
+                mTabPane.getTabs().add(MechTab);
+            }
+            if (!mTabPane.getTabs().contains(RsrvTab) && RsrvTabAuthorized(newM)) {
+                RsrvTab.setStyleManager(true);
+                mTabPane.getTabs().add(RsrvTab);
+            }
+            if (!mTabPane.getTabs().contains(CompTab) && CompTabAuthorized(newM)) {
+                CompTab.setStyleManager(true);
+                mTabPane.getTabs().add(CompTab);
+            }
+            if (!mTabPane.getTabs().contains(BowlerTab) && BowlersTabAuthorized(newM)) {
+                BowlerTab.setStyleManager(true);
+                mTabPane.getTabs().add(BowlerTab);
+            }
         }
+    }
+
+    private boolean DeskTabAuthorized(AuthorizedUser u) {
+        return u.isAuthorized(UserRole.GAME_ADMIN);
+    }
+
+    private boolean SalesTabAuthorized(AuthorizedUser u) {
+        return u.isAuthorized(UserRole.TRANSACTION_ADD);
+    }
+
+    private boolean BowlersTabAuthorized(AuthorizedUser u) {
+        return u.isAuthorized(UserRole.GAME_ADMIN);
+    }
+
+    private boolean MechTabAuthorized(AuthorizedUser u) {
+        return u.isAuthorized(UserRole.MANAGE_SCORER)
+                || u.isAuthorized(UserRole.MANAGE_DISPLAY);
+    }
+
+    private boolean OfficeTabAuthorized(AuthorizedUser u) {
+        return u.isAuthorized(UserRole.GENERATE_REPORTS)
+                || u.isAuthorized(UserRole.USER_ADD)
+                || u.isAuthorized(UserRole.USER_DELETE)
+                || u.isAuthorized(UserRole.USER_RENAME);
+    }
+
+    private boolean RsrvTabAuthorized(AuthorizedUser u) {
+        return u.isAuthorized(UserRole.GAME_ADMIN);
+    }
+
+    private boolean CompTabAuthorized(AuthorizedUser u) {
+        return u.isAuthorized(UserRole.GAME_ADMIN);
     }
 }

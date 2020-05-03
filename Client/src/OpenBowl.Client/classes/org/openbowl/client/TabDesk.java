@@ -17,13 +17,7 @@
 package org.openbowl.client;
 
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.geometry.Orientation;
-import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
-import javafx.scene.layout.VBox;
 import org.openbowl.common.AuthorizedUser;
-import org.openbowl.common.Styles;
 
 /**
  *
@@ -34,39 +28,17 @@ public class TabDesk extends CommonTab {
     private final String HEADER_TEXT = "Front Desk";
     private final String TAB_TEXT = "Desk";
 
-    private ObjectProperty<AuthorizedUser> User;
-    private ObjectProperty<AuthorizedUser> Manager;
-
-    DatabaseConnector dbConnector;
-
     public TabDesk(ObjectProperty<AuthorizedUser> User, ObjectProperty<AuthorizedUser> Manager, DatabaseConnector db) {
-        User = new SimpleObjectProperty<>();
-        Manager = new SimpleObjectProperty<>();
-        this.User.bindBidirectional(User);
-        this.Manager.bindBidirectional(Manager);
-
-        this.User.addListener((obs, oldUser, newUser) -> onUserChange(newUser));
-        this.Manager.addListener((obs, oldManager, newManager) -> onManagerChange(newManager));
-
+        super(User, Manager, db);
         this.setText(TAB_TEXT);
-
-        dbConnector = db;
-        VBox vbox = new VBox();
-        Label HeaderLabel = new Label(HEADER_TEXT);
-        HeaderLabel.setId(Styles.ID_H2);
-
-        Separator s1 = new Separator();
-        s1.setOrientation(Orientation.HORIZONTAL);
-
-        vbox.getChildren().addAll(HeaderLabel, s1);
-        Border.setCenter(vbox);
+        this.setHeaderLabel(HEADER_TEXT);
     }
 
-    private void onUserChange(AuthorizedUser newUser) {
+    protected void onUserChange(AuthorizedUser newUser) {
 
     }
 
-    private void onManagerChange(AuthorizedUser newManager) {
+    protected void onManagerChange(AuthorizedUser newManager) {
 
     }
 

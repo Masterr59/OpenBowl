@@ -34,7 +34,7 @@ import org.openbowl.common.Styles;
  *
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
-public class TabLogin extends CommonTab {
+public class TabLogin extends SimpleTab {
 
     private final static String TAB_NAME = "Login";
 

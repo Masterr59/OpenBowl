@@ -30,7 +30,7 @@ import org.openbowl.common.UserRole;
  *
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
-public class TabUser extends CommonTab {
+public class TabUser extends SimpleTab {
 
     private final String WELCOME_TEXT = "Welcome %s to OpenBowl";
     private final String PASSWORD_UPDATE_PROMPT = "Password update:";

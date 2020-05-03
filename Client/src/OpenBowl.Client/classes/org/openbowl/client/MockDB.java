@@ -32,6 +32,7 @@ public class MockDB implements DatabaseConnector {
     private final String MANAGER = "Manager";
     private final String DESK = "Desk";
     private final String RESTAURANT = "Restaurant";
+    private final String NONE = "None";
     private final String DEFAULT_TOKEN = "yZ9Ut95MG3xdf5gc6WgT";
 
     private final Random rand;
@@ -59,16 +60,20 @@ public class MockDB implements DatabaseConnector {
                 roles.add(UserRole.GENERATE_REPORTS);
                 roles.add(UserRole.TRANSACTION_ADD);
                 roles.add(UserRole.TRANSACTION_DELETE);
-                roles.add(UserRole.SCORE_MACHINE);
+                roles.add(UserRole.GAME_ADMIN);
                 ret = new AuthorizedUser(DEFAULT_TOKEN, exp, 99, UserName, roles);
                 break;
             case DESK:
                 roles.add(UserRole.TRANSACTION_ADD);
-                roles.add(UserRole.SCORE_MACHINE);
+                roles.add(UserRole.GAME_ADMIN);
                 ret = new AuthorizedUser(DEFAULT_TOKEN, exp, 99, UserName, roles);
                 break;
             case RESTAURANT:
                 roles.add(UserRole.TRANSACTION_ADD);
+                ret = new AuthorizedUser(DEFAULT_TOKEN, exp, 99, UserName, roles);
+                break;
+            case NONE:
+                roles.add(UserRole.NONE);
                 ret = new AuthorizedUser(DEFAULT_TOKEN, exp, 99, UserName, roles);
                 break;
         }

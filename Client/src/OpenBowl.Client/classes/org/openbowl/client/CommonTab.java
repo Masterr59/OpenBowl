@@ -16,65 +16,76 @@
  */
 package org.openbowl.client;
 
+import java.util.HashMap;
+import java.util.Map;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.geometry.Orientation;
 import javafx.scene.control.Label;
-import javafx.scene.control.Tab;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.control.Separator;
+import javafx.scene.layout.VBox;
 import org.openbowl.common.AuthorizedUser;
 import org.openbowl.common.Styles;
+import org.openbowl.common.UserRole;
 
 /**
  *
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
-public abstract class CommonTab extends Tab {
-    private final String MANAGER_PROMPT = "Manager";
+public abstract class CommonTab extends SimpleTab {
 
-    private final ObjectProperty<AuthorizedUser> User;
-    private final ObjectProperty<AuthorizedUser> Manager;
+    private Label HeaderLabel;
+    protected VBox mVBox;
+    protected Map<UserRole, Boolean> Permission;
+    protected Map<UserRole, String> PermissionStyle;
 
-    private final StringProperty BorderText;
-    protected BorderPane Border;
+    protected DatabaseConnector dbConnector;
 
-    public CommonTab() {
-        this.setClosable(false);
-        User = new SimpleObjectProperty<>(AuthorizedUser.NON_USER);
-        Manager = new SimpleObjectProperty<>(AuthorizedUser.NON_USER);
+    public CommonTab(ObjectProperty<AuthorizedUser> User, ObjectProperty<AuthorizedUser> Manager, DatabaseConnector db) {
 
-        BorderText = new SimpleStringProperty();
-        Border = new BorderPane();
+        this.getUser().bindBidirectional(User);
+        this.getManager().bindBidirectional(Manager);
 
-        Label topText = new Label();
-        topText.textProperty().bind(BorderText);
+        this.getUser().addListener((obs, oldUser, newUser) -> onUserChange(newUser));
+        this.getManager().addListener((obs, oldManager, newManager) -> onManagerChange(newManager));
 
-        Label bottomText = new Label();
-        bottomText.textProperty().bind(BorderText);
+        dbConnector = db;
+        mVBox = new VBox();
+        HeaderLabel = new Label();
+        HeaderLabel.setId(Styles.ID_H2);
 
-        Border.setTop(topText);
-        Border.setBottom(bottomText);
-        this.setContent(Border);
+        Separator s1 = new Separator();
+        s1.setOrientation(Orientation.HORIZONTAL);
+
+        mVBox.getChildren().addAll(HeaderLabel, s1);
+        Border.setCenter(mVBox);
+
+        Permission = new HashMap<>();
+        PermissionStyle = new HashMap<>();
     }
 
-    public final ObjectProperty<AuthorizedUser> getUser() {
-        return User;
+    protected void setHeaderLabel(String s) {
+        HeaderLabel.setText(s);
     }
 
-    public final ObjectProperty<AuthorizedUser> getManager() {
-        return Manager;
-    }
-
-    public void setStyleManager(boolean isManager){
-        String style = "";
-        if (isManager) {
-            BorderText.set(MANAGER_PROMPT);
-            style = Styles.ManagerBorder;
-        } else {
-            BorderText.set("");
+    protected void onUserChange(AuthorizedUser newUser) {
+        for (UserRole ur : UserRole.values()) {
+            Permission.put(ur, newUser.isAuthorized(ur));
+            PermissionStyle.put(ur, Styles.BorderNone);
         }
-        Border.setStyle(style);
-        this.setStyle(style);
+
+    }
+
+    protected void onManagerChange(AuthorizedUser newManager) {
+
+        onUserChange(this.getUser().get());
+
+        for (UserRole ur : UserRole.values()) {
+            if (!Permission.get(ur) && newManager.isAuthorized(ur)) {
+                Permission.put(ur, true);
+                PermissionStyle.put(ur, Styles.ManagerBorder);
+            }
+        }
+
     }
 }
