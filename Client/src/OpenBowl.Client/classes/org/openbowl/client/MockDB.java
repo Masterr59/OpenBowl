@@ -36,7 +36,7 @@ public class MockDB implements DatabaseConnector {
     @Override
     public AuthorizedUser login(String UserName, String Password) {
         ArrayList<UserRole> roles = new ArrayList<>();
-        AuthorizedUser ret;
+        AuthorizedUser ret = AuthorizedUser.NON_USER;
         Calendar exp = Calendar.getInstance();
         exp.add(Calendar.YEAR, 10);
         switch (UserName) {
@@ -46,22 +46,26 @@ public class MockDB implements DatabaseConnector {
                         roles.add(ur);
                     }
                 }
+                ret = new AuthorizedUser(DEFAULT_TOKEN, exp, 99, UserName, roles);
                 break;
             case MANAGER:
                 roles.add(UserRole.GENERATE_REPORTS);
                 roles.add(UserRole.TRANSACTION_ADD);
                 roles.add(UserRole.TRANSACTION_DELETE);
                 roles.add(UserRole.SCORE_MACHINE);
+                ret = new AuthorizedUser(DEFAULT_TOKEN, exp, 99, UserName, roles);
                 break;
             case DESK:
                 roles.add(UserRole.TRANSACTION_ADD);
                 roles.add(UserRole.SCORE_MACHINE);
+                ret = new AuthorizedUser(DEFAULT_TOKEN, exp, 99, UserName, roles);
                 break;
             case RESTAURANT:
                 roles.add(UserRole.TRANSACTION_ADD);
+                ret = new AuthorizedUser(DEFAULT_TOKEN, exp, 99, UserName, roles);
+                break;
         }
 
-        ret = new AuthorizedUser(DEFAULT_TOKEN, exp, 99, UserName, roles);
         return ret;
 
     }

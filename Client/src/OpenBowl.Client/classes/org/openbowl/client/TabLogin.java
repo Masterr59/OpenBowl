@@ -17,7 +17,9 @@
 package org.openbowl.client;
 
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
@@ -37,45 +39,30 @@ import org.openbowl.common.Styles;
  *
  * @author patrick
  */
-public class TabLogin extends Tab {
+public class TabLogin extends CommonTab {
 
     private final static String TAB_NAME = "Login";
-    private final String MANAGER_PROMPT = "Manager";
+
     private final String USERNAME_PROMPT = "Username";
     private final String PASSWORD_PROMPT = "Password";
     private final String BUTTON_TEXT = "Log In";
+    private final String LOGIN_ERROR_TEXT = "Invalid username and password combination";
+    private final String LOGIN_SUCCESS_TEXT = "Login Successful";
 
-    private AuthorizedUser User;
-    private AuthorizedUser Manager;
+    private final TextField UsernameBox;
+    private final PasswordField PasswordBox;
+    private final Button LoginButton;
 
-    private TextField UsernameBox;
-    private PasswordField PasswordBox;
-    private Button LoginButton;
+    private final Label errorMsg;
 
-    private Label errorMsg;
+    private final BooleanProperty ManagerLogin;
 
-    private BooleanProperty ManagerLogin;
-    private StringProperty BorderText;
-    BorderPane Border;
+    DatabaseConnector dbConnector;
 
-    public TabLogin() {
-        super(TAB_NAME);
-
-        this.setClosable(false);
-        User = AuthorizedUser.NON_USER;
-        Manager = AuthorizedUser.NON_USER;
-
-        BorderText = new SimpleStringProperty();
-        Border = new BorderPane();
-
-        Label topText = new Label();
-        topText.textProperty().bind(BorderText);
-
-        Label bottomText = new Label();
-        bottomText.textProperty().bind(BorderText);
-
-        Border.setTop(topText);
-        Border.setBottom(bottomText);
+    public TabLogin(DatabaseConnector connector) {
+        this.setText(TAB_NAME);
+        this.setClosable(true);
+        dbConnector = connector;
 
         VBox vbox = new VBox();
         vbox.setAlignment(Pos.CENTER);
@@ -99,7 +86,6 @@ public class TabLogin extends Tab {
 
         vbox.getChildren().add(hbox);
         Border.setCenter(vbox);
-        this.setContent(Border);
 
         ManagerLogin = new SimpleBooleanProperty(false);
         ManagerLogin.addListener((observable, oldValue, newValue) -> onManagerLoginChange(observable, oldValue, newValue));
@@ -108,32 +94,28 @@ public class TabLogin extends Tab {
     private void processLogin() {
         String Username = UsernameBox.getText();
         String Password = PasswordBox.getText();
-    }
 
-    public AuthorizedUser getUser() {
-        return User;
-    }
+        AuthorizedUser newUser = dbConnector.login(Username, Password);
+        if (newUser != AuthorizedUser.NON_USER) {
+            errorMsg.setText(LOGIN_SUCCESS_TEXT);
+            if (ManagerLogin.get()) {
+                this.getManager().set(newUser);
+            } else {
+                this.getUser().set(newUser);
+            }
+            this.setDisable(true);
+        } else {
+            errorMsg.setText(LOGIN_ERROR_TEXT);
 
-    public AuthorizedUser getManager() {
-        return Manager;
+        }
     }
 
     private void onManagerLoginChange(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-        String style = "";
-        if (newValue) {
-            BorderText.set(MANAGER_PROMPT);
-            style = Styles.ManagerBorder;
-        } else {
-            BorderText.set("");
-        }
-        Border.setStyle(style);
-        this.setStyle(style);
+        this.setStyleManager(newValue);
     }
 
     public BooleanProperty getManagerLogin() {
         return ManagerLogin;
     }
-    
-    
 
 }

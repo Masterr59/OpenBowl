@@ -18,11 +18,14 @@ package org.openbowl.client;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Side;
 import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TabPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
@@ -30,6 +33,7 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import org.openbowl.common.AboutOpenBowl;
+import org.openbowl.common.AuthorizedUser;
 
 /**
  *
@@ -40,10 +44,24 @@ public class MainApp extends Application {
     private final String ApplicationName = "Open Bowl - Client";
 
     private TabPane mTabPane;
-    private TabLogin mLoginTab;
+    private DatabaseConnector dbConnector;
+    private TabLogin UserLoginTab, ManagerLoginTab;
+    private TabUser UserTab;
+    private ObjectProperty<AuthorizedUser> User;
+    private ObjectProperty<AuthorizedUser> Manager;
 
     @Override
     public void start(Stage stage) throws Exception {
+        dbConnector = new MockDB();
+        ManagerLoginTab = new TabLogin(dbConnector);
+        UserLoginTab = new TabLogin(dbConnector);
+
+        User = new SimpleObjectProperty<>(AuthorizedUser.NON_USER);
+        Manager = new SimpleObjectProperty<>(AuthorizedUser.NON_USER);
+
+        User.addListener((Obs, oldU, newU) -> onUserChange(newU));
+        Manager.addListener((Obs, oldU, newU) -> onManagerChange(newU));
+
         BorderPane root = new BorderPane();
         root.setTop(buildMenuBar());
 
@@ -52,10 +70,6 @@ public class MainApp extends Application {
         mTabPane = new TabPane();
         mTabPane.setRotateGraphic(true);
         mTabPane.setSide(Side.LEFT);
-
-        mLoginTab = new TabLogin();
-
-        mTabPane.getTabs().add(mLoginTab);
 
         root.setCenter(mTabPane);
         Scene scene = new Scene(root, 500, 440);
@@ -74,7 +88,14 @@ public class MainApp extends Application {
         quitMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.Q,
                 KeyCombination.CONTROL_DOWN));
         quitMenuItem.setOnAction(actionEvent -> Platform.exit());
-        fileMenu.getItems().add(quitMenuItem);
+
+        MenuItem login = new MenuItem("Login");
+        login.setOnAction(not_used -> onLogin());
+
+        MenuItem logout = new MenuItem("Logout");
+        logout.setOnAction(not_used -> onLogout());
+
+        fileMenu.getItems().addAll(login, logout, new SeparatorMenuItem(), quitMenuItem);
 
         Menu managerMenu = new Menu("_Manager");
         MenuItem managerLogin = new MenuItem("Login");
@@ -103,10 +124,46 @@ public class MainApp extends Application {
     }
 
     private void onManagerLogin() {
-        mLoginTab.getManagerLogin().set(true);
+        synchronized (mTabPane) {
+            mTabPane.getTabs().remove(ManagerLoginTab);
+            ManagerLoginTab = new TabLogin(dbConnector);
+            ManagerLoginTab.getManagerLogin().set(true);
+            ManagerLoginTab.getManager().bindBidirectional(Manager);
+            mTabPane.getTabs().add(ManagerLoginTab);
+        }
     }
 
     private void onManagerLogout() {
-        mLoginTab.getManagerLogin().set(false);
+        Manager.set(AuthorizedUser.NON_USER);
+    }
+
+    private void onLogin() {
+        synchronized (mTabPane) {
+            mTabPane.getTabs().remove(UserLoginTab);
+            UserLoginTab = new TabLogin(dbConnector);
+            UserLoginTab.getUser().bindBidirectional(User);
+            mTabPane.getTabs().add(UserLoginTab);
+        }
+    }
+
+    private void onLogout() {
+        User.set(AuthorizedUser.NON_USER);
+    }
+
+    private void onUserChange(AuthorizedUser newU) {
+        synchronized (mTabPane) {
+            mTabPane.getTabs().remove(UserLoginTab);
+            mTabPane.getTabs().remove(UserTab);
+            if (newU != AuthorizedUser.NON_USER) {
+                UserTab = new TabUser(newU);
+                mTabPane.getTabs().add(UserTab);
+            }
+        }
+    }
+
+    private void onManagerChange(AuthorizedUser newU) {
+        synchronized (mTabPane) {
+            mTabPane.getTabs().remove(ManagerLoginTab);
+        }
     }
 }
