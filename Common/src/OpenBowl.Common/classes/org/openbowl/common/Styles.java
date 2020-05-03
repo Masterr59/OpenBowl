@@ -22,6 +22,11 @@ package org.openbowl.common;
  */
 public class Styles {
 
+    public static final String ID_H2 = "h2";
+    public static final String ID_H3 = "h3";
+    public static final String ID_SUBMIT_BUTTON = "submitBtn";
+    public static final String ID_NORMAL_BUTTON = "normalBtn";
+
     public static final String ManagerBorder = "-fx-border-color: red;\n"
             + "-fx-border-insets: 4;\n"
             + "-fx-border-width: 2;\n"

@@ -99,4 +99,8 @@ public class AuthorizedUser {
         return Username;
     }
 
+    public ArrayList<UserRole> getRoles() {
+        return Roles;
+    }
+
 }
