@@ -81,6 +81,7 @@ public class TabLogin extends CommonTab {
 
         LoginButton = new Button(BUTTON_TEXT);
         LoginButton.setOnAction(not_used -> processLogin());
+        LoginButton.setId("submitBtn");
 
         hbox.getChildren().addAll(UsernameBox, PasswordBox, LoginButton);
 

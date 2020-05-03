@@ -73,6 +73,8 @@ public class MainApp extends Application {
 
         root.setCenter(mTabPane);
         Scene scene = new Scene(root, 500, 440);
+        scene.getStylesheets().add(getClass().getResource("DarkMode.css").toExternalForm());
+        
         stage.setScene(scene);
         stage.show();
 

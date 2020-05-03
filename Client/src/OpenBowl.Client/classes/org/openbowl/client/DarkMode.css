@@ -1,0 +1,75 @@
+/*
+Copyright (C) 2020 Open Bowl <http://www.openbowlscoring.org/>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+/* 
+    Created on : May 2, 2020, 8:12:46 PM
+    Author     : Open Bowl <http://www.openbowlscoring.org/>
+*/
+
+.root{
+    -fx-font-family: "Arimo";
+    -fx-base: #3D3D3D;
+    -fx-background: #262626;
+}
+
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-opacity: 0;
+}
+
+.tab-pane .tab-header-area{
+    -fx-border-color: #232323;
+    -fx-border-width: 2;
+}
+
+.tab-pane
+{
+    -fx-tab-min-width:90px;
+    -fx-tab-min-height:90px;
+}
+
+.tab{
+    -fx-background-insets: 0 1 0 1,0,0;
+}
+
+.tab-pane .tab
+{
+    -fx-background-color: #3D3D3D;
+    -fx-border-color: #232323;
+    -fx-border-width: 2;
+    -fx-border-radius: 5;
+}
+
+.tab-pane .tab:selected
+{
+    -fx-background-color: #262626;
+}
+
+.tab .tab-label { 
+    -fx-alignment: CENTER;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-rotate: 90;
+}
+
+#submitBtn {
+    -fx-background-color: #5B8F5A;
+}
+
+#submitBtn:hover
+{
+    -fx-background-color: #71B46F;
+}
