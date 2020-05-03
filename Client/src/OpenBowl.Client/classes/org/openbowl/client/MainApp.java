@@ -157,7 +157,7 @@ public class MainApp extends Application {
             mTabPane.getTabs().remove(UserLoginTab);
             mTabPane.getTabs().remove(UserTab);
             if (newU != AuthorizedUser.NON_USER) {
-                UserTab = new TabUser(newU);
+                UserTab = new TabUser(newU, dbConnector);
                 mTabPane.getTabs().add(UserTab);
             }
         }

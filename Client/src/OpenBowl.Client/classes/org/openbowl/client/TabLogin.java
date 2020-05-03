@@ -23,10 +23,12 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.Separator;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
@@ -65,13 +67,21 @@ public class TabLogin extends CommonTab {
         dbConnector = connector;
 
         VBox vbox = new VBox();
-        vbox.setAlignment(Pos.CENTER);
+        //vbox.setAlignment(Pos.CENTER);
+        
+        Label LoginLabel= new Label(BUTTON_TEXT);
+        LoginLabel.setId(Styles.ID_H2);
+        vbox.getChildren().add(LoginLabel);
+        
+        Separator s1 = new Separator();
+        s1.setOrientation(Orientation.HORIZONTAL);
+        vbox.getChildren().add(s1);
 
         errorMsg = new Label();
         vbox.getChildren().add(errorMsg);
 
         HBox hbox = new HBox();
-        hbox.setAlignment(Pos.CENTER);
+        //hbox.setAlignment(Pos.CENTER);
 
         UsernameBox = new TextField();
         UsernameBox.setPromptText(USERNAME_PROMPT);
@@ -81,7 +91,7 @@ public class TabLogin extends CommonTab {
 
         LoginButton = new Button(BUTTON_TEXT);
         LoginButton.setOnAction(not_used -> processLogin());
-        LoginButton.setId("submitBtn");
+        LoginButton.setId(Styles.ID_SUBMIT_BUTTON);
 
         hbox.getChildren().addAll(UsernameBox, PasswordBox, LoginButton);
 

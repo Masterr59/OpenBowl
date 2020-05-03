@@ -25,4 +25,6 @@ import org.openbowl.common.AuthorizedUser;
 public interface DatabaseConnector {
     
     public AuthorizedUser login(String UserName, String Password);
+    
+    public String updateUserPassword(AuthorizedUser user, String oldPassword, String newPassword);
 }

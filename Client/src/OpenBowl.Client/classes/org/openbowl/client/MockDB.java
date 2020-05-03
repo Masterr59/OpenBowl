@@ -18,6 +18,7 @@ package org.openbowl.client;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Random;
 import org.openbowl.common.AuthorizedUser;
 import org.openbowl.common.UserRole;
 
@@ -32,6 +33,12 @@ public class MockDB implements DatabaseConnector {
     private final String DESK = "Desk";
     private final String RESTAURANT = "Restaurant";
     private final String DEFAULT_TOKEN = "yZ9Ut95MG3xdf5gc6WgT";
+
+    private final Random rand;
+
+    public MockDB() {
+        rand = new Random();
+    }
 
     @Override
     public AuthorizedUser login(String UserName, String Password) {
@@ -68,6 +75,14 @@ public class MockDB implements DatabaseConnector {
 
         return ret;
 
+    }
+
+    @Override
+    public String updateUserPassword(AuthorizedUser user, String oldPassword, String newPassword) {
+        String ret = "MockDB Connector: updating password for user %s ... random %s";
+        String status = rand.nextBoolean()? "Success" : "Failure";
+
+        return String.format(ret, user.getUsername(), status);
     }
 
 }
