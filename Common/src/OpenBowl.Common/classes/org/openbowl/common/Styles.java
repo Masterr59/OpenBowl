@@ -23,9 +23,9 @@ package org.openbowl.common;
 public class Styles {
 
     public static final String ManagerBorder = "-fx-border-color: red;\n"
-            + "-fx-border-insets: 5;\n"
-            + "-fx-border-width: 3;\n"
+            + "-fx-border-insets: 4;\n"
+            + "-fx-border-width: 2;\n"
             + "-fx-border-style: dashed;\n";
-    
+
     public static final String BorderNone = "";
 }
