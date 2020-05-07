@@ -21,6 +21,17 @@ var numOfSales = 0;
 var totalPrice = 0;
 var salesTax = 0;
 
+//adjust buttons
+roundUpBtnEnabled = false;
+roundDownBtnEnabled = false;
+voidItemBtnEnabled = false;
+deleteItemBtnEnabled = false;
+taxExemptBtnEnabled = false;
+openPriceBtnEnabled = false;
+discountsBtnEnabled = false;
+splitItemBtnEnabled = false;
+separateTabsBtnEnabled = false;
+
 class SubDepartment {
     constructor(subdptID, subdptName) {
         this.subdptID = subdptID;
@@ -300,7 +311,7 @@ function addSale(saleType, selectedProdID, clickedButton) {
 
     numOfSales++;
     
-    
+    enableAdjustBtns();
 }
 function addQuantity(clickedButton) {
     const s = "#" + $(clickedButton).attr('id');
@@ -357,6 +368,27 @@ function clearProdBtns(subID) {
         var selectedBtn = document.querySelector(s);
         selectedBtn.classList = "normalBtn";
     }
+}
+function disableAdjustBtns() {
+    document.querySelector("#roundUpBtn").classList = "purpleBtnDisabled";
+    document.querySelector("#roundDownBtn").classList = "purpleBtnDisabled";
+    document.querySelector("#voidItemBtn").classList = "purpleBtnDisabled";
+    document.querySelector("#deleteItemBtn").classList = "purpleBtnDisabled";
+    document.querySelector("#taxExemptBtn").classList = "purpleBtnDisabled";
+    document.querySelector("#openPriceBtn").classList = "purpleBtnDisabled";
+    document.querySelector("#discountsBtn").classList = "purpleBtnDisabled";
+    document.querySelector("#splitItemBtn").classList = "purpleBtnDisabled";
+    document.querySelector("#separateTabsBtn").classList = "purpleBtnDisabled";
+
+    roundUpBtnEnabled = false;
+    roundDownBtnEnabled = false;
+    voidItemBtnEnabled = false;
+    deleteItemBtnEnabled = false;
+    taxExemptBtnEnabled = false;
+    openPriceBtnEnabled = false;
+    discountsBtnEnabled = false;
+    splitItemBtnEnabled = false;
+    separateTabsBtnEnabled = false;
 }
 function displayErrorMsg(msg) {
     $("#errorMsgContainer").html("");
@@ -632,6 +664,19 @@ function displayModifiers(clickedButton, subID) {
         }
     });
 }
+function enableAdjustBtns() {
+    document.querySelector("#deleteItemBtn").classList = "purpleBtn";
+    document.querySelector("#taxExemptBtn").classList = "purpleBtn";
+    document.querySelector("#openPriceBtn").classList = "purpleBtn";
+    document.querySelector("#discountsBtn").classList = "purpleBtn";
+    document.querySelector("#separateTabsBtn").classList = "purpleBtn";
+
+    deleteItemBtnEnabled = true;
+    taxExemptBtnEnabled = true;
+    openPriceBtnEnabled = true;
+    discountsBtnEnabled = true;
+    separateTabsBtnEnabled = true;
+}
 function getLaneFormat(min, max) {
     if (min == 0 && max == 0)
     {
@@ -651,6 +696,8 @@ function init() {
     $("#laneSalesPanel").show();
     $("#laneStatusPanel").hide();
     $("#generalSalesPanel").hide();
+
+    disableAdjustBtns();
 
     var numOfSubDpts = Math.floor( Math.random() * 7) + 1;
 
@@ -944,7 +991,7 @@ function selectSale(num) {
     var selectedSaleID = num;
     selectedSale = selectedSaleID;
     selectedSaleBtn.classList = "receipt_sale_selected";
-    console.log(sales[selectedSale].hasLanes);
+    enableAdjustBtns();
 }
 function toggleLaneButtons(isLaneSelected) {
     var laneID;
