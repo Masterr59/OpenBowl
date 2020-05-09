@@ -326,6 +326,9 @@ function addQuantity(clickedButton) {
     updateSale();
     updateTotal();
 }
+function applyTaxExempt() {
+    
+}
 function changeLaneForSale()
 {
     if (sales[selectedSale].hasLanes)
