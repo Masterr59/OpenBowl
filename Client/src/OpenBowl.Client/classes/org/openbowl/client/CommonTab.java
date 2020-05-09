@@ -18,8 +18,8 @@ package org.openbowl.client;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.prefs.Preferences;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Orientation;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
@@ -40,6 +40,7 @@ public abstract class CommonTab extends SimpleTab {
     protected Map<UserRole, String> PermissionStyle;
 
     protected DatabaseConnector dbConnector;
+    protected Preferences mPrefs;
 
     public CommonTab(ObjectProperty<AuthorizedUser> User, ObjectProperty<AuthorizedUser> Manager, DatabaseConnector db) {
 
@@ -49,6 +50,8 @@ public abstract class CommonTab extends SimpleTab {
         this.getUser().addListener((obs, oldUser, newUser) -> onUserChange(newUser));
         this.getManager().addListener((obs, oldManager, newManager) -> onManagerChange(newManager));
 
+        mPrefs = Preferences.userNodeForPackage(this.getClass());
+        
         dbConnector = db;
         mVBox = new VBox();
         HeaderLabel = new Label();
@@ -87,5 +90,9 @@ public abstract class CommonTab extends SimpleTab {
             }
         }
 
+    }
+    
+    protected void onTabSelected(){
+        //hook
     }
 }

@@ -17,6 +17,7 @@
 package org.openbowl.client;
 
 import javafx.beans.property.ObjectProperty;
+import javafx.scene.web.WebView;
 import org.openbowl.common.AuthorizedUser;
 
 /**
@@ -25,13 +26,20 @@ import org.openbowl.common.AuthorizedUser;
  */
 public class TabOffice extends CommonTab {
 
+    private final String WEB_PATH = "/office.html";
+
     private final String HEADER_TEXT = "Back Office";
     private final String TAB_TEXT = "Office";
+
+    private WebView webView;
 
     public TabOffice(ObjectProperty<AuthorizedUser> User, ObjectProperty<AuthorizedUser> Manager, DatabaseConnector db) {
         super(User, Manager, db);
         this.setText(TAB_TEXT);
         this.setHeaderLabel(HEADER_TEXT);
+        webView = new WebView();
+        webView.prefHeightProperty().bind(mVBox.heightProperty());
+        mVBox.getChildren().add(webView);
     }
 
     protected void onUserChange(AuthorizedUser newUser) {
@@ -42,4 +50,10 @@ public class TabOffice extends CommonTab {
 
     }
 
+    @Override
+    protected void onTabSelected() {
+        String url = mPrefs.get(MainApp.PREFS_WEB_CLIENT_SITE, MainApp.DEFAULT_WEB_CLIENT_SITE);
+        url += WEB_PATH;
+        webView.getEngine().load(url);
+    }
 }

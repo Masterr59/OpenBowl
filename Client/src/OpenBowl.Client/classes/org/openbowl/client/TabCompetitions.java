@@ -17,6 +17,7 @@
 package org.openbowl.client;
 
 import javafx.beans.property.ObjectProperty;
+import javafx.scene.web.WebView;
 import org.openbowl.common.AuthorizedUser;
 
 /**
@@ -24,14 +25,20 @@ import org.openbowl.common.AuthorizedUser;
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
 public class TabCompetitions extends CommonTab {
+    private final String WEB_PATH = "/competitions.html";
 
     private final String HEADER_TEXT = "Competitions";
     private final String TAB_TEXT = "Comp.";
+
+    private WebView webView;
 
     public TabCompetitions(ObjectProperty<AuthorizedUser> User, ObjectProperty<AuthorizedUser> Manager, DatabaseConnector db) {
         super(User, Manager, db);
         this.setText(TAB_TEXT);
         this.setHeaderLabel(HEADER_TEXT);
+        webView = new WebView();
+        webView.prefHeightProperty().bind(mVBox.heightProperty());
+        mVBox.getChildren().add(webView);
     }
 
     protected void onUserChange(AuthorizedUser newUser) {
@@ -42,4 +49,10 @@ public class TabCompetitions extends CommonTab {
 
     }
 
+    @Override
+    protected void onTabSelected() {
+        String url = mPrefs.get(MainApp.PREFS_WEB_CLIENT_SITE, MainApp.DEFAULT_WEB_CLIENT_SITE);
+        url += WEB_PATH;
+        webView.getEngine().load(url);
+    }
 }

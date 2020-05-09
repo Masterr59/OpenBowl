@@ -16,6 +16,7 @@
  */
 package org.openbowl.client;
 
+import java.util.prefs.Preferences;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
@@ -26,6 +27,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
@@ -41,7 +43,9 @@ import org.openbowl.common.UserRole;
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
 public class MainApp extends Application {
-
+    public static final String DEFAULT_WEB_CLIENT_SITE = "http://northbowl.openbowlscoring.org";
+    public static final String PREFS_WEB_CLIENT_SITE = "WebClientSite";    
+    
     private final String ApplicationName = "Open Bowl - Client";
 
     private TabPane mTabPane;
@@ -57,6 +61,8 @@ public class MainApp extends Application {
     private TabGeneralSales SalesTab;
     private ObjectProperty<AuthorizedUser> User;
     private ObjectProperty<AuthorizedUser> Manager;
+
+    private Preferences mPrefs;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -87,6 +93,8 @@ public class MainApp extends Application {
         mTabPane.setRotateGraphic(true);
         mTabPane.setSide(Side.LEFT);
 
+        mTabPane.getSelectionModel().selectedItemProperty().addListener((obs, oTab, nTab) -> onTabChange(nTab));
+
         root.setCenter(mTabPane);
         Scene scene = new Scene(root, 500, 440);
         scene.getStylesheets().add(getClass().getResource("DarkMode.css").toExternalForm());
@@ -94,6 +102,7 @@ public class MainApp extends Application {
         stage.setScene(scene);
         stage.show();
 
+        mPrefs = Preferences.userNodeForPackage(this.getClass());
     }
 
     private MenuBar buildMenuBar() {
@@ -274,5 +283,12 @@ public class MainApp extends Application {
 
     private boolean CompTabAuthorized(AuthorizedUser u) {
         return u.isAuthorized(UserRole.GAME_ADMIN);
+    }
+
+    private void onTabChange(Tab nTab) {
+        if (nTab instanceof CommonTab) {
+            CommonTab ct = (CommonTab) nTab;
+            ct.onTabSelected();
+        }
     }
 }

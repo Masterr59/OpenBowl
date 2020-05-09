@@ -7,6 +7,8 @@
 module OpenBowl.Client {
     requires javafx.controls;
     requires OpenBowl.Common;
+    requires java.prefs;
+    requires javafx.web;
     
     exports org.openbowl.client;
 }
