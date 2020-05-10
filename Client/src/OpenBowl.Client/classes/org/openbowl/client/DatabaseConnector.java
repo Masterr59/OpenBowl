@@ -40,4 +40,6 @@ public interface DatabaseConnector {
      * @return Human readable string stating the status up the update
      */
     public String updateUserPassword(AuthorizedUser user, String oldPassword, String newPassword);
+    
+    public int getNumLanes(AuthorizedUser user);
 }

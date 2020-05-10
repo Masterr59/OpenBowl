@@ -75,12 +75,12 @@ public abstract class CommonTab extends SimpleTab {
         for (UserRole ur : UserRole.values()) {
             Permission.put(ur, newUser.isAuthorized(ur));
             PermissionStyle.put(ur, Styles.BorderNone);
+            //System.out.println(ur.toString() + " => " + newUser.isAuthorized(ur));
         }
 
     }
 
     protected void onManagerChange(AuthorizedUser newManager) {
-
         onUserChange(this.getUser().get());
 
         for (UserRole ur : UserRole.values()) {

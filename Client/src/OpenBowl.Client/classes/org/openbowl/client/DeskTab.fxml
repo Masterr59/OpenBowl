@@ -1,31 +1,83 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-
-<HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<HBox maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="500.0">
+      <VBox alignment="TOP_CENTER">
          <children>
-            <Label id="h3" alignment="CENTER" text="Lanes" />
-            <HBox prefHeight="100.0" prefWidth="200.0">
+            <Label id="h3" alignment="CENTER" maxWidth="1.7976931348623157E308" text="Lanes" />
+            <HBox alignment="TOP_RIGHT">
                <children>
-                  <FlowPane prefHeight="200.0" prefWidth="200.0" />
-                  <VBox prefHeight="200.0" prefWidth="100.0">
+                  <FlowPane fx:id="lanePane" hgap="5.0" vgap="5.0" HBox.hgrow="ALWAYS" />
+                  <VBox>
                      <children>
-                        <Button id="greenBtn" mnemonicParsing="false" text="Clear" />
-                        <Button id="normalBtn" mnemonicParsing="false" text="Get Receipt" />
-                        <Button id="normalBtn" mnemonicParsing="false" text="Other" />
+                        <Label id="laneNumText" fx:id="laneNumMin" minHeight="45.0" minWidth="68.0" text="Label">
+                           <VBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </VBox.margin>
+                        </Label>
+                        <Label id="laneNumText" fx:id="laneNumMax" minHeight="45.0" minWidth="68.0" text="Label">
+                           <VBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </VBox.margin>
+                        </Label>
+                        <Button id="greenBtn" fx:id="clearBtn" minHeight="68.0" minWidth="68.0" mnemonicParsing="false" prefWidth="68.0" text="Clear" textAlignment="CENTER">
+                           <VBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </VBox.margin></Button>
+                        <Button id="normalBtn" fx:id="getReceiptBtn" minHeight="68.0" minWidth="68.0" mnemonicParsing="false" prefWidth="68.0" text="Get Receipt" textAlignment="CENTER" wrapText="true">
+                           <VBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </VBox.margin></Button>
+                        <Button id="normalBtn" fx:id="otherBtn" minHeight="68.0" minWidth="68.0" mnemonicParsing="false" prefWidth="68.0" text="Other" textAlignment="CENTER">
+                           <VBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </VBox.margin></Button>
                      </children>
                   </VBox>
                </children>
             </HBox>
+            <HBox spacing="5.0">
+               <children>
+                  <VBox id="product_panel" prefHeight="200.0">
+                     <children>
+                        <Label id="h3" maxWidth="1.7976931348623157E308" text="Sub Departments" />
+                        <FlowPane fx:id="subDepartmentPane" prefHeight="200.0" prefWidth="200.0" />
+                     </children>
+                  </VBox>
+                  <VBox id="product_panel" prefHeight="200.0">
+                     <children>
+                        <Label id="h3" maxWidth="1.7976931348623157E308" text="Packages" />
+                        <FlowPane fx:id="packagePane" prefHeight="200.0" prefWidth="200.0" />
+                     </children>
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin>
+                  </VBox>
+                  <VBox id="product_panel" prefHeight="200.0">
+                     <children>
+                        <Label id="h3" maxWidth="1.7976931348623157E308" text="Products" />
+                        <FlowPane fx:id="productPane" prefHeight="200.0" prefWidth="200.0" />
+                     </children>
+                  </VBox>
+                  <VBox id="product_panel" prefHeight="200.0">
+                     <children>
+                        <Label id="h3" maxWidth="1.7976931348623157E308" text="Modifiers" />
+                        <FlowPane fx:id="modifierPane" prefHeight="200.0" prefWidth="200.0" />
+                     </children>
+                  </VBox>
+               </children>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+            </HBox>
          </children>
       </VBox>
-      <VBox fx:id="register" prefHeight="200.0" prefWidth="300.0" />
    </children>
 </HBox>

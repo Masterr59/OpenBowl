@@ -90,4 +90,12 @@ public class MockDB implements DatabaseConnector {
         return String.format(ret, user.getUsername(), status);
     }
 
+    @Override
+    public int getNumLanes(AuthorizedUser user) {
+        if(user.isAuthorized(UserRole.GAME_ADMIN)){
+            return 2;
+        }
+        return 0;
+    }
+
 }

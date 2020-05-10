@@ -77,8 +77,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #normalBtn #greenBtn {
     -fx-font-size: 10px;
     -fx-alignment: CENTER;
-    -fx-button-min-width:75px;
-    -fx-button-min-height:75px;
+    -fx-min-height: 75;
+    -fx-pref-height: 75;
+    -fx-min-width: 75;
+    -fx-pref-width: 75;
+    -fx-margin: 5 5 5 5;
+    -fx-padding: 5 5 5 5;
 }
 
 #normalBtn{
@@ -104,7 +108,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 }
 
 #h3{
+    -fx-max-width: 9999999999999999999999999;
+    -fx-background-color: #303030;
     -fx-alignment: CENTER;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
+}
+
+#product_panel{
+    -fx-background-color: #444444;
+}
+
+#laneNumText{
+    -fx-background-color: #333;
+    -fx-alignment: CENTER;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-margin: 5 5 5 5;
 }
