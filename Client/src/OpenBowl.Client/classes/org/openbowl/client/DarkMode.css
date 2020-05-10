@@ -74,12 +74,27 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     -fx-background-color: #71B46F;
 }
 
+#normalBtn #greenBtn {
+    -fx-font-size: 10px;
+    -fx-alignment: CENTER;
+    -fx-button-min-width:75px;
+    -fx-button-min-height:75px;
+}
+
 #normalBtn{
     -fx-background-color: #5A768F;
 }
 
 #normalBtn:hover{
     -fx-background-color: #6B8FB0;
+}
+
+#greenBtn{
+    -fx-background-color: #5B8F5A;
+}
+
+#greenBtn:hover{
+    -fx-background-color: #71B46F;
 }
 
 #h2{

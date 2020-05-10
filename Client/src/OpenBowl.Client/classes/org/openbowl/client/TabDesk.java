@@ -16,22 +16,36 @@
  */
 package org.openbowl.client;
 
+import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
 import javafx.beans.property.ObjectProperty;
 import org.openbowl.common.AuthorizedUser;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.scene.Parent;
 
 /**
  *
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
-public class TabDesk extends CommonTab {
+public class TabDesk extends CommonTab implements Initializable{
 
     private final String HEADER_TEXT = "Front Desk";
     private final String TAB_TEXT = "Desk";
+    
+    
 
-    public TabDesk(ObjectProperty<AuthorizedUser> User, ObjectProperty<AuthorizedUser> Manager, DatabaseConnector db) {
+    public TabDesk(ObjectProperty<AuthorizedUser> User, ObjectProperty<AuthorizedUser> Manager, DatabaseConnector db) throws IOException {
         super(User, Manager, db);
         this.setText(TAB_TEXT);
         this.setHeaderLabel(HEADER_TEXT);
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/openbowl/client/DeskTab.fxml"));
+        loader.setController(this);
+        Parent root = loader.load();
+        
+        mVBox.getChildren().add(root);
     }
 
     protected void onUserChange(AuthorizedUser newUser) {
@@ -40,6 +54,11 @@ public class TabDesk extends CommonTab {
 
     protected void onManagerChange(AuthorizedUser newManager) {
 
+    }
+
+    @Override
+    public void initialize(URL arg0, ResourceBundle arg1) {
+        
     }
 
 }
