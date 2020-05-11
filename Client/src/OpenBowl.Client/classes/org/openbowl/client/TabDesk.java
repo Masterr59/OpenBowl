@@ -18,10 +18,8 @@ package org.openbowl.client;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.ResourceBundle;
 import javafx.beans.property.ObjectProperty;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.openbowl.common.AuthorizedUser;
 import javafx.fxml.FXML;
@@ -32,6 +30,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
 import org.openbowl.common.UserRole;
 
 /**
@@ -75,6 +74,11 @@ public class TabDesk extends CommonTab implements Initializable {
     @FXML
     FlowPane modifierPane;
 
+    @FXML
+    HBox hbox;
+
+    Register mRegister;
+
     public TabDesk(ObjectProperty<AuthorizedUser> User, ObjectProperty<AuthorizedUser> Manager, DatabaseConnector db) throws IOException {
         super(User, Manager, db);
         this.setText(TAB_TEXT);
@@ -84,6 +88,7 @@ public class TabDesk extends CommonTab implements Initializable {
         Parent root = loader.load();
 
         mVBox.getChildren().add(root);
+        mRegister = new Register();
 
         this.lanes = lanePane.getChildren();
 
@@ -119,7 +124,14 @@ public class TabDesk extends CommonTab implements Initializable {
 
     @Override
     public void initialize(URL arg0, ResourceBundle arg1) {
-
+        if (hbox != null) {
+            try {
+                mRegister = new Register();
+            } catch (IOException ex) {
+                
+            }
+            hbox.getChildren().add(mRegister);
+        }
     }
 
 }

@@ -74,7 +74,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     -fx-background-color: #71B46F;
 }
 
-#normalBtn #greenBtn {
+#normalBtn #greenBtn #yellowBtn #purpleBtn #redBtn {
     -fx-font-size: 10px;
     -fx-alignment: CENTER;
     -fx-min-height: 75;
@@ -101,6 +101,31 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     -fx-background-color: #71B46F;
 }
 
+#yellowBtn
+{
+    -fx-background-color: #AEAB58;
+}
+#yellowBtn:hover
+{
+    -fx-background-color: #C3C062;
+}
+#purpleBtn
+{
+    -fx-background-color: #AF9ACA;
+}
+#purpleBtn:hover
+{
+    -fx-background-color: #C2ABDE;
+}
+#redBtn
+{
+    -fx-background-color: #D04848;
+}
+#redBtn:hover
+{
+    -fx-background-color: #F25656;
+}
+
 #h2{
     -fx-alignment: CENTER;
     -fx-font-size: 18px;
@@ -125,4 +150,27 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     -fx-font-size: 10px;
     -fx-font-weight: bold;
     -fx-margin: 5 5 5 5;
+}
+
+#dateTime{
+    -fx-background-color: #ffffff;
+    -fx-alignment: CENTER;
+    -fx-max-width: 9999999999999999999999999;
+    -fx-text-fill: #000000;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+}
+
+#receipt{
+    -fx-background-color: #ffffff;
+    -fx-border-color: #212121;
+    -fx-border-width: 1;
+    -fx-border-radius: 3;
+}
+
+#salesTax #saleTotal{
+    -fx-background-color: #ffffff;
+    -fx-border-color: #000000;
+    -fx-border-width: 2;
+    -fx-font-weight: bold;
 }
