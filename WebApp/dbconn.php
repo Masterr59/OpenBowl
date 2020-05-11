@@ -1,7 +1,7 @@
 <?php
-include_once "../creds/creds.php";
-include_once "../pdo_utils.php";
-include_once "../input_util.php";
+include_once "creds/creds.php";
+include_once "pdo_utils.php";
+include_once "input_util.php";
 try {
     $dbconn = new PDO("mysql:host=$host;dbname=$db",$user,$pw);
     

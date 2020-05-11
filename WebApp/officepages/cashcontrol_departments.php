@@ -5,29 +5,12 @@
         <div class="officePanelGrid" style="grid-template-columns: 150px 1fr">
             
             <div class="officePanelGridLabel" style="margin-top: 0px" id="dropdownHandler">
-
-                <?php
-                    require_once('./dbconn.php');
-                    $sth = $dbconn->prepare("SELECT * FROM department");
-                    $sth->execute();
-
-                    echo "<select name='departments' class='dropdownBox' id='departmentDropDown'>";
-                    echo '<option value="" id="default">-Select Department-</option>';
-                    if($sth->rowCount()):
-                    while($row = $sth->fetch(PDO::FETCH_ASSOC)){
-                        $cur = "dpt" . $row['depart_id'];
-                        $curName = $row['depart_name'];?>
-                        
-                        <?php echo '<option value="'.$cur.'" id="'.$cur.'">'.$curName.'</option>'; ?>
-                        <?php } ?>
-                        <?php endif; ?><?php
-                    echo "</select>";
-                ?> 
-
+                <select name='departments' class='dropdownBox' id='departmentDropDown'></select>
             </div>
+
             <div style="display: flex;">
                 <button type="submit" class="saveBtn" name="new"><i class="fa fa-file"></i></button>
-                <button type="submit" class="saveBtn" name="edit" id="edit"><i class="fa fa-save"></i></button>
+                <div class="saveBtn" id="edit"><i class="fa fa-save"></i></div>
                 <div class="saveBtn" id="undo"><i class="fa fa-undo"></i></div>
                 <div class="saveBtn" id="delete"><i class="fa fa-trash"></i></div>
             </div>
@@ -49,9 +32,21 @@
         <div class="bottomline" style="width: 100%"></div>
     </div>
 
-    <div>
-        Sub Departments associated with this Department<br/>
-        <b>Table will be here</b>
+    <div style="margin-top: 10px;">
+        <b>Sub Departments</b> associated with this Department<br/>
+        
+        <div style="margin-top: 10px;">
+            <table class="officePanelTable" style="margin-bottom: 10px;">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                    </tr>
+                </thead>
+                <tbody id="subdepartmentTable">
+                    
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -60,6 +55,7 @@
 <script>
 $(document).ready(function(){
     var dptID = 0;
+    reloadDropdown();
     $('#officeform').on('submit',function(e){
         $.ajax({
             url:'./submit.php',
@@ -70,9 +66,11 @@ $(document).ready(function(){
                 var option = document.createElement("option");
                 option.text = $("#dpt_desc").val();
                 x.add(option);
+                reloadDropdown();
+                clearForm();
             },
             error:function(data){
-                console.log("Error");
+                console.log("Error: Save failed");
             }
         });
         e.preventDefault();
@@ -86,15 +84,42 @@ $(document).ready(function(){
                 type: 'POST',
                 data: { 'depart_id' : dptID },
                 success:function(data){
-                    $("#dpt_desc").val("");
-                    $("#dpt_ident").val("");
-                    $("#excludefromsales").prop("checked", false);
+                    clearForm();
                     
                     var selectedDropDownItem = document.getElementById("departmentDropDown");
                     selectedDropDownItem.remove(selectedDropDownItem.selectedIndex);
+                    dptID = 0;
                 },
                 error:function(data){
-                    console.log("Error what the fuck");
+                    console.log("Error: Delete failed");
+                }
+            }
+            $.ajax(ajaxRequest);
+        }
+    });
+
+    $("#edit").on('click', function(){
+        if (dptID != 0)
+        {
+            var desc = $("#dpt_desc").val();
+            var ident = $("#dpt_ident").val();
+            var exclude = document.getElementById("excludefromsales").checked;
+            if (exclude)
+                exclude = 1;
+            else
+                exclude = 0;
+            
+            var ajaxRequest = {
+                url: './update.php',
+                type: 'POST',
+                data: {depart_id:dptID, depart_name:desc, depart_identifier:ident, exclude_from_sales:exclude},
+                success:function(data){
+                    console.log(data);
+                    var x = document.getElementById("dpt"+dptID);
+                    x.text = desc;
+                },
+                error:function(data){
+                    console.log(data);
                 }
             }
             $.ajax(ajaxRequest);
@@ -106,24 +131,64 @@ $(document).ready(function(){
             loadFields();
     });
 
-    $("#departmentDropDown option").on('click', function(){
-        const s = "#" + $(this).attr('id');
-        if (s != "#default")
-        {
-            var matches = s.match(/(\d+)/);
-            dptID = parseInt(matches[0]);
-
-            loadFields();
-        }
-
-    });
-
-    function loadFields()
+    function clearForm()
     {
+        $("#dpt_desc").val("");
+        $("#dpt_ident").val("");
+        $("#excludefromsales").prop("checked", false);
+    }
+
+    function reloadDropdown()
+    {
+        const sql = 'SELECT * FROM department';
         var ajaxRequest = {
             url: './retrieve.php',
             type: 'POST',
-            data: { 'depart_id' : dptID },
+            data: { 'id' : dptID, 'table' : "department", 'key' : "depart_id", 'sql' : sql },
+            dataType: 'json',
+            success:function(JSONObject){
+                $("#departmentDropDown").html("<option value='' id='default' onclick=''>-Select Department-</option>");
+                var x = document.getElementById("departmentDropDown");
+                for (var i = 0; i < JSONObject.length; i++)
+                {
+                    var cur = "dpt"+JSONObject[0]["depart_id"];
+                    
+                    var option = document.createElement("option");
+                    option.text = JSONObject[i]["depart_name"];
+                    option.id = "dpt" + JSONObject[i]["depart_id"];
+                    x.add(option);
+                    $("#departmentDropDown option").click(function(){
+                        const s = "#" + $(this).attr('id');
+                        if (s != "#default")
+                        {
+                            var matches = s.match(/(\d+)/);
+                            dptID = parseInt(matches[0]);
+
+                            loadFields();
+                        }
+                        else
+                        {
+                            dptID = 0;
+                            clearForm();
+                        }
+
+                    });
+                }
+            },
+            error:function(JSONObject){
+                console.log("Error: Reload Dropdown failed");
+            }
+        }
+        $.ajax(ajaxRequest);
+    }
+
+    function loadFields()
+    {
+        const sql = 'SELECT * FROM department WHERE depart_id = ' + dptID;
+        var ajaxRequest = {
+            url: './retrieve.php',
+            type: 'POST',
+            data: { 'id' : dptID, 'table' : "department", 'key' : "depart_id", 'sql' : sql },
             dataType: 'json',
             success:function(JSONObject){
                 $("#dpt_desc").val(JSONObject[0]["depart_name"]);
@@ -132,9 +197,33 @@ $(document).ready(function(){
                     $("#excludefromsales").prop("checked", true);
                 else
                     $("#excludefromsales").prop("checked", false);
+                getSubDepartments();
             },
             error:function(JSONObject){
-                console.log("Error what the fuck");
+                console.log(JSONObject);
+                console.log("Error: Load failed");
+            }
+        }
+        $.ajax(ajaxRequest);
+    }
+
+    function getSubDepartments()
+    {
+        const sql = 'SELECT * FROM sub_department WHERE depart_id = ' + dptID;
+        var ajaxRequest = {
+            url: './retrieve.php',
+            type: 'POST',
+            data: { 'id' : dptID, 'table' : "sub_department", 'key' : "depart_id", 'sql' : sql},
+            dataType: 'json',
+            success:function(JSONObject){
+                $("#subdepartmentTable").html("");
+                for(var i = 0; i < JSONObject.length; i++)
+                {
+                    $("#subdepartmentTable").append("<tr><td>" + JSONObject[i]["sub_depart_name"] +"</td></tr>");
+                }
+            },
+            error:function(JSONObject){
+                console.log("Error: Load failed");
             }
         }
         $.ajax(ajaxRequest);
