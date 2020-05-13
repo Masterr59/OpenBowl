@@ -9,7 +9,7 @@
             </div>
 
             <div style="display: flex;">
-                <button type="submit" class="saveBtn" name="new"><i class="fa fa-file"></i></button>
+                <div class="saveBtn" id="new"><i class="fa fa-file"></i></div>
                 <div class="saveBtn" id="edit"><i class="fa fa-save"></i></div>
                 <div class="saveBtn" id="undo"><i class="fa fa-undo"></i></div>
                 <div class="saveBtn" id="delete"><i class="fa fa-trash"></i></div>
@@ -56,24 +56,32 @@
 $(document).ready(function(){
     var dptID = 0;
     reloadDropdown();
-    $('#officeform').on('submit',function(e){
-        $.ajax({
-            url:'./submit.php',
-            data:$(this).serialize(),
-            type:'POST',
+    $('#new').on('click', function(){
+        const desc = $("#dpt_desc").val();
+        const ident = $("#dpt_ident").val();
+        var exclude = document.getElementById("excludefromsales").checked;
+        if (exclude)
+                exclude = 1;
+            else
+                exclude = 0;
+        const createdby = 4;
+        const table = "department";
+
+        var ajaxRequest = {
+            url: './submit.php',
+            type: 'POST',
+            data: {table:table, depart_name:desc, created_by:createdby, depart_identifier:ident, exclude_from_sales:exclude},
             success:function(data){
-                var x = document.getElementById("departmentDropDown");
-                var option = document.createElement("option");
-                option.text = $("#dpt_desc").val();
-                x.add(option);
+                console.log(data);
                 reloadDropdown();
-                clearForm();
+                displayMsg("A new record was successfully added into " + table, 2);
             },
             error:function(data){
-                console.log("Error: Save failed");
+                console.log(data);
+                displayMsg("An error occurred when adding a record into " + table, 1);
             }
-        });
-        e.preventDefault();
+        }
+        $.ajax(ajaxRequest);
     });
 
     $("#delete").on('click', function(){
@@ -89,9 +97,11 @@ $(document).ready(function(){
                     var selectedDropDownItem = document.getElementById("departmentDropDown");
                     selectedDropDownItem.remove(selectedDropDownItem.selectedIndex);
                     dptID = 0;
+                    displayMsg("Successfully deleted the selected record.", 2);
                 },
                 error:function(data){
                     console.log("Error: Delete failed");
+                    displayMsg("An error occurred when deleting the selected record.", 1);
                 }
             }
             $.ajax(ajaxRequest);
@@ -117,9 +127,11 @@ $(document).ready(function(){
                     console.log(data);
                     var x = document.getElementById("dpt"+dptID);
                     x.text = desc;
+                    displayMsg("Successfully updated the details for " + desc + ".", 2);
                 },
                 error:function(data){
                     console.log(data);
+                    displayMsg("An error occurred when updating the details for " + desc + ".", 1);
                 }
             }
             $.ajax(ajaxRequest);
@@ -227,6 +239,20 @@ $(document).ready(function(){
             }
         }
         $.ajax(ajaxRequest);
+    }
+
+    function displayMsg(msg, type) {
+        switch (type)
+        {
+        case 1:
+            $("#errorMsgContainer").html("");
+            $("#errorMsgContainer").append("<div class=\"errorMsg\"><i class=\"fa fa-exclamation-circle\"></i>&nbsp;" + msg + "</div>");
+            break;
+        case 2:
+            $("#errorMsgContainer").html("");
+            $("#errorMsgContainer").append("<div class=\"successMsg\"><i class=\"fa fa-check-circle\"></i>&nbsp;" + msg + "</div>");
+            break;
+        }
     }
 });
 </script>

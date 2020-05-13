@@ -910,7 +910,7 @@ tr:nth-child(even){background-color: #555}
   box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.25);
 }
 
-.errorMsg
+.errorMsg, .successMsg
 {
   position: fixed;
   top: 5px;
@@ -931,10 +931,16 @@ tr:nth-child(even){background-color: #555}
   opacity: 0;
   animation: fade 5s linear;
 }
+.successMsg
+{
+  background-color: #1d5420;
+  border: 3px solid #216124;
+}
 @keyframes fade {
   0%,100% { opacity: 0 }
   5%,95% { opacity: 1 }
 }
+
 
 .buttonTxtShort { display: none; }
 .buttonTxtFull { display: inline-block; text-align: center;}
