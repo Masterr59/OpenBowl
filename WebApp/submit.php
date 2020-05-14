@@ -44,20 +44,12 @@ try {
     }
 
     $sql="INSERT INTO ".$table." (".$fields.") VALUES (".$values.")";
-    echo $sql."\n";
 
     $db = new PDO("mysql:host=$host;dbname=$db",$user,$pw);
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
     $stmt = $db->prepare($sql);
-
-    if ($stmt->execute($fieldArray))
-    {
-        echo "You successfully inserted a new record into ".$table;
-    }
-    else {
-        echo "An error occured when insert a new record into ".$table;
-    }
+    $stmt->execute($fieldArray);
 }
 catch (PDOException $e) {
     print 'Error!: '.$e->getMessage().'<br/>';

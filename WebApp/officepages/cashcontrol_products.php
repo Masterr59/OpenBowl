@@ -9,10 +9,10 @@
                 <option value="test3">test product 3</option>
             </select>
         </div>
-        <div>
-            <button type="submit" class="saveBtn"><i class="fa fa-file"></i></button>
-            <button type="submit" class="saveBtn"><i class="fa fa-save"></i></button>
-            <button type="submit" class="saveBtn"><i class="fa fa-trash"></i></button>
+        <div style="display: flex;">
+            <div class="saveBtn" id="new"><i class="fa fa-file"></i></div>
+            <div class="saveBtn" id="edit"><i class="fa fa-save"></i></div>
+            <div class="saveBtn" id="delete"><i class="fa fa-trash"></i></div>
         </div>
         <div></div>
         <div>

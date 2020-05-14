@@ -3,9 +3,9 @@
 <div>
     <div class="officePanelGrid">
         <div></div>
-        <div>
-            <button type="submit" class="saveBtn"><i class="fa fa-save"></i></button>
-            <button type="submit" class="saveBtn"><i class="fa fa-undo"></i></button>
+        <div style="display: flex;">
+            <div class="saveBtn" id="edit"><i class="fa fa-save"></i></div>
+            <div class="saveBtn" id="undo"><i class="fa fa-undo"></i></div>
         </div>
         <div class="officePanelGridLabel">Name of the Center</div>
         <div><input type="text" class="inputBox"></div>

@@ -1,23 +1,40 @@
 <?php
 
-$parameters = array(
-                    ':depart_id' => $_POST['depart_id'],
-                    ':depart_name' => $_POST['depart_name'],
-                    ':depart_identifier' => $_POST['depart_identifier'],
-                    ':exclude_from_sales' => $_POST['exclude_from_sales']
-                    );
+    include_once "./creds/creds.php";
+    include_once "./pdo_utils.php";
+    include_once "./input_util.php";
 
-$sql = "UPDATE department SET depart_name = :depart_name, depart_identifier = :depart_identifier, exclude_from_sales = :exclude_from_sales WHERE depart_id = :depart_id";
+    $fieldArray = array();
+    $valueArray = array();
 
-include_once "./creds/creds.php";
-include_once "./pdo_utils.php";
-include_once "./input_util.php";
+    $result = "";
 
-try
-{
+    $table = $_POST['table'];
+    $key = $_POST['key'];
+    $id = $_POST['id'];
+
+try {
+
+    foreach($_POST as $keyx=>$value)
+    {
+        if ($keyx != "table" && $keyx != "key" && $keyx != "id")
+        {
+            array_push($fieldArray, $keyx);
+            array_push($valueArray, $value);
+        }
+    }
+    for ($i = 0; $i < count($fieldArray); $i++)
+    {
+        $result .= $fieldArray[$i]." = '".$valueArray[$i]."'";
+        if (count($fieldArray) - $i > 1)
+        {
+            $result .= ",";
+        }
+    }
+    $sql = "UPDATE department SET ".$result." WHERE ".$key." = ".$id;
     $dbconn = new PDO("mysql:host=$host;dbname=$db",$user,$pw);
     $stmt = $dbconn->prepare($sql);
-    if($stmt->execute($parameters)){
+    if($stmt->execute($fieldArray)){
         echo "Record updated successfully";
     }
     else{

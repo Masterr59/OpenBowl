@@ -3,8 +3,8 @@
 <div>
     <div class="officePanelGrid" style="grid-template-columns: 50px 1fr">
         <div></div>
-        <div>
-            <button type="submit" class="saveBtn"><i class="fa fa-save"></i></button>
+        <div style="display: flex;">
+            <div class="saveBtn" id="edit"><i class="fa fa-save"></i></div>
         </div>
         <div></div>
         <div>

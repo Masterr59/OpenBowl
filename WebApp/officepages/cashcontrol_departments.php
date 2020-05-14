@@ -14,7 +14,7 @@
                 <div class="saveBtn" id="undo"><i class="fa fa-undo"></i></div>
                 <div class="saveBtn" id="delete"><i class="fa fa-trash"></i></div>
             </div>
-            <div class="officePanelGridLabel">Department Description</div>
+            <div class="officePanelGridLabel">*Department Description</div>
             <div><input type="text" class="inputBox" name="dpt_desc" id="dpt_desc"></div>
             <div class="officePanelGridLabel">Department Identifier</div>
             <div><input type="text" class="inputBox" name="dpt_ident" id="dpt_ident"></div>
@@ -55,33 +55,40 @@
 <script>
 $(document).ready(function(){
     var dptID = 0;
+    const table = "department";
     reloadDropdown();
     $('#new').on('click', function(){
-        const desc = $("#dpt_desc").val();
-        const ident = $("#dpt_ident").val();
-        var exclude = document.getElementById("excludefromsales").checked;
-        if (exclude)
-                exclude = 1;
-            else
-                exclude = 0;
-        const createdby = 4;
-        const table = "department";
+        if (checkValidData())
+        {
+            const desc = $("#dpt_desc").val();
+            const ident = $("#dpt_ident").val();
+            var exclude = document.getElementById("excludefromsales").checked;
+            if (exclude)
+                    exclude = 1;
+                else
+                    exclude = 0;
+            const createdby = 4;
 
-        var ajaxRequest = {
-            url: './submit.php',
-            type: 'POST',
-            data: {table:table, depart_name:desc, created_by:createdby, depart_identifier:ident, exclude_from_sales:exclude},
-            success:function(data){
-                console.log(data);
-                reloadDropdown();
-                displayMsg("A new record was successfully added into " + table, 2);
-            },
-            error:function(data){
-                console.log(data);
-                displayMsg("An error occurred when adding a record into " + table, 1);
+            var ajaxRequest = {
+                url: './submit.php',
+                type: 'POST',
+                data: {table:table, depart_name:desc, created_by:createdby, depart_identifier:ident, exclude_from_sales:exclude},
+                success:function(data){
+                    reloadDropdown();
+                    dptID = 0;
+                    clearForm();
+                    displayMsg("A new record was successfully added into " + table, 2);
+                },
+                error:function(data){
+                    displayMsg("An error occurred when adding a record into " + table, 1);
+                }
             }
+            $.ajax(ajaxRequest);
         }
-        $.ajax(ajaxRequest);
+        else
+        {
+            displayMsg("Error: Required fields cannot be blank.",1);
+        }
     });
 
     $("#delete").on('click', function(){
@@ -90,17 +97,15 @@ $(document).ready(function(){
             var ajaxRequest = {
                 url: './delete.php',
                 type: 'POST',
-                data: { 'depart_id' : dptID },
+                data: { 'id' : dptID, 'table' : table, 'key' : "depart_id"},
                 success:function(data){
                     clearForm();
-                    
+                    displayMsg("Successfully deleted the selected record.", 2);
                     var selectedDropDownItem = document.getElementById("departmentDropDown");
                     selectedDropDownItem.remove(selectedDropDownItem.selectedIndex);
                     dptID = 0;
-                    displayMsg("Successfully deleted the selected record.", 2);
                 },
                 error:function(data){
-                    console.log("Error: Delete failed");
                     displayMsg("An error occurred when deleting the selected record.", 1);
                 }
             }
@@ -111,30 +116,31 @@ $(document).ready(function(){
     $("#edit").on('click', function(){
         if (dptID != 0)
         {
-            var desc = $("#dpt_desc").val();
-            var ident = $("#dpt_ident").val();
-            var exclude = document.getElementById("excludefromsales").checked;
-            if (exclude)
-                exclude = 1;
-            else
-                exclude = 0;
-            
-            var ajaxRequest = {
-                url: './update.php',
-                type: 'POST',
-                data: {depart_id:dptID, depart_name:desc, depart_identifier:ident, exclude_from_sales:exclude},
-                success:function(data){
-                    console.log(data);
-                    var x = document.getElementById("dpt"+dptID);
-                    x.text = desc;
-                    displayMsg("Successfully updated the details for " + desc + ".", 2);
-                },
-                error:function(data){
-                    console.log(data);
-                    displayMsg("An error occurred when updating the details for " + desc + ".", 1);
+            if (checkValidData())
+            {
+                var desc = $("#dpt_desc").val();
+                var ident = $("#dpt_ident").val();
+                var exclude = document.getElementById("excludefromsales").checked;
+                if (exclude)
+                    exclude = 1;
+                else
+                    exclude = 0;
+                
+                var ajaxRequest = {
+                    url: './update.php',
+                    type: 'POST',
+                    data: { 'id' : dptID, 'table' : table, 'key' : "depart_id", depart_name:desc, depart_identifier:ident, exclude_from_sales:exclude},
+                    success:function(data){
+                        var x = document.getElementById("dpt"+dptID);
+                        x.text = desc;
+                        displayMsg("Successfully updated the details for " + desc + ".", 2);
+                    },
+                    error:function(data){
+                        displayMsg("An error occurred when updating the details for " + desc + ".", 1);
+                    }
                 }
+                $.ajax(ajaxRequest);
             }
-            $.ajax(ajaxRequest);
         }
     });
 
@@ -156,7 +162,7 @@ $(document).ready(function(){
         var ajaxRequest = {
             url: './retrieve.php',
             type: 'POST',
-            data: { 'id' : dptID, 'table' : "department", 'key' : "depart_id", 'sql' : sql },
+            data: { 'id' : dptID, 'table' : table, 'key' : "depart_id", 'sql' : sql },
             dataType: 'json',
             success:function(JSONObject){
                 $("#departmentDropDown").html("<option value='' id='default' onclick=''>-Select Department-</option>");
@@ -188,7 +194,7 @@ $(document).ready(function(){
                 }
             },
             error:function(JSONObject){
-                console.log("Error: Reload Dropdown failed");
+                displayMsg("Error: Reload Dropdown failed", 1);
             }
         }
         $.ajax(ajaxRequest);
@@ -200,7 +206,7 @@ $(document).ready(function(){
         var ajaxRequest = {
             url: './retrieve.php',
             type: 'POST',
-            data: { 'id' : dptID, 'table' : "department", 'key' : "depart_id", 'sql' : sql },
+            data: { 'id' : dptID, 'table' : table, 'key' : "depart_id", 'sql' : sql },
             dataType: 'json',
             success:function(JSONObject){
                 $("#dpt_desc").val(JSONObject[0]["depart_name"]);
@@ -212,8 +218,7 @@ $(document).ready(function(){
                 getSubDepartments();
             },
             error:function(JSONObject){
-                console.log(JSONObject);
-                console.log("Error: Load failed");
+                displayMsg("Error: Load failed", 1);
             }
         }
         $.ajax(ajaxRequest);
@@ -235,10 +240,23 @@ $(document).ready(function(){
                 }
             },
             error:function(JSONObject){
-                console.log("Error: Load failed");
+                displayMsg("Error: Load failed", 1);
             }
         }
         $.ajax(ajaxRequest);
+    }
+
+    function checkValidData()
+    {
+        const data = $("#dpt_desc").val();
+        if (data == "")
+        {
+            return 0;
+        }
+        else
+        {
+            return 1;
+        }
     }
 
     function displayMsg(msg, type) {

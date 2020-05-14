@@ -7,8 +7,6 @@ $sql = $_POST['sql'];
 
 $resultset = array();
 
-//$sql = 'SELECT * FROM '.$table.' WHERE '.$key.'='.$id.'';
-
 include_once "./creds/creds.php";
 include_once "./pdo_utils.php";
 include_once "./input_util.php";

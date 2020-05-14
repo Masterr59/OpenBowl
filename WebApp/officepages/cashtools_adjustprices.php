@@ -55,5 +55,7 @@
     </div>
 
     <div></div>
-    <div><button type="submit" class="saveBtn"><i class="fa fa-save"></i></button></div>
+    <div style="display: flex;">
+        <div class="saveBtn" id="edit"><i class="fa fa-save"></i></div>
+    </div>
 </div>
