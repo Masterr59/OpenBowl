@@ -17,10 +17,20 @@
 package org.openbowl.client;
 
 import java.util.prefs.Preferences;
+import javafx.beans.Observable;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.event.EventHandler;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.ContextMenuEvent;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseDragEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 
 /**
  *
@@ -28,16 +38,28 @@ import javafx.scene.paint.Color;
  */
 public class LaneDisplay extends Region {
 
+    private final Paint BACKGROUND_STD = Color.BLACK;
+    private final Paint BACKGROUND_HOVER = Color.web("#222222");
+    private final Paint BACKGROUND_SELECTED_STD = Color.web("#00aac4");
+    private final Paint BACKGROUND_SELECTED_HOVER = Color.web("#04c3e0");
+
     private Canvas mCanvas;
     private String laneName;
     private Preferences prefs;
+    private Paint backgroundColor;
+    private BooleanProperty selectedProperty;
 
     public LaneDisplay(String laneName) {
         this.laneName = laneName;
         this.mCanvas = new Canvas();
         getChildren().add(mCanvas);
+        backgroundColor = Color.BLACK;
+        selectedProperty = new SimpleBooleanProperty(false);
         draw();
-        
+        this.hoverProperty().addListener((obs, ob, nb) -> onHoverChange(nb));
+        this.setOnMouseClicked(mouseEvent -> onClicked(mouseEvent));
+        this.setOnContextMenuRequested(value -> onContextMenuRequest(value));
+
     }
 
     @Override
@@ -59,14 +81,42 @@ public class LaneDisplay extends Region {
         gc.save();
         gc.clearRect(0, 0, mCanvas.getWidth(), mCanvas.getHeight());
 
-        gc.setFill(Color.BLACK);
-        
+        gc.setFill(backgroundColor);
+
         gc.fillRect(0, 0, mCanvas.getWidth(), mCanvas.getHeight());
-        
+
         gc.restore();
     }
 
-    public void update(){
+    public void update() {
         draw();
     }
+
+    private void onHoverChange(Boolean nb) {
+        if (nb) {
+            backgroundColor = selectedProperty.get() ? BACKGROUND_SELECTED_HOVER : BACKGROUND_HOVER;
+        } else {
+            backgroundColor = selectedProperty.get() ? BACKGROUND_SELECTED_STD : BACKGROUND_STD;
+        }
+        draw();
+    }
+
+    private void onClicked(MouseEvent mouseEvent) {
+        if (mouseEvent.getButton() == MouseButton.PRIMARY) {
+            mouseEvent.consume();
+            System.out.println("Clicked");
+            selectedProperty.set(!selectedProperty.get());
+            draw();
+        }
+    }
+
+    private void onContextMenuRequest(ContextMenuEvent value) {
+        value.consume();
+        System.out.println("rightClicked");
+    }
+
+    public BooleanProperty selectedProperty() {
+        return selectedProperty;
+    }
+
 }

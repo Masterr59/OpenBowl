@@ -56,7 +56,7 @@ public class Register extends Pane implements Initializable {
     Label dateTime;
 
     @FXML
-    TreeView reciept;
+    TreeView recieptView;
 
     @FXML
     Label salesTax;
@@ -138,7 +138,9 @@ public class Register extends Pane implements Initializable {
         numDot.setOnAction(notUsed -> onNumPadType(NumPadKeys.KEY_DOT));
         eraseBtn.setOnAction(notUsed -> onNumPadType(NumPadKeys.KEY_BACKSPACE));
 
-        //dateTime.textProperty().bind(Bindings.format("%f", numPadProperty));
+        dateTime.textProperty().bind(Bindings.format("%f", numPadProperty));
+        
+        cancelBtn.setOnAction(notUsed -> clearRegister());
     }
 
     @Override
@@ -197,4 +199,9 @@ public class Register extends Pane implements Initializable {
         }
     }
 
+    public void clearRegister(){
+        numPadProperty.set(0.0);
+        numPadStringValue = "";
+        //recieptView.getRoot().getChildren().clear();
+    }
 }

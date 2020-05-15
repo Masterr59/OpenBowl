@@ -14,7 +14,7 @@
    <children>
       <Label id="dateTime" fx:id="dateTime" text="now" textAlignment="CENTER" />
       <Separator prefWidth="200.0" />
-      <TreeView id="receipt" maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
+      <TreeView id="receipt" fx:id="recieptView" maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
       <Separator prefWidth="200.0" />
       <Label id="salesTax" fx:id="salesTax" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="\$0.08" />
       <Label id="salesTotal" fx:id="salesTotal" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="\$0.00" />
