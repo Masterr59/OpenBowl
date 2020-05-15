@@ -7,14 +7,14 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<HBox fx:id="hbox" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<HBox fx:id="hbox" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="468.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <VBox alignment="TOP_CENTER">
+      <VBox alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
          <children>
             <Label id="h3" alignment="CENTER" maxWidth="1.7976931348623157E308" text="Lanes" />
-            <HBox alignment="TOP_RIGHT">
+            <HBox alignment="TOP_RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="400.0" VBox.vgrow="ALWAYS">
                <children>
-                  <FlowPane fx:id="lanePane" hgap="5.0" vgap="5.0" HBox.hgrow="ALWAYS" />
+                  <FlowPane fx:id="lanePane" hgap="5.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="400.0" vgap="5.0" HBox.hgrow="SOMETIMES" />
                   <VBox>
                      <children>
                         <Label id="laneNumText" fx:id="laneNumMin" minHeight="45.0" minWidth="68.0" text="Label">
@@ -43,33 +43,33 @@
                   </VBox>
                </children>
             </HBox>
-            <HBox spacing="5.0">
+            <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="400.0" prefWidth="600.0" spacing="5.0" VBox.vgrow="ALWAYS">
                <children>
-                  <VBox id="product_panel" prefHeight="200.0">
+                  <VBox id="product_panel" minWidth="100.0" prefHeight="200.0" prefWidth="150.0" HBox.hgrow="ALWAYS">
                      <children>
-                        <Label id="h3" maxWidth="1.7976931348623157E308" text="Sub Departments" />
-                        <FlowPane fx:id="subDepartmentPane" prefHeight="200.0" prefWidth="200.0" />
+                        <Label id="h3" maxWidth="1.7976931348623157E308" minWidth="100.0" text="Sub Departments" />
+                        <FlowPane fx:id="subDepartmentPane" minWidth="100.0" prefHeight="200.0" prefWidth="150.0" />
                      </children>
                   </VBox>
-                  <VBox id="product_panel" prefHeight="200.0">
+                  <VBox id="product_panel" minWidth="100.0" prefHeight="200.0" prefWidth="150.0" HBox.hgrow="ALWAYS">
                      <children>
-                        <Label id="h3" maxWidth="1.7976931348623157E308" text="Packages" />
-                        <FlowPane fx:id="packagePane" prefHeight="200.0" prefWidth="200.0" />
+                        <Label id="h3" maxWidth="1.7976931348623157E308" minWidth="100.0" text="Packages" />
+                        <FlowPane fx:id="packagePane" minWidth="100.0" prefHeight="200.0" prefWidth="150.0" />
                      </children>
                      <HBox.margin>
                         <Insets />
                      </HBox.margin>
                   </VBox>
-                  <VBox id="product_panel" prefHeight="200.0">
+                  <VBox id="product_panel" minWidth="100.0" prefHeight="200.0" prefWidth="150.0" HBox.hgrow="ALWAYS">
                      <children>
-                        <Label id="h3" maxWidth="1.7976931348623157E308" text="Products" />
-                        <FlowPane fx:id="productPane" prefHeight="200.0" prefWidth="200.0" />
+                        <Label id="h3" maxWidth="1.7976931348623157E308" minWidth="100.0" text="Products" />
+                        <FlowPane fx:id="productPane" minWidth="100.0" prefHeight="200.0" prefWidth="150.0" />
                      </children>
                   </VBox>
-                  <VBox id="product_panel" prefHeight="200.0">
+                  <VBox id="product_panel" minWidth="100.0" prefHeight="200.0" prefWidth="150.0" HBox.hgrow="ALWAYS">
                      <children>
-                        <Label id="h3" maxWidth="1.7976931348623157E308" text="Modifiers" />
-                        <FlowPane fx:id="modifierPane" prefHeight="200.0" prefWidth="200.0" />
+                        <Label id="h3" maxWidth="1.7976931348623157E308" minWidth="100.0" text="Modifiers" />
+                        <FlowPane fx:id="modifierPane" minWidth="100.0" prefHeight="200.0" prefWidth="150.0" />
                      </children>
                   </VBox>
                </children>
