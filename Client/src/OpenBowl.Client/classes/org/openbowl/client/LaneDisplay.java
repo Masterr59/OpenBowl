@@ -17,16 +17,12 @@
 package org.openbowl.client;
 
 import java.util.prefs.Preferences;
-import javafx.beans.Observable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.event.EventHandler;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.ContextMenuEvent;
-import javafx.scene.input.DragEvent;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
@@ -55,6 +51,7 @@ public class LaneDisplay extends Region {
         getChildren().add(mCanvas);
         backgroundColor = Color.BLACK;
         selectedProperty = new SimpleBooleanProperty(false);
+        selectedProperty.addListener(notUsed -> draw());
         draw();
         this.hoverProperty().addListener((obs, ob, nb) -> onHoverChange(nb));
         this.setOnMouseClicked(mouseEvent -> onClicked(mouseEvent));
@@ -106,7 +103,6 @@ public class LaneDisplay extends Region {
             mouseEvent.consume();
             System.out.println("Clicked");
             selectedProperty.set(!selectedProperty.get());
-            draw();
         }
     }
 
