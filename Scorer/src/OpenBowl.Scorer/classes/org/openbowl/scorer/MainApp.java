@@ -24,6 +24,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -39,6 +41,7 @@ import org.openbowl.common.BowlingGame;
 import org.openbowl.common.WebFunctions;
 import org.openbowl.scorer.remote.GameHandler;
 import org.openbowl.scorer.remote.LaneHandler;
+import org.openbowl.scorer.remote.ScorerSystemHandler;
 
 /**
  *
@@ -55,6 +58,7 @@ public class MainApp extends Application {
     private BowlingSession currentSession;
     private Thread oddSessionManager, evenSessionManager;
     private GameHandler oddGameHandler, evenGameHandler;
+    private ScorerSystemHandler systemHandler;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -126,12 +130,17 @@ public class MainApp extends Application {
         remoteControl.createContext("/game/odd/", oddGameHandler);
         remoteControl.createContext("/game/even/", evenGameHandler);
 
-        remoteControl.start();
+        SessionManager oddManager = new SessionManager(oddSessionQueue, oddGameHandler);
+        SessionManager evenManager = new SessionManager(evenSessionQueue, oddGameHandler);
 
-        oddSessionManager = new Thread(new SessionManager(oddSessionQueue, oddGameHandler));
+        systemHandler = new ScorerSystemHandler(this, oddManager.GameRunningProperty(), evenManager.GameRunningProperty());
+
+        oddSessionManager = new Thread(oddManager);
         oddSessionManager.start();
-        evenSessionManager = new Thread(new SessionManager(evenSessionQueue, oddGameHandler));
+        evenSessionManager = new Thread(evenManager);
         evenSessionManager.start();
+
+        remoteControl.start();
 
         Scene scene = new Scene(root, 500, 440);
         stage.setScene(scene);
@@ -218,7 +227,7 @@ public class MainApp extends Application {
         System.out.println(p.countPins());
     }
 
-    private void onQuit() {
+    public void onQuit() {
         oddLane.shutdown();
         evenLane.shutdown();
         if (RaspberryPiDetect.isPi()) {
@@ -260,10 +269,12 @@ public class MainApp extends Application {
         private Thread sessionThread;
         private BlockingQueue<BowlingSession> queue;
         private GameHandler gameHandler;
+        private BooleanProperty gameRunningProperty;
 
         public SessionManager(BlockingQueue<BowlingSession> q, GameHandler g) {
             this.queue = q;
             this.gameHandler = g;
+            gameRunningProperty = new SimpleBooleanProperty();
         }
 
         @Override
@@ -275,12 +286,14 @@ public class MainApp extends Application {
 
                     System.out.println("Start new Session");
                     currentSession = queue.take();
+                    gameRunningProperty.set(true);
                     gameHandler.setCurrentSession(currentSession);
                     sessionThread = new Thread(currentSession);
                     sessionThread.start();
 
                     sessionThread.join();
                     currentSession = null;
+                    gameRunningProperty.set(false);
                     gameHandler.clearCurrentSession();
 
                 } catch (InterruptedException ex) {
@@ -295,5 +308,8 @@ public class MainApp extends Application {
 
         }
 
+        public BooleanProperty GameRunningProperty() {
+            return gameRunningProperty;
+        }
     }
 }
