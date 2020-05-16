@@ -29,7 +29,9 @@ public enum SystemStatus {
     UNDERVOLT,
     OVERHEAT,
     CRASH_DETECTED,
-    GAME_RUNNING,
-    IDLE,
+    ODD_GAME_RUNNING,
+    ODD_GAME_IDLE,
+    EVEN_GAME_RUNNING,
+    EVEN_GAME_IDLE,
 
 }
