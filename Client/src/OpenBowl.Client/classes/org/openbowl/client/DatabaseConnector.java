@@ -16,22 +16,25 @@
  */
 package org.openbowl.client;
 
+import java.util.ArrayList;
 import org.openbowl.common.AuthorizedUser;
+import org.openbowl.common.SystemStatus;
 
 /**
  *
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
 public interface DatabaseConnector {
-    
+
     /**
      *
      * @param UserName
      * @param Password
-     * @return An AuthorizedUser object if login was successful otherwise AuthorizedUser.NON_USER
+     * @return An AuthorizedUser object if login was successful otherwise
+     * AuthorizedUser.NON_USER
      */
     public AuthorizedUser login(String UserName, String Password);
-    
+
     /**
      *
      * @param user
@@ -40,6 +43,10 @@ public interface DatabaseConnector {
      * @return Human readable string stating the status up the update
      */
     public String updateUserPassword(AuthorizedUser user, String oldPassword, String newPassword);
-    
+
     public int getNumLanes(AuthorizedUser user);
+
+    public boolean isLaneOnline(int lane);
+    
+    public ArrayList<SystemStatus> getLaneStatus(int lane);
 }

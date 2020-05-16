@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Random;
 import org.openbowl.common.AuthorizedUser;
+import org.openbowl.common.SystemStatus;
 import org.openbowl.common.UserRole;
 
 /**
@@ -93,9 +94,21 @@ public class MockDB implements DatabaseConnector {
     @Override
     public int getNumLanes(AuthorizedUser user) {
         if(user.isAuthorized(UserRole.GAME_ADMIN)){
-            return 2;
+            return 4;
         }
         return 0;
+    }
+
+    @Override
+    public boolean isLaneOnline(int lane) {
+        return lane < 2;
+    }
+
+    @Override
+    public ArrayList<SystemStatus> getLaneStatus(int lane) {
+        ArrayList<SystemStatus> status = new ArrayList<>();
+        
+        return status;
     }
 
 }
