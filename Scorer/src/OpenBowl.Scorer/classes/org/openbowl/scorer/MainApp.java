@@ -135,6 +135,8 @@ public class MainApp extends Application {
 
         systemHandler = new ScorerSystemHandler(this, oddManager.GameRunningProperty(), evenManager.GameRunningProperty());
 
+        remoteControl.createContext("/system/", systemHandler);
+
         oddSessionManager = new Thread(oddManager);
         oddSessionManager.start();
         evenSessionManager = new Thread(evenManager);
