@@ -29,6 +29,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -36,6 +37,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import org.openbowl.common.AboutOpenBowl;
 import org.openbowl.common.AuthorizedUser;
+import org.openbowl.common.CommonImages;
 import org.openbowl.common.UserRole;
 
 /**
@@ -103,6 +105,8 @@ public class MainApp extends Application {
         stage.show();
 
         mPrefs = Preferences.userNodeForPackage(this.getClass());
+        CommonImages cImage = new CommonImages();
+        stage.getIcons().add(cImage.appIcon());
     }
 
     private MenuBar buildMenuBar() {

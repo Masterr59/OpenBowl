@@ -120,6 +120,8 @@ public class MockDB implements DatabaseConnector {
             } catch (IOException | InterruptedException ex) {
                 return false;
             }
+        } else if (lane == 2) {
+            return true;
         } else {
             return false;
         }
@@ -128,18 +130,29 @@ public class MockDB implements DatabaseConnector {
     @Override
     public ArrayList<SystemStatus> getLaneStatus(int lane) {
         ArrayList<SystemStatus> status = new ArrayList<>();
-        try {
-            String Response = WebFunctions.doHttpGetRequest("127.0.0.1", GET_LANE_STATUS_PATH, DEFAULT_TOKEN);
-            Map<String, ArrayList<SystemStatus>> statusJSON = gson.fromJson(Response, Map.class);
-            if (statusJSON.containsKey("status")) {
-                ArrayList<SystemStatus> laneStatus = statusJSON.get("status");
-                return laneStatus;
-            }
+        if (lane < 2) {
+            try {
+                String Response = WebFunctions.doHttpGetRequest("127.0.0.1", GET_LANE_STATUS_PATH, DEFAULT_TOKEN);
+                Map<String, ArrayList<SystemStatus>> statusJSON = gson.fromJson(Response, Map.class);
+                if (statusJSON.containsKey("status")) {
+                    ArrayList<SystemStatus> laneStatus = statusJSON.get("status");
+                    return laneStatus;
+                }
 
-        } catch (IOException | InterruptedException ex) {
-            System.out.println("Error getting lane status - " + ex.toString());
+            } catch (IOException | InterruptedException ex) {
+                System.out.println("Error getting lane status - " + ex.toString());
+            }
+        } else if (lane == 2) {
+            status.add(SystemStatus.ONLINE);
+            status.add(SystemStatus.CRASH_DETECTED);
+            status.add(SystemStatus.ERROR);
+            status.add(SystemStatus.OVERHEAT);
+            status.add(SystemStatus.REBOOT_REQUIRED);
+            status.add(SystemStatus.UNDERVOLT);
+            status.add(SystemStatus.UPDATE_AVAILABLE);
+        } else {
+            status.add(SystemStatus.OFFLINE);
         }
-        status.add(SystemStatus.OFFLINE);
         return status;
     }
 
