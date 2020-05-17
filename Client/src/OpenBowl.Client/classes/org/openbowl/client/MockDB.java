@@ -16,12 +16,16 @@
  */
 package org.openbowl.client;
 
+import com.google.gson.Gson;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Map;
 import java.util.Random;
 import org.openbowl.common.AuthorizedUser;
 import org.openbowl.common.SystemStatus;
 import org.openbowl.common.UserRole;
+import org.openbowl.common.WebFunctions;
 
 /**
  *
@@ -35,11 +39,14 @@ public class MockDB implements DatabaseConnector {
     private final String RESTAURANT = "Restaurant";
     private final String NONE = "None";
     private final String DEFAULT_TOKEN = "yZ9Ut95MG3xdf5gc6WgT";
+    private final String GET_LANE_STATUS_PATH = "system/get=?status";
 
     private final Random rand;
+    private final Gson gson;
 
     public MockDB() {
         rand = new Random();
+        gson = new Gson();
     }
 
     @Override
@@ -86,14 +93,14 @@ public class MockDB implements DatabaseConnector {
     @Override
     public String updateUserPassword(AuthorizedUser user, String oldPassword, String newPassword) {
         String ret = "MockDB Connector: updating password for user %s ... random %s";
-        String status = rand.nextBoolean()? "Success" : "Failure";
+        String status = rand.nextBoolean() ? "Success" : "Failure";
 
         return String.format(ret, user.getUsername(), status);
     }
 
     @Override
     public int getNumLanes(AuthorizedUser user) {
-        if(user.isAuthorized(UserRole.GAME_ADMIN)){
+        if (user.isAuthorized(UserRole.GAME_ADMIN)) {
             return 4;
         }
         return 0;
@@ -101,13 +108,37 @@ public class MockDB implements DatabaseConnector {
 
     @Override
     public boolean isLaneOnline(int lane) {
-        return lane < 2;
+        if (lane < 2) {
+            try {
+                String Response = WebFunctions.doHttpGetRequest("127.0.0.1", GET_LANE_STATUS_PATH, DEFAULT_TOKEN);
+                Map<String, ArrayList<SystemStatus>> status = gson.fromJson(Response, Map.class);
+                if (status.containsKey("status")) {
+                    ArrayList<SystemStatus> laneStatus = status.get("status");
+                    return laneStatus.contains(SystemStatus.ONLINE);
+                }
+                return false;
+            } catch (IOException | InterruptedException ex) {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 
     @Override
     public ArrayList<SystemStatus> getLaneStatus(int lane) {
         ArrayList<SystemStatus> status = new ArrayList<>();
-        
+        try {
+            String Response = WebFunctions.doHttpGetRequest("127.0.0.1", GET_LANE_STATUS_PATH, DEFAULT_TOKEN);
+            Map<String, ArrayList<SystemStatus>> statusJSON = gson.fromJson(Response, Map.class);
+            if (statusJSON.containsKey("status")) {
+                ArrayList<SystemStatus> laneStatus = statusJSON.get("status");
+                return laneStatus;
+            }
+
+        } catch (IOException | InterruptedException ex) {
+            System.out.println("Error getting lane status - " + ex.toString());
+        }
         return status;
     }
 

@@ -10,6 +10,7 @@ module OpenBowl.Client {
     requires java.prefs;
     requires javafx.web;
     requires javafx.fxml;
+    requires gson;
     
     opens org.openbowl.client to javafx.fxml;
     exports org.openbowl.client;
