@@ -141,6 +141,10 @@ $(document).ready(function(){
                 }
                 $.ajax(ajaxRequest);
             }
+            else
+            {
+                displayMsg("Error: Required fields cannot be blank.",1);
+            }
         }
     });
 

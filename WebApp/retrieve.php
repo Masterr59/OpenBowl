@@ -14,7 +14,7 @@ include_once "./input_util.php";
 try{
     $dbconn = new PDO("mysql:host=$host;dbname=$db",$user,$pw);
     $stmt = $dbconn->prepare($sql);
-    $stmt->bindParam(':depart_id', $id);
+    $stmt->bindParam($key, $id);
     $stmt->execute();
 
     while($row = $stmt->fetch(PDO::FETCH_ASSOC))

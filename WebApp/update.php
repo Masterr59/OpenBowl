@@ -31,14 +31,16 @@ try {
             $result .= ",";
         }
     }
-    $sql = "UPDATE department SET ".$result." WHERE ".$key." = ".$id;
+    $sql = "UPDATE ".$table." SET ".$result." WHERE ".$key." = ".$id;
     $dbconn = new PDO("mysql:host=$host;dbname=$db",$user,$pw);
     $stmt = $dbconn->prepare($sql);
     if($stmt->execute($fieldArray)){
-        echo "Record updated successfully";
+        echo "Record updated successfully"."\n";
+        echo $sql;
     }
     else{
         echo "Record update failed";
+        echo $sql;
     }
 }
 catch(PDOException $e)

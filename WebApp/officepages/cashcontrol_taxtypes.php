@@ -15,8 +15,6 @@
             <div class="saveBtn" id="undo"><i class="fa fa-undo"></i></div>
             <div class="saveBtn" id="delete"><i class="fa fa-trash"></i></div>
         </div>
-        <div class="officePanelGridLabel">Tax Number</div>
-        <div id="taxnumber">0</div>
         <div class="officePanelGridLabel">Tax Description</div>
         <div><input type="text" class="inputBox"></div>
         <div class="officePanelGridLabel">Sub-Department</div>
