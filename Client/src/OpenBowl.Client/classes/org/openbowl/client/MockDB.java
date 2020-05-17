@@ -19,6 +19,7 @@ package org.openbowl.client;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Map;
 import java.util.Random;
@@ -39,7 +40,7 @@ public class MockDB implements DatabaseConnector {
     private final String RESTAURANT = "Restaurant";
     private final String NONE = "None";
     private final String DEFAULT_TOKEN = "yZ9Ut95MG3xdf5gc6WgT";
-    private final String GET_LANE_STATUS_PATH = "system/get=?status";
+    private final String GET_LANE_STATUS_PATH = "system/?get=status";
 
     private final Random rand;
     private final Gson gson;
@@ -109,17 +110,29 @@ public class MockDB implements DatabaseConnector {
     @Override
     public boolean isLaneOnline(int lane) {
         if (lane < 2) {
+            String Response = "";
             try {
-                String Response = WebFunctions.doHttpGetRequest("127.0.0.1", GET_LANE_STATUS_PATH, DEFAULT_TOKEN);
-                Map<String, ArrayList<SystemStatus>> status = gson.fromJson(Response, Map.class);
+                Response = WebFunctions.doHttpGetRequest("127.0.0.1", GET_LANE_STATUS_PATH, DEFAULT_TOKEN);
+                Map<String, ArrayList<String>> status = gson.fromJson(Response, Map.class);
                 if (status.containsKey("status")) {
-                    ArrayList<SystemStatus> laneStatus = status.get("status");
+                    ArrayList<SystemStatus> laneStatus = new ArrayList<>();
+                    for (String s : status.get("status")) {
+                        laneStatus.add(SystemStatus.valueOf(s));
+                    }
+
                     return laneStatus.contains(SystemStatus.ONLINE);
                 }
                 return false;
             } catch (IOException | InterruptedException ex) {
+                System.out.println("Error isLaneOnline - " + ex.toString());
+                System.out.println(Response);
+                return false;
+            } catch (IllegalStateException ex) {
+                System.out.println("Error isLaneOnline - " + ex.toString());
+                System.out.println(Response);
                 return false;
             }
+
         } else if (lane == 2) {
             return true;
         } else {
@@ -133,9 +146,13 @@ public class MockDB implements DatabaseConnector {
         if (lane < 2) {
             try {
                 String Response = WebFunctions.doHttpGetRequest("127.0.0.1", GET_LANE_STATUS_PATH, DEFAULT_TOKEN);
-                Map<String, ArrayList<SystemStatus>> statusJSON = gson.fromJson(Response, Map.class);
-                if (statusJSON.containsKey("status")) {
-                    ArrayList<SystemStatus> laneStatus = statusJSON.get("status");
+                Map<String, ArrayList<String>> statusMap = gson.fromJson(Response, Map.class);
+                if (statusMap.containsKey("status")) {
+
+                    ArrayList<SystemStatus> laneStatus = new ArrayList<>();
+                    for (String s : statusMap.get("status")) {
+                        laneStatus.add(SystemStatus.valueOf(s));
+                    }
                     return laneStatus;
                 }
 

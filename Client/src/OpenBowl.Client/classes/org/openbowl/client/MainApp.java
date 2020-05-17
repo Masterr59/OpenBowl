@@ -118,7 +118,7 @@ public class MainApp extends Application {
         MenuItem quitMenuItem = new MenuItem("_Quit");
         quitMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.Q,
                 KeyCombination.CONTROL_DOWN));
-        quitMenuItem.setOnAction(actionEvent -> Platform.exit());
+        quitMenuItem.setOnAction(actionEvent -> onQuit());
 
         MenuItem login = new MenuItem("Login");
         login.setOnAction(not_used -> onLogin());
@@ -294,5 +294,11 @@ public class MainApp extends Application {
             CommonTab ct = (CommonTab) nTab;
             ct.onTabSelected();
         }
+    }
+
+    private void onQuit() {
+        DeskTab.stopTimers();
+        DeskTab.killTimers();
+        Platform.exit();
     }
 }

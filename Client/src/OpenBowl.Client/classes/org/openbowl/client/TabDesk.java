@@ -18,7 +18,9 @@ package org.openbowl.client;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
+import java.util.Timer;
 import javafx.beans.property.ObjectProperty;
 import javafx.collections.ObservableList;
 import org.openbowl.common.AuthorizedUser;
@@ -41,6 +43,9 @@ public class TabDesk extends CommonTab implements Initializable {
 
     private final String HEADER_TEXT = "Front Desk";
     private final String TAB_TEXT = "Desk";
+    private final long DEFAULT_PULL_PERIOD = 300000l;    // 5 minutes
+    private final long INITIAL_DELAY = 10000l;           // 10 seconds
+    public static final String PREFS_PULL_PERIOD = "Lane_Pull_Period";
 
     private ObservableList<Node> lanes;
 
@@ -78,6 +83,9 @@ public class TabDesk extends CommonTab implements Initializable {
     HBox hbox;
 
     Register mRegister;
+    private ArrayList<LaneDisplay> laneDisplays;
+    private ArrayList<LaneCheckTask> laneCheckers;
+    private Timer timer;
 
     public TabDesk(ObjectProperty<AuthorizedUser> User, ObjectProperty<AuthorizedUser> Manager, DatabaseConnector db) throws IOException {
         super(User, Manager, db);
@@ -90,7 +98,11 @@ public class TabDesk extends CommonTab implements Initializable {
         mVBox.getChildren().add(root);
         mRegister = new Register();
 
+        laneDisplays = new ArrayList<>();
+        laneCheckers = new ArrayList<>();
+
         this.lanes = lanePane.getChildren();
+        timer = new Timer();
 
     }
 
@@ -101,6 +113,8 @@ public class TabDesk extends CommonTab implements Initializable {
             loadLanes(newUser);
         } else {
             this.lanes.clear();
+            this.laneCheckers.clear();
+            this.laneDisplays.clear();
         }
     }
 
@@ -110,15 +124,32 @@ public class TabDesk extends CommonTab implements Initializable {
             loadLanes(newManager);
         } else {
             this.lanes.clear();
+            this.laneCheckers.clear();
+            this.laneDisplays.clear();
         }
     }
 
     private void loadLanes(AuthorizedUser u) {
+        stopTimers();
+        long period = mPrefs.getLong(PREFS_PULL_PERIOD, DEFAULT_PULL_PERIOD);
         for (int i = 0; i < dbConnector.getNumLanes(u); i++) {
             LaneDisplay lane = new LaneDisplay(String.format("Lane %d", i));
             String style = PermissionStyle.get(UserRole.GAME_ADMIN);
             lane.setStyle(style);
+
+            LaneCheckTask checkTask = new LaneCheckTask(dbConnector, i);
+            lane.CrashProperty().bind(checkTask.CrashProperty());
+            lane.GameStatusProperty().bind(checkTask.GameStatusProperty());
+            lane.HeatProperty().bind(checkTask.HeatProperty());
+            lane.OnlineProperty().bind(checkTask.OnlineProperty());
+            lane.RebootProperty().bind(checkTask.RebootProperty());
+            lane.UpdateProperty().bind(checkTask.UpdateProperty());
+            lane.VoltProperty().bind(checkTask.VoltProperty());
+
             lanes.add(lane);
+            this.laneDisplays.add(lane);
+            this.laneCheckers.add(checkTask);
+            timer.schedule(checkTask, INITIAL_DELAY * i, period);
         }
     }
 
@@ -128,10 +159,25 @@ public class TabDesk extends CommonTab implements Initializable {
             try {
                 mRegister = new Register();
             } catch (IOException ex) {
-                
+
             }
             hbox.getChildren().add(mRegister);
         }
     }
 
+    public void stopTimers() {
+        for (LaneCheckTask task : this.laneCheckers) {
+            task.cancel();
+        }
+        timer.purge();
+    }
+    
+    public void killTimers(){
+        for (LaneCheckTask task : this.laneCheckers) {
+            task.cancel();
+        }
+        this.laneCheckers.clear();
+        timer.cancel();
+        timer = null;
+    }
 }
