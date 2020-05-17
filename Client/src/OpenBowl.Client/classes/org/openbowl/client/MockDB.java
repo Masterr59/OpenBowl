@@ -139,6 +139,7 @@ public class MockDB implements DatabaseConnector {
         } catch (IOException | InterruptedException ex) {
             System.out.println("Error getting lane status - " + ex.toString());
         }
+        status.add(SystemStatus.OFFLINE);
         return status;
     }
 

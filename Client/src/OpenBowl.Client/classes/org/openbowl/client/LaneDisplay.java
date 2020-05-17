@@ -45,12 +45,27 @@ public class LaneDisplay extends Region {
     private Paint backgroundColor;
     private BooleanProperty selectedProperty;
 
+    private BooleanProperty onlineProperty;
+    private BooleanProperty updateProperty;
+    private BooleanProperty heatProperty;
+    private BooleanProperty voltProperty;
+    private BooleanProperty rebootProperty;
+    private BooleanProperty crashProperty;
+    private BooleanProperty gameStatusProperty;
+
     public LaneDisplay(String laneName) {
         this.laneName = laneName;
         this.mCanvas = new Canvas();
         getChildren().add(mCanvas);
         backgroundColor = Color.BLACK;
-        selectedProperty = new SimpleBooleanProperty(false);
+        this.selectedProperty = new SimpleBooleanProperty(false);
+        this.onlineProperty = new SimpleBooleanProperty(false);
+        this.updateProperty = new SimpleBooleanProperty(false);
+        this.heatProperty = new SimpleBooleanProperty(false);
+        this.voltProperty = new SimpleBooleanProperty(false);
+        this.rebootProperty = new SimpleBooleanProperty(false);
+        this.crashProperty = new SimpleBooleanProperty(false);
+        this.gameStatusProperty = new SimpleBooleanProperty(false);
         selectedProperty.addListener(notUsed -> draw());
         draw();
         this.hoverProperty().addListener((obs, ob, nb) -> onHoverChange(nb));
@@ -113,6 +128,34 @@ public class LaneDisplay extends Region {
 
     public BooleanProperty selectedProperty() {
         return selectedProperty;
+    }
+
+    public BooleanProperty OnlineProperty() {
+        return onlineProperty;
+    }
+
+    public BooleanProperty UpdateProperty() {
+        return updateProperty;
+    }
+
+    public BooleanProperty HeatProperty() {
+        return heatProperty;
+    }
+
+    public BooleanProperty VoltProperty() {
+        return voltProperty;
+    }
+
+    public BooleanProperty RebootProperty() {
+        return rebootProperty;
+    }
+
+    public BooleanProperty CrashProperty() {
+        return crashProperty;
+    }
+
+    public BooleanProperty GameStatusProperty() {
+        return gameStatusProperty;
     }
 
 }
