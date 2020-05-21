@@ -21,7 +21,11 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.Timer;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import org.openbowl.common.AuthorizedUser;
 import javafx.fxml.FXML;
@@ -31,6 +35,8 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import org.openbowl.common.UserRole;
@@ -46,8 +52,6 @@ public class TabDesk extends CommonTab implements Initializable {
     private final long DEFAULT_PULL_PERIOD = 300000l;    // 5 minutes
     private final long INITIAL_DELAY = 10000l;           // 10 seconds
     public static final String PREFS_PULL_PERIOD = "Lane_Pull_Period";
-
-    private ObservableList<Node> lanes;
 
     @FXML
     Button clearBtn;
@@ -85,6 +89,8 @@ public class TabDesk extends CommonTab implements Initializable {
     Register mRegister;
     private ArrayList<LaneDisplay> laneDisplays;
     private ArrayList<LaneCheckTask> laneCheckers;
+    private ObservableList<Node> lanes;
+    private IntegerProperty minSelected, maxSelected;
     private Timer timer;
 
     public TabDesk(ObjectProperty<AuthorizedUser> User, ObjectProperty<AuthorizedUser> Manager, DatabaseConnector db) throws IOException {
@@ -103,18 +109,24 @@ public class TabDesk extends CommonTab implements Initializable {
 
         this.lanes = lanePane.getChildren();
         timer = new Timer();
+        minSelected = new SimpleIntegerProperty(-1);
+        maxSelected = new SimpleIntegerProperty(-1);
+
+        minSelected.addListener(notUsed -> updateLaneSelected());
+        maxSelected.addListener(notUsed -> updateLaneSelected());
+        updateLaneSelected();
+        clearBtn.setOnAction(notUsed -> onClearBtn());
 
     }
 
     @Override
     protected void onUserChange(AuthorizedUser newUser) {
         super.onUserChange(newUser);
+        this.lanes.clear();
+        this.laneCheckers.clear();
+        this.laneDisplays.clear();
         if (Permission.get(UserRole.GAME_ADMIN)) {
             loadLanes(newUser);
-        } else {
-            this.lanes.clear();
-            this.laneCheckers.clear();
-            this.laneDisplays.clear();
         }
     }
 
@@ -133,7 +145,7 @@ public class TabDesk extends CommonTab implements Initializable {
         stopTimers();
         long period = mPrefs.getLong(PREFS_PULL_PERIOD, DEFAULT_PULL_PERIOD);
         for (int i = 0; i < dbConnector.getNumLanes(u); i++) {
-            LaneDisplay lane = new LaneDisplay(String.format("Lane %d", i));
+            LaneDisplay lane = new LaneDisplay(String.format("Lane %d", i + 1));
             String style = PermissionStyle.get(UserRole.GAME_ADMIN);
             lane.setStyle(style);
 
@@ -150,6 +162,9 @@ public class TabDesk extends CommonTab implements Initializable {
             this.laneDisplays.add(lane);
             this.laneCheckers.add(checkTask);
             timer.schedule(checkTask, INITIAL_DELAY * i, period);
+            int finalInt = i;
+            lane.setOnMouseClicked(mouseEvent -> onLaneClicked(mouseEvent, finalInt));
+            //lane.selectedProperty().addListener((obs, ob, nb) -> onLaneClicked(finalInt, nb));
         }
     }
 
@@ -171,13 +186,66 @@ public class TabDesk extends CommonTab implements Initializable {
         }
         timer.purge();
     }
-    
-    public void killTimers(){
+
+    public void killTimers() {
         for (LaneCheckTask task : this.laneCheckers) {
             task.cancel();
         }
         this.laneCheckers.clear();
         timer.cancel();
         timer = null;
+    }
+
+    private void onLaneClicked(MouseEvent mouseEvent, int laneID) {
+        if (mouseEvent.getButton() == MouseButton.PRIMARY) {
+            int oldMin;
+            oldMin = minSelected.get();
+            boolean select = laneDisplays.get(laneID).selectedProperty().get();
+            boolean online = laneDisplays.get(laneID).OnlineProperty().get();
+            if (online) {
+                System.out.println(laneID + " Clicked!");
+                if (!select) {
+                    if (oldMin < 0) {//no prev selected
+                        minSelected.set(laneID);
+                    } else {
+                        if (oldMin > laneID) {
+                            maxSelected.set(oldMin);
+                            minSelected.set(laneID);
+                        } else if (oldMin < laneID) {
+                            maxSelected.setValue(laneID);
+                        }
+                    }
+                } else { //deselect
+                    minSelected.set(laneID);
+                    maxSelected.set(-1);
+                }
+            }
+        }
+    }
+
+    private void updateLaneSelected() {
+        laneNumMin.setText("");
+        laneNumMax.setText("");
+        int min = minSelected.get();
+        int max = maxSelected.get();
+        if (min >= 0) {
+            laneNumMin.setText(laneDisplays.get(min).getLaneName());
+        }
+        if (max >= 0) {
+            laneNumMax.setText(laneDisplays.get(max).getLaneName());
+        }
+        for (int i = 0; i < laneDisplays.size(); i++) {
+            boolean selected = (i >= min && i <= max) || i == min;
+            boolean online = laneDisplays.get(i).OnlineProperty().get();
+            if (online) {
+                laneDisplays.get(i).selectedProperty().set(selected);
+            }
+        }
+
+    }
+
+    private void onClearBtn() {
+        minSelected.set(-1);
+        maxSelected.set(-1);
     }
 }

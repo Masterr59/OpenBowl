@@ -89,8 +89,7 @@ public class LaneDisplay extends Region {
         commonImage = new CommonImages();
 
         draw();
-        this.hoverProperty().addListener((obs, ob, nb) -> onHoverChange(nb));
-        this.setOnMouseClicked(mouseEvent -> onClicked(mouseEvent));
+        //this.hoverProperty().addListener((obs, ob, nb) -> onHoverChange(nb));
         this.setOnContextMenuRequested(value -> onContextMenuRequest(value));
 
     }
@@ -109,6 +108,8 @@ public class LaneDisplay extends Region {
     }
 
     private void draw() {
+        //System.out.println(laneName + " draw");
+        setBackgroundColor();
         GraphicsContext gc = mCanvas.getGraphicsContext2D();
         gc.save();
         double width = mCanvas.getWidth();
@@ -177,21 +178,13 @@ public class LaneDisplay extends Region {
         draw();
     }
 
-    private void onHoverChange(Boolean nb) {
-        if (nb) {
+    private void setBackgroundColor() {
+        if (this.hoverProperty() != null && this.hoverProperty().get()) {
             backgroundColor = selectedProperty.get() ? BACKGROUND_SELECTED_HOVER : BACKGROUND_HOVER;
         } else {
             backgroundColor = selectedProperty.get() ? BACKGROUND_SELECTED_STD : BACKGROUND_STD;
         }
-        draw();
-    }
-
-    private void onClicked(MouseEvent mouseEvent) {
-        if (mouseEvent.getButton() == MouseButton.PRIMARY && onlineProperty.get()) {
-            mouseEvent.consume();
-            System.out.println("Clicked");
-            selectedProperty.set(!selectedProperty.get());
-        }
+        //draw();
     }
 
     private void onContextMenuRequest(ContextMenuEvent value) {
@@ -229,6 +222,10 @@ public class LaneDisplay extends Region {
 
     public BooleanProperty GameStatusProperty() {
         return gameStatusProperty;
+    }
+
+    public String getLaneName() {
+        return laneName;
     }
 
 }
