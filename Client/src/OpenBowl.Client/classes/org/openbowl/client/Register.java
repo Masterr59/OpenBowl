@@ -19,6 +19,7 @@ package org.openbowl.client;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.Timer;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -113,7 +114,11 @@ public class Register extends Pane implements Initializable {
     Button payNowbtn;
 
     private DoubleProperty numPadProperty;
+    private DoubleProperty taxProperty;
+    private DoubleProperty totalSaleProperty;
     private String numPadStringValue;
+    private Timer timer;
+    private ClockUpdateTask clockTask;
 
     public Register() throws IOException {
 
@@ -124,6 +129,9 @@ public class Register extends Pane implements Initializable {
         getChildren().add(root);
         numPadStringValue = "";
         numPadProperty = new SimpleDoubleProperty(0.0);
+
+        taxProperty = new SimpleDoubleProperty(0.0);
+        totalSaleProperty = new SimpleDoubleProperty(0.0);
 
         num0.setOnAction(notUsed -> onNumPadType(NumPadKeys.KEY_0));
         num1.setOnAction(notUsed -> onNumPadType(NumPadKeys.KEY_1));
@@ -138,9 +146,16 @@ public class Register extends Pane implements Initializable {
         numDot.setOnAction(notUsed -> onNumPadType(NumPadKeys.KEY_DOT));
         eraseBtn.setOnAction(notUsed -> onNumPadType(NumPadKeys.KEY_BACKSPACE));
 
-        dateTime.textProperty().bind(Bindings.format("%f", numPadProperty));
-        
+        salesTax.textProperty().bind(Bindings.format("$%04.2f", taxProperty));
+        salesTotal.textProperty().bind(Bindings.format("$%04.2f", totalSaleProperty));
+
         cancelBtn.setOnAction(notUsed -> clearRegister());
+
+        timer = new Timer();
+        clockTask = new ClockUpdateTask();
+        dateTime.textProperty().bind(clockTask.DateLabelProperty());
+        timer.scheduleAtFixedRate(clockTask, 1000, 1000);
+
     }
 
     @Override
@@ -199,9 +214,18 @@ public class Register extends Pane implements Initializable {
         }
     }
 
-    public void clearRegister(){
+    public void clearRegister() {
         numPadProperty.set(0.0);
         numPadStringValue = "";
         //recieptView.getRoot().getChildren().clear();
+    }
+
+    public void killTasks() {
+        System.out.println("killing clock");
+        clockTask.cancel();
+        clockTask = null;
+        timer.cancel();
+        timer.purge();
+        timer = null;
     }
 }

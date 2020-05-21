@@ -194,6 +194,7 @@ public class TabDesk extends CommonTab implements Initializable {
         this.laneCheckers.clear();
         timer.cancel();
         timer = null;
+        mRegister.killTasks();
     }
 
     private void onLaneClicked(MouseEvent mouseEvent, int laneID) {
