@@ -29,8 +29,10 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.Pane;
+import org.openbowl.common.Styles;
 
 /**
  *
@@ -156,6 +158,10 @@ public class Register extends Pane implements Initializable {
         dateTime.textProperty().bind(clockTask.DateLabelProperty());
         timer.scheduleAtFixedRate(clockTask, 1000, 1000);
 
+        specialBtn.setOnAction(not_used -> onSpecialBtn());
+        this.recieptView.setRoot(new TreeItem<ProductUseage>());
+        this.recieptView.getRoot().expandedProperty().set(true);
+
     }
 
     @Override
@@ -227,5 +233,10 @@ public class Register extends Pane implements Initializable {
         timer.cancel();
         timer.purge();
         timer = null;
+    }
+    
+    private void onSpecialBtn() {
+        ProductUseage newUseage = new ProductUseage(Product.TEST_PRODUCT, 1,1);
+        this.recieptView.getRoot().getChildren().add(newUseage);
     }
 }
