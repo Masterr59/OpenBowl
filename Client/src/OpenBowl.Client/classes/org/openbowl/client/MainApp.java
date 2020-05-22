@@ -16,6 +16,7 @@
  */
 package org.openbowl.client;
 
+import java.util.Timer;
 import java.util.prefs.Preferences;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -38,6 +39,7 @@ import javafx.stage.Stage;
 import org.openbowl.common.AboutOpenBowl;
 import org.openbowl.common.AuthorizedUser;
 import org.openbowl.common.CommonImages;
+import org.openbowl.common.ExitTask;
 import org.openbowl.common.UserRole;
 
 /**
@@ -300,5 +302,7 @@ public class MainApp extends Application {
         DeskTab.stopTimers();
         DeskTab.killTimers();
         Platform.exit();
+        Timer timer = new Timer();
+        timer.schedule(new ExitTask(0), ExitTask.DEFAULT_EXIT_TIME);
     }
 }
