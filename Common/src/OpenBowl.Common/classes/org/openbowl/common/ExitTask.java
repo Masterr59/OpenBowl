@@ -24,6 +24,8 @@ import java.util.TimerTask;
  */
 public class ExitTask extends TimerTask {
 
+    public static final long DEFAULT_EXIT_TIME = 10000l;
+
     private int code;
 
     public ExitTask(int code) {
