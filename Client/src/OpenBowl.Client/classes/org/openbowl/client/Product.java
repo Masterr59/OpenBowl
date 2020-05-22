@@ -51,4 +51,10 @@ public class Product {
         return Tax_Type;
     }
 
+    public double getProduct_Price() {
+        return Product_Price;
+    }
+    
+    
+
 }

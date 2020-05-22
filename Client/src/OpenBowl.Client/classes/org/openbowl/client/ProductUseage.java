@@ -16,8 +16,9 @@
  */
 package org.openbowl.client;
 
-import javafx.beans.binding.Bindings;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -32,16 +33,26 @@ public class ProductUseage extends TreeItem {
     private int Transaction_ID;
     private Product Product_ID;
     private IntegerProperty QTY;
+    private DoubleProperty subTotal;
+    private DoubleProperty taxTotal;
     private int laneID;
     private StringProperty productDescription;
+    private int Depth;
 
-    public ProductUseage(Product Product_ID, int QTY) {
+    public ProductUseage(Product Product_ID, int qty) {
+        this.Depth = 0;
         this.Product_ID = Product_ID;
-        this.QTY = new SimpleIntegerProperty(QTY);
+        this.QTY = new SimpleIntegerProperty(qty);
+        this.subTotal = new SimpleDoubleProperty(0.0);
+        this.subTotal.bind(this.QTY.multiply(Product_ID.getProduct_Price()));
+
+        this.taxTotal = new SimpleDoubleProperty(0.0);
+        this.taxTotal.bind(this.QTY.multiply(Product_ID.getProduct_Price() * Product_ID.getTax_Type().getRate()));
+
         productDescription = new SimpleStringProperty();
-        String bindingFormat = "%d " + Product_ID.getProduct_Name();
-        productDescription.bind(Bindings.format(bindingFormat, QTY));
-        
+        this.QTY.addListener(not_used -> updateDisc());
+        updateDisc();
+
         this.valueProperty().bind(productDescription);
     }
 
@@ -76,7 +87,6 @@ public class ProductUseage extends TreeItem {
         return QTY;
     }
 
-    
     public int getLaneID() {
         return laneID;
     }
@@ -86,7 +96,37 @@ public class ProductUseage extends TreeItem {
     }
 
     public void addChildProduct(ProductUseage subProduct) {
+        subProduct.setDepth(Depth + 1);
+        subProduct.updateDisc();
         this.getChildren().add(subProduct);
+        this.updateDisc();
+    }
+
+    public void updateDisc() {
+        String padd = "";
+        String formattedLine = "";
+        int qty = this.QTY.get();
+        double price = this.Product_ID.getProduct_Price();
+        double total = price * qty;
+        int max = Register.MAX_LINE_LENGTH;
+        max -= this.Depth;
+
+        for (padd = ""; padd.length() < max && formattedLine.length() < max; padd += " ") {
+            String bindingFormat = "%d @ $%(03.2f " + padd + "$%(03.2f";
+            formattedLine = String.format(bindingFormat, qty, price, total);
+        }
+        String disc = this.Product_ID.getProduct_Name();
+        if (disc.length() > max) {
+            disc = disc.substring(0, max - 2);
+            disc += "…";
+        }
+        disc += "\n";
+        disc += formattedLine;
+        this.productDescription.set(disc);
+    }
+
+    public void setDepth(int d) {
+        this.Depth = d;
     }
 
 }

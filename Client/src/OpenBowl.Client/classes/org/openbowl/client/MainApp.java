@@ -109,6 +109,7 @@ public class MainApp extends Application {
         mPrefs = Preferences.userNodeForPackage(this.getClass());
         CommonImages cImage = new CommonImages();
         stage.getIcons().add(cImage.appIcon());
+        stage.setOnCloseRequest(notUsed -> onQuit());
     }
 
     private MenuBar buildMenuBar() {

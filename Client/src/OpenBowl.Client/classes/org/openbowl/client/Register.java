@@ -39,6 +39,7 @@ import org.openbowl.common.Styles;
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
 public class Register extends Pane implements Initializable {
+    public static final int MAX_LINE_LENGTH = 40;
 
     private enum NumPadKeys {
         KEY_0,
@@ -238,5 +239,20 @@ public class Register extends Pane implements Initializable {
     private void onSpecialBtn() {
         ProductUseage newUseage = new ProductUseage(Product.TEST_PRODUCT, 1,1);
         this.recieptView.getRoot().getChildren().add(newUseage);
+        
+        Product packageProduct = new Product(-1, "Pizza & Bowling Package", 29.99, -1, ProductType.TEST_TYPE, TaxType.TEST_RATE);
+        Product bowlingProduct = new Product(-1, "Bowling lane 1 hrs", 19.99, -1, ProductType.TEST_TYPE, TaxType.TEST_RATE);
+        Product pizzaProduct = new Product(-1, "Pizza 1 lg 5 toppings", 19.99, -1, ProductType.TEST_TYPE, TaxType.TEST_RATE);
+        Product discountProduct = new Product(-1, "line discount", -9.99, -1, ProductType.TEST_TYPE, TaxType.TEST_RATE);
+        
+        
+        ProductUseage packageUse = new ProductUseage(packageProduct, 0, 1);
+        
+        packageUse.addChildProduct(new ProductUseage(bowlingProduct, 1, 1));
+        packageUse.addChildProduct(new ProductUseage(pizzaProduct, 1, 1));
+        packageUse.addChildProduct(new ProductUseage(discountProduct, 1, 1));
+        packageUse.QTYProperty().set(1);
+        
+        this.recieptView.getRoot().getChildren().add(packageUse);
     }
 }
