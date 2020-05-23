@@ -41,6 +41,8 @@ import org.openbowl.common.Styles;
 public class Register extends Pane implements Initializable {
 
     public static final int MAX_LINE_LENGTH = 40;
+    private final String NEW_TAB_TITLE = "New Tab";
+    private final String OPEN_TAB_TITLE = "New Tab";
 
     private enum NumPadKeys {
         KEY_0,
@@ -153,7 +155,7 @@ public class Register extends Pane implements Initializable {
         salesTax.textProperty().bind(Bindings.format("$%04.2f", taxProperty));
         salesTotal.textProperty().bind(Bindings.format("$%04.2f", totalSaleProperty));
 
-        cancelBtn.setOnAction(notUsed -> clearRegister());
+        cancelBtn.setOnAction(notUsed -> clearRegister(NEW_TAB_TITLE));
 
         timer = new Timer();
         clockTask = new ClockUpdateTask();
@@ -161,7 +163,7 @@ public class Register extends Pane implements Initializable {
         timer.scheduleAtFixedRate(clockTask, 1000, 1000);
 
         specialBtn.setOnAction(not_used -> onSpecialBtn());
-        this.recieptView.setRoot(new TreeItem<ProductUseage>());
+        this.recieptView.setRoot(new TreeItem<String>(NEW_TAB_TITLE));
         this.recieptView.getRoot().expandedProperty().set(true);
 
     }
@@ -222,18 +224,18 @@ public class Register extends Pane implements Initializable {
         }
     }
 
-    public void clearRegister() {
+    public void clearRegister(String title) {
         numPadProperty.set(0.0);
         numPadStringValue = "";
 
         recieptView.getRoot().getChildren().clear();
-        recieptView.setRoot(new TreeItem<ProductUseage>());
+        recieptView.getRoot().setValue(title);
         recieptView.getRoot().expandedProperty().set(true);
-        recieptView.refresh();
+
     }
 
     public void killTasks() {
-        System.out.println("killing clock");
+        System.out.println("Register - killing clock task");
         clockTask.cancel();
         clockTask = null;
         timer.cancel();
