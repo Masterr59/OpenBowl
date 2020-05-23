@@ -16,6 +16,9 @@
  */
 package org.openbowl.client;
 
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+
 /**
  *
  * @author Open Bowl <http://www.openbowlscoring.org/>
@@ -26,7 +29,7 @@ public class Product {
 
     private int Product_ID;
     private String Product_Name;
-    private double Product_Price;
+    private DoubleProperty Product_Price;
 
     private int Sub_Dept_ID;
 
@@ -36,7 +39,7 @@ public class Product {
     public Product(int Product_ID, String Product_Name, double Product_Price, int Sub_Dept_ID, ProductType Product_type, TaxType Tax_Type) {
         this.Product_ID = Product_ID;
         this.Product_Name = Product_Name;
-        this.Product_Price = Product_Price;
+        this.Product_Price = new SimpleDoubleProperty(Product_Price);
         this.Sub_Dept_ID = Sub_Dept_ID;
         this.Product_type = Product_type;
         this.Tax_Type = Tax_Type;
@@ -51,12 +54,8 @@ public class Product {
         return Tax_Type;
     }
 
-    public double getProduct_Price() {
+    public DoubleProperty Product_PriceProperty() {
         return Product_Price;
-    }
-
-    public void setProduct_Price(double Product_Price) {
-        this.Product_Price = Product_Price;
     }
 
 }

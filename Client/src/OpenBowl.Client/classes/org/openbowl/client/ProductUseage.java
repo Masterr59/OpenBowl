@@ -22,6 +22,8 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.event.Event;
+import javafx.event.EventTarget;
 import javafx.scene.control.TreeItem;
 
 /**
@@ -44,13 +46,14 @@ public class ProductUseage extends TreeItem {
         this.Product_ID = Product_ID;
         this.QTY = new SimpleIntegerProperty(qty);
         this.subTotal = new SimpleDoubleProperty(0.0);
-        this.subTotal.bind(this.QTY.multiply(Product_ID.getProduct_Price()));
+        this.subTotal.bind(this.QTY.multiply(Product_ID.Product_PriceProperty()));
 
         this.taxTotal = new SimpleDoubleProperty(0.0);
-        this.taxTotal.bind(this.QTY.multiply(Product_ID.getProduct_Price() * Product_ID.getTax_Type().getRate()));
+        this.taxTotal.bind(this.QTY.multiply(Product_ID.Product_PriceProperty().get() * Product_ID.getTax_Type().getRate()));
 
-        productDescription = new SimpleStringProperty();
+        productDescription = new SimpleStringProperty("TBD");
         this.QTY.addListener(not_used -> updateDisc());
+        this.Product_ID.Product_PriceProperty().addListener(notUsed -> updateDisc());
         updateDisc();
         this.valueProperty().bind(productDescription);
     }
@@ -105,7 +108,7 @@ public class ProductUseage extends TreeItem {
         String padd = "";
         String formattedLine = "";
         int qty = this.QTY.get();
-        double price = this.Product_ID.getProduct_Price();
+        double price = this.Product_ID.Product_PriceProperty().doubleValue();
         double total = price * qty;
         int max = Register.MAX_LINE_LENGTH;
         max -= this.Depth;
@@ -121,7 +124,9 @@ public class ProductUseage extends TreeItem {
         }
         disc += "\n";
         disc += formattedLine;
-        this.productDescription.set(disc);
+        if (!this.productDescription.get().equals(disc)) {
+            this.productDescription.set(disc);
+        }
     }
 
     public void setDepth(int d) {

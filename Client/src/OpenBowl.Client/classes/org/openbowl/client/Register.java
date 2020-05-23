@@ -165,8 +165,8 @@ public class Register extends Pane implements Initializable {
         specialBtn.setOnAction(not_used -> onSpecialBtn());
         this.recieptView.setRoot(new TreeItem<String>(NEW_TAB_TITLE));
         this.recieptView.getRoot().expandedProperty().set(true);
-        this.recieptView.getRoot().addEventHandler(TreeItem.childrenModificationEvent(), notUsed -> updateSaleTotal());
-        this.recieptView.getRoot().addEventHandler(TreeItem.childrenModificationEvent(), notUsed -> updateTaxTotal());
+        this.recieptView.getRoot().addEventHandler(TreeItem.valueChangedEvent(), notUsed -> updateTotals());
+        this.recieptView.getRoot().addEventHandler(TreeItem.childrenModificationEvent(), notUsed -> updateTotals());
         this.recieptView.getSelectionModel().selectedItemProperty().addListener((obs, oo, no) -> onSelectionChange(oo, no));
     }
 
@@ -264,6 +264,11 @@ public class Register extends Pane implements Initializable {
         this.recieptView.getRoot().getChildren().add(packageUse);
     }
 
+    private void updateTotals() {
+        updateSaleTotal();
+        updateTaxTotal();
+    }
+
     private void updateSaleTotal() {
         double saleTotal = 0.0;
         for (Object ob : this.recieptView.getRoot().getChildren()) {
@@ -289,17 +294,17 @@ public class Register extends Pane implements Initializable {
             }
             if (root instanceof ProductUseage) {
                 ProductUseage pu = (ProductUseage) root;
-                pu.getProduct_ID().setProduct_Price(childTotal);
+                pu.getProduct_ID().Product_PriceProperty().set(childTotal);
             }
         }
         if (root instanceof ProductUseage) {
             ProductUseage child = (ProductUseage) root;
-            sale += child.getProduct_ID().getProduct_Price() * child.QTYProperty().doubleValue();
+            sale += child.getProduct_ID().Product_PriceProperty().get() * child.QTYProperty().doubleValue();
         }
         return sale;
     }
-    
-    private void updateTaxTotal(){
+
+    private void updateTaxTotal() {
         double taxTotal = 0.0;
         for (Object ob : this.recieptView.getRoot().getChildren()) {
             if (ob instanceof ProductUseage) {
@@ -309,21 +314,38 @@ public class Register extends Pane implements Initializable {
         }
         this.taxProperty.set(taxTotal);
     }
-    
+
     private double getTaxTotal(TreeItem root) {
         double tax = 0.0;
         if (root instanceof ProductUseage) {
-                ProductUseage child = (ProductUseage) root;
-                tax += child.getProduct_ID().getProduct_Price() 
-                        * child.QTYProperty().get() 
-                        * child.getProduct_ID().getTax_Type().getRate();
+            ProductUseage child = (ProductUseage) root;
+            tax += child.getProduct_ID().Product_PriceProperty().get()
+                    * child.QTYProperty().get()
+                    * child.getProduct_ID().getTax_Type().getRate();
+
+            for (Object ob : child.getChildren()) {
+                if (ob instanceof ProductUseage) {
+                    tax += getTaxTotal((ProductUseage) ob);
+                }
             }
+        }
 
         return tax;
     }
-    
-     private void onSelectionChange(Object oo, Object no) {
-        System.out.println("Old: " + oo + " New: " + no);
+
+    private void onSelectionChange(Object oo, Object no) {
+        ProductUseage pu;
+        if (oo instanceof ProductUseage) {
+            pu = (ProductUseage) oo;
+            pu.QTYProperty().unbind();
+        }
+        if (no instanceof ProductUseage) {
+            pu = (ProductUseage) no;
+            numPadProperty.set(pu.QTYProperty().doubleValue());
+            numPadStringValue = "";
+            pu.QTYProperty().bind(numPadProperty);
+        }
+        //System.out.println("Old: " + oo + " New: " + no);
     }
 
 }
