@@ -26,6 +26,12 @@ public class Styles {
     public static final String ID_H3 = "h3";
     public static final String ID_SUBMIT_BUTTON = "submitBtn";
     public static final String ID_NORMAL_BUTTON = "normalBtn";
+    public static final String ID_GREEN_BUTTON = "greenBtn";
+    public static final String ID_YELLOW_BUTTON = "yellowBtn";
+    
+    public static final double MIN_BUTTON_SIZE = 75.0;
+    public static final double STD_PADDING = 5.0;
+
 
     public static final String ManagerBorder = "-fx-border-color: red;\n"
             + "-fx-border-insets: 4;\n"
