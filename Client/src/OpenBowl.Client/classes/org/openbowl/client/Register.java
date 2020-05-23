@@ -32,7 +32,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.Pane;
-import org.openbowl.common.Styles;
 
 /**
  *
@@ -250,7 +249,7 @@ public class Register extends Pane implements Initializable {
 
     private void onSpecialBtn() {
         ProductUseage newUseage = new ProductUseage(Product.TEST_PRODUCT, 1, 1);
-        this.recieptView.getRoot().getChildren().add(newUseage);
+        addProductUseageToRegister(newUseage);
 
         Product packageProduct = new Product(-1, "Pizza & Bowling Package", 29.99, -1, ProductType.TEST_TYPE, TaxType.TAX_META_PACKAGE);
         Product bowlingProduct = new Product(-1, "Bowling lane 1 hrs", 19.99, -1, ProductType.TEST_TYPE, TaxType.TEST_RATE);
@@ -264,7 +263,7 @@ public class Register extends Pane implements Initializable {
         packageUse.addChildProduct(new ProductUseage(discountProduct, 1, 1));
         packageUse.QTYProperty().set(1);
 
-        this.recieptView.getRoot().getChildren().add(packageUse);
+        addProductUseageToRegister(packageUse);
     }
 
     private void updateTotals() {
@@ -371,5 +370,9 @@ public class Register extends Pane implements Initializable {
                 }
             }
         }
+    }
+
+    public void addProductUseageToRegister(ProductUseage pu) {
+        this.recieptView.getRoot().getChildren().add(pu);
     }
 }

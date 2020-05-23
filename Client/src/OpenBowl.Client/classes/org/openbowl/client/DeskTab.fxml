@@ -51,13 +51,19 @@
                   <VBox id="product_panel" minWidth="100.0" prefHeight="200.0" prefWidth="150.0" HBox.hgrow="ALWAYS">
                      <children>
                         <Label id="h3" maxWidth="1.7976931348623157E308" minWidth="100.0" text="Sub Departments" />
-                        <FlowPane fx:id="subDepartmentPane" minWidth="100.0" prefHeight="200.0" prefWidth="150.0" />
+                        <FlowPane fx:id="subDepartmentPane" hgap="5.0" minWidth="100.0" prefHeight="200.0" prefWidth="150.0" vgap="5.0">
+                           <VBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </VBox.margin></FlowPane>
                      </children>
                   </VBox>
                   <VBox id="product_panel" minWidth="100.0" prefHeight="200.0" prefWidth="150.0" HBox.hgrow="ALWAYS">
                      <children>
                         <Label id="h3" maxWidth="1.7976931348623157E308" minWidth="100.0" text="Packages" />
-                        <FlowPane fx:id="packagePane" minWidth="100.0" prefHeight="200.0" prefWidth="150.0" />
+                        <FlowPane fx:id="packagePane" hgap="5.0" minWidth="100.0" prefHeight="200.0" prefWidth="150.0" vgap="5.0">
+                           <VBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </VBox.margin></FlowPane>
                      </children>
                      <HBox.margin>
                         <Insets />
@@ -66,13 +72,19 @@
                   <VBox id="product_panel" minWidth="100.0" prefHeight="200.0" prefWidth="150.0" HBox.hgrow="ALWAYS">
                      <children>
                         <Label id="h3" maxWidth="1.7976931348623157E308" minWidth="100.0" text="Products" />
-                        <FlowPane fx:id="productPane" minWidth="100.0" prefHeight="200.0" prefWidth="150.0" />
+                        <FlowPane fx:id="productPane" hgap="5.0" minWidth="100.0" prefHeight="200.0" prefWidth="150.0" vgap="5.0">
+                           <VBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </VBox.margin></FlowPane>
                      </children>
                   </VBox>
                   <VBox id="product_panel" minWidth="100.0" prefHeight="200.0" prefWidth="150.0" HBox.hgrow="ALWAYS">
                      <children>
                         <Label id="h3" maxWidth="1.7976931348623157E308" minWidth="100.0" text="Modifiers" />
-                        <FlowPane fx:id="modifierPane" minWidth="100.0" prefHeight="200.0" prefWidth="150.0" />
+                        <FlowPane fx:id="modifierPane" hgap="5.0" minWidth="100.0" prefHeight="200.0" prefWidth="150.0" vgap="5.0">
+                           <VBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </VBox.margin></FlowPane>
                      </children>
                   </VBox>
                </children>
