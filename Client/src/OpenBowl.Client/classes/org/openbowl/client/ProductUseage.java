@@ -22,8 +22,6 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.event.Event;
-import javafx.event.EventTarget;
 import javafx.scene.control.TreeItem;
 
 /**

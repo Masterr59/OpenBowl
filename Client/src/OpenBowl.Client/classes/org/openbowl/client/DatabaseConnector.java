@@ -26,6 +26,7 @@ import org.openbowl.common.SystemStatus;
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
 public interface DatabaseConnector {
+    public static final String GAME_DEPARTMENT_NAME = "Game";
 
     /**
      *
@@ -55,5 +56,5 @@ public interface DatabaseConnector {
     
     public Map<Integer, String> getSubDepartments(AuthorizedUser user, Integer DepartmentID);
     
-    public ArrayList<Product> getProducts(AuthorizedUser user, Integer SubDepartment);
+    public ArrayList<ProductUseage> getProducts(AuthorizedUser user, Integer SubDepartment);
 }
