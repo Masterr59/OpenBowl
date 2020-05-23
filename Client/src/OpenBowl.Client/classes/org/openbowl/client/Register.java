@@ -224,6 +224,9 @@ public class Register extends Pane implements Initializable {
         } else {
             numPadProperty.set(0.0);
         }
+        if (numPadStringValue.equals("0")) {
+            onDeleteSelected();
+        }
     }
 
     public void clearRegister(String title) {
@@ -348,4 +351,25 @@ public class Register extends Pane implements Initializable {
         //System.out.println("Old: " + oo + " New: " + no);
     }
 
+    private void onDeleteSelected() {
+        if (this.recieptView.getSelectionModel().getSelectedItem() instanceof TreeItem) {
+            TreeItem toBeDeleted = (TreeItem) this.recieptView.getSelectionModel().getSelectedItem();
+            deleteFromRegister(toBeDeleted, this.recieptView.getRoot());
+            numPadStringValue = "";
+
+        }
+    }
+
+    private void deleteFromRegister(TreeItem delete, TreeItem root) {
+        if (root.getChildren().contains(delete)) {
+            root.getChildren().remove(delete);
+        } else {
+            for (Object o : root.getChildren()) {
+                if (o instanceof TreeItem) {
+                    TreeItem childRoot = (TreeItem) o;
+                    deleteFromRegister(delete, childRoot);
+                }
+            }
+        }
+    }
 }
