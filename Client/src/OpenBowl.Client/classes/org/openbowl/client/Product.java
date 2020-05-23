@@ -54,7 +54,9 @@ public class Product {
     public double getProduct_Price() {
         return Product_Price;
     }
-    
-    
+
+    public void setProduct_Price(double Product_Price) {
+        this.Product_Price = Product_Price;
+    }
 
 }

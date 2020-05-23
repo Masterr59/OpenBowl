@@ -52,7 +52,6 @@ public class ProductUseage extends TreeItem {
         productDescription = new SimpleStringProperty();
         this.QTY.addListener(not_used -> updateDisc());
         updateDisc();
-
         this.valueProperty().bind(productDescription);
     }
 

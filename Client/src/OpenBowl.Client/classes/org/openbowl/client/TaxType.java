@@ -22,6 +22,7 @@ package org.openbowl.client;
  */
 class TaxType {
     public static final TaxType TAX_EXEMPT = new TaxType("EXEMPT", 0.0);
+    public static final TaxType TAX_META_PACKAGE = new TaxType("Package", 0.0);
     public static final TaxType TEST_RATE = new TaxType("Test", 0.089);
 
     private String name;

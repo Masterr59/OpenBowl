@@ -165,7 +165,9 @@ public class Register extends Pane implements Initializable {
         specialBtn.setOnAction(not_used -> onSpecialBtn());
         this.recieptView.setRoot(new TreeItem<String>(NEW_TAB_TITLE));
         this.recieptView.getRoot().expandedProperty().set(true);
-
+        this.recieptView.getRoot().addEventHandler(TreeItem.childrenModificationEvent(), notUsed -> updateSaleTotal());
+        this.recieptView.getRoot().addEventHandler(TreeItem.childrenModificationEvent(), notUsed -> updateTaxTotal());
+        this.recieptView.getSelectionModel().selectedItemProperty().addListener((obs, oo, no) -> onSelectionChange(oo, no));
     }
 
     @Override
@@ -247,10 +249,10 @@ public class Register extends Pane implements Initializable {
         ProductUseage newUseage = new ProductUseage(Product.TEST_PRODUCT, 1, 1);
         this.recieptView.getRoot().getChildren().add(newUseage);
 
-        Product packageProduct = new Product(-1, "Pizza & Bowling Package", 29.99, -1, ProductType.TEST_TYPE, TaxType.TEST_RATE);
+        Product packageProduct = new Product(-1, "Pizza & Bowling Package", 29.99, -1, ProductType.TEST_TYPE, TaxType.TAX_META_PACKAGE);
         Product bowlingProduct = new Product(-1, "Bowling lane 1 hrs", 19.99, -1, ProductType.TEST_TYPE, TaxType.TEST_RATE);
         Product pizzaProduct = new Product(-1, "Pizza 1 lg 5 toppings", 19.99, -1, ProductType.TEST_TYPE, TaxType.TEST_RATE);
-        Product discountProduct = new Product(-1, "line discount", -9.99, -1, ProductType.TEST_TYPE, TaxType.TEST_RATE);
+        Product discountProduct = new Product(-1, "line discount", -9.99, -1, ProductType.TEST_TYPE, TaxType.TAX_EXEMPT);
 
         ProductUseage packageUse = new ProductUseage(packageProduct, 0, 1);
 
@@ -261,4 +263,67 @@ public class Register extends Pane implements Initializable {
 
         this.recieptView.getRoot().getChildren().add(packageUse);
     }
+
+    private void updateSaleTotal() {
+        double saleTotal = 0.0;
+        for (Object ob : this.recieptView.getRoot().getChildren()) {
+            if (ob instanceof ProductUseage) {
+                ProductUseage child = (ProductUseage) ob;
+                saleTotal += getSaleTotal(child);
+            }
+        }
+        this.totalSaleProperty.set(saleTotal);
+
+    }
+
+    private double getSaleTotal(TreeItem root) {
+        double sale = 0.0;
+
+        if (!root.getChildren().isEmpty()) {
+            double childTotal = 0.0;
+            for (Object ob : root.getChildren()) {
+                if (ob instanceof ProductUseage) {
+                    ProductUseage child = (ProductUseage) ob;
+                    childTotal += getSaleTotal(child);
+                }
+            }
+            if (root instanceof ProductUseage) {
+                ProductUseage pu = (ProductUseage) root;
+                pu.getProduct_ID().setProduct_Price(childTotal);
+            }
+        }
+        if (root instanceof ProductUseage) {
+            ProductUseage child = (ProductUseage) root;
+            sale += child.getProduct_ID().getProduct_Price() * child.QTYProperty().doubleValue();
+        }
+        return sale;
+    }
+    
+    private void updateTaxTotal(){
+        double taxTotal = 0.0;
+        for (Object ob : this.recieptView.getRoot().getChildren()) {
+            if (ob instanceof ProductUseage) {
+                ProductUseage child = (ProductUseage) ob;
+                taxTotal += getTaxTotal(child);
+            }
+        }
+        this.taxProperty.set(taxTotal);
+    }
+    
+    private double getTaxTotal(TreeItem root) {
+        double tax = 0.0;
+        if (root instanceof ProductUseage) {
+                ProductUseage child = (ProductUseage) root;
+                tax += child.getProduct_ID().getProduct_Price() 
+                        * child.QTYProperty().get() 
+                        * child.getProduct_ID().getTax_Type().getRate();
+            }
+
+        return tax;
+    }
+    
+     private void onSelectionChange(Object oo, Object no) {
+        System.out.println("Old: " + oo + " New: " + no);
+    }
+
 }
