@@ -17,6 +17,7 @@
 package org.openbowl.client;
 
 import java.util.ArrayList;
+import java.util.Map;
 import org.openbowl.common.AuthorizedUser;
 import org.openbowl.common.SystemStatus;
 
@@ -49,4 +50,10 @@ public interface DatabaseConnector {
     public boolean isLaneOnline(int lane);
     
     public ArrayList<SystemStatus> getLaneStatus(int lane);
+    
+    public Map<Integer, String> getDepartments(AuthorizedUser user);
+    
+    public Map<Integer, String> getSubDepartments(AuthorizedUser user, Integer DepartmentID);
+    
+    public ArrayList<Product> getProducts(AuthorizedUser user, Integer SubDepartment);
 }

@@ -19,8 +19,8 @@ package org.openbowl.client;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import org.openbowl.common.AuthorizedUser;
@@ -171,6 +171,27 @@ public class MockDB implements DatabaseConnector {
             status.add(SystemStatus.OFFLINE);
         }
         return status;
+    }
+
+    @Override
+    public Map<Integer, String> getDepartments(AuthorizedUser user) {
+        Map<Integer, String> map = new HashMap<>();
+
+        return map;
+    }
+
+    @Override
+    public Map<Integer, String> getSubDepartments(AuthorizedUser user, Integer DepartmentID) {
+        Map<Integer, String> map = new HashMap<>();
+
+        return map;
+    }
+
+    @Override
+    public ArrayList<Product> getProducts(AuthorizedUser user, Integer SubDepartment) {
+        ArrayList<Product> productList = new ArrayList<>();
+
+        return productList;
     }
 
 }
