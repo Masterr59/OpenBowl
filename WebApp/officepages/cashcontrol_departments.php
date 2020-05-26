@@ -158,6 +158,7 @@ $(document).ready(function(){
         $("#dpt_desc").val("");
         $("#dpt_ident").val("");
         $("#excludefromsales").prop("checked", false);
+        $("#subdepartmentTable").html("");
     }
 
     function reloadDropdown()

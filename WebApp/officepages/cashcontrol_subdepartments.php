@@ -71,7 +71,7 @@ $(document).ready(function(){
             var ajaxRequest = {
                 url: './submit.php',
                 type: 'POST',
-                data: {table:table, depart_name:desc, created_by:createdby, sub_depart_identifier:ident, exclude_from_sales:exclude},
+                data: {table:table, sub_depart_name:desc, depart_id:dptID, created_by:createdby, sub_depart_identifier:ident, exclude_from_sales:exclude},
                 success:function(data){
                     reloadDropdown();
                     subdptID = 0;
@@ -157,6 +157,7 @@ $(document).ready(function(){
         $("#subdpt_desc").val("");
         $("#subdpt_ident").val("");
         $("#excludefromsales").prop("checked", false);
+        $("#productTable").html("");
     }
 
     function reloadDropdown()
