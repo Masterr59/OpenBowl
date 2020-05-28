@@ -18,6 +18,7 @@ package org.openbowl.client;
 
 import java.util.ArrayList;
 import java.util.Map;
+import javafx.scene.control.TreeItem;
 import org.openbowl.common.AuthorizedUser;
 import org.openbowl.common.SystemStatus;
 
@@ -57,4 +58,12 @@ public interface DatabaseConnector {
     public Map<Integer, String> getSubDepartments(AuthorizedUser user, Integer DepartmentID);
     
     public ArrayList<ProductUseage> getProducts(AuthorizedUser user, Integer SubDepartment);
+    
+    public Integer saveTab(AuthorizedUser user, TreeItem root);
+    
+    public ArrayList<Integer> findTabs(AuthorizedUser user);
+    
+    public boolean removeTab(AuthorizedUser user, Integer tabid);
+    
+    public Integer saveTransaction(AuthorizedUser user, TreeItem root);
 }

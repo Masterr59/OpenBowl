@@ -23,6 +23,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import javafx.scene.control.TreeItem;
 import org.openbowl.common.AuthorizedUser;
 import org.openbowl.common.SystemStatus;
 import org.openbowl.common.UserRole;
@@ -338,6 +339,26 @@ public class MockDB implements DatabaseConnector {
         }
 
         return productList;
+    }
+
+    @Override
+    public Integer saveTab(AuthorizedUser user, TreeItem root) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public ArrayList<Integer> findTabs(AuthorizedUser user) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean removeTab(AuthorizedUser user, Integer tabid) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Integer saveTransaction(AuthorizedUser user, TreeItem root) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }
