@@ -58,4 +58,9 @@ public class Product {
         return Product_Price;
     }
 
+    @Override
+    public Product clone() {
+        return new Product(this.Product_ID, new String(this.Product_Name), this.Product_Price.get(), this.Sub_Dept_ID, this.Product_type.clone(), this.Tax_Type.clone());
+    }
+
 }

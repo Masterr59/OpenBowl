@@ -131,4 +131,9 @@ public class ProductUseage extends TreeItem {
         this.Depth = d;
     }
 
+    @Override
+    public ProductUseage clone() {
+        return new ProductUseage(this.Transaction_ID, this.Product_ID.clone(), this.QTY.get(), this.laneID);
+    }
+
 }

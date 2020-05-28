@@ -21,6 +21,7 @@ package org.openbowl.client;
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
 class TaxType {
+
     public static final TaxType TAX_EXEMPT = new TaxType("EXEMPT", 0.0);
     public static final TaxType TAX_META_PACKAGE = new TaxType("Package", 0.0);
     public static final TaxType TEST_RATE = new TaxType("Test", 0.089);
@@ -41,4 +42,8 @@ class TaxType {
         return rate;
     }
 
+    @Override
+    public TaxType clone() {
+        return new TaxType(new String(name), rate);
+    }
 }

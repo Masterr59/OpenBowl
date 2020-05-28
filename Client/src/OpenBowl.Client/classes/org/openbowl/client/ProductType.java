@@ -21,6 +21,7 @@ package org.openbowl.client;
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
 public class ProductType {
+
     public final static ProductType TEST_TYPE = new ProductType(-1, "Test Type");
 
     private int ID;
@@ -39,4 +40,8 @@ public class ProductType {
         return Name;
     }
 
+    @Override
+    public ProductType clone() {
+        return new ProductType(ID, new String(Name));
+    }
 }
