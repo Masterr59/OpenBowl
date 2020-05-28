@@ -63,7 +63,7 @@ public interface DatabaseConnector {
     
     public ArrayList<Integer> findTabs(AuthorizedUser user);
     
-    public boolean removeTab(AuthorizedUser user, Integer tabid);
+    public TreeItem getTab(AuthorizedUser user, Integer tabid);
     
     public Integer saveTransaction(AuthorizedUser user, TreeItem root);
 }

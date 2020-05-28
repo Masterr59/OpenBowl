@@ -52,9 +52,12 @@ public class MockDB implements DatabaseConnector {
     private final Random rand;
     private final Gson gson;
 
+    private Map<Integer, TreeItem> tabs;
+
     public MockDB() {
         rand = new Random();
         gson = new Gson();
+        tabs = new HashMap<>();
     }
 
     @Override
@@ -343,22 +346,47 @@ public class MockDB implements DatabaseConnector {
 
     @Override
     public Integer saveTab(AuthorizedUser user, TreeItem root) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (user.isAuthorized(UserRole.TRANSACTION_ADD)) {
+            int i = rand.nextInt(Integer.MAX_VALUE);
+            tabs.put(i, root);
+            return i;
+        }
+        return -1;
     }
 
     @Override
     public ArrayList<Integer> findTabs(AuthorizedUser user) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ArrayList<Integer> list = new ArrayList<>();
+        if (user.isAuthorized(UserRole.TRANSACTION_ADD)) {
+            list.addAll(tabs.keySet());
+        }
+        return list;
     }
 
     @Override
-    public boolean removeTab(AuthorizedUser user, Integer tabid) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public TreeItem getTab(AuthorizedUser user, Integer tabid) {
+        TreeItem item = new TreeItem("NONE");
+        if (user.isAuthorized(UserRole.TRANSACTION_ADD) && tabs.containsKey(tabid)) {
+            item = tabs.get(tabid);
+        }
+        return item;
     }
 
     @Override
     public Integer saveTransaction(AuthorizedUser user, TreeItem root) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        int transactionID = -1;
+        if (user.isAuthorized(UserRole.TRANSACTION_ADD)) {
+            if (root instanceof ProductUseage) {
+                ProductUseage pu = (ProductUseage) root;
+                if (pu.getTransaction_ID() > 0) {
+                    transactionID = pu.getTransaction_ID();
+                } else {
+                    transactionID = rand.nextInt(Integer.MAX_VALUE);
+                }
+            }
+
+        }
+        return transactionID;
     }
 
 }
