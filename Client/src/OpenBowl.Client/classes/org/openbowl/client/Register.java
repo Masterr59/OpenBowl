@@ -32,6 +32,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.Pane;
+import org.openbowl.common.AuthorizedUser;
 
 /**
  *
@@ -118,15 +119,18 @@ public class Register extends Pane implements Initializable {
     @FXML
     Button payNowbtn;
 
+    private DatabaseConnector dbConnector;
     private DoubleProperty numPadProperty;
     private DoubleProperty taxProperty;
     private DoubleProperty totalSaleProperty;
     private String numPadStringValue;
     private Timer timer;
     private ClockUpdateTask clockTask;
+    private AuthorizedUser user;
 
-    public Register() throws IOException {
-
+    public Register(DatabaseConnector db) throws IOException {
+        dbConnector = db;
+        user = AuthorizedUser.NON_USER;
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/openbowl/client/Register.fxml"));
         loader.setController(this);
         Parent root = loader.load();
@@ -167,6 +171,8 @@ public class Register extends Pane implements Initializable {
         this.recieptView.getRoot().addEventHandler(TreeItem.valueChangedEvent(), notUsed -> updateTotals());
         this.recieptView.getRoot().addEventHandler(TreeItem.childrenModificationEvent(), notUsed -> updateTotals());
         this.recieptView.getSelectionModel().selectedItemProperty().addListener((obs, oo, no) -> onSelectionChange(oo, no));
+
+        payLaterBtn.setOnAction(notUsed -> saveTab());
     }
 
     @Override
@@ -375,4 +381,18 @@ public class Register extends Pane implements Initializable {
     public void addProductUseageToRegister(ProductUseage pu) {
         this.recieptView.getRoot().getChildren().add(pu.clone());
     }
+
+    private void saveTab() {
+        if (!this.recieptView.getRoot().getChildren().isEmpty() && user != AuthorizedUser.NON_USER) {
+
+            Integer transID = dbConnector.saveTab(user, this.recieptView.getRoot());
+            System.out.printf("Tab saved under tabID %d\n", transID);
+            clearRegister(NEW_TAB_TITLE);
+        }
+    }
+
+    public void setUser(AuthorizedUser user) {
+        this.user = user;
+    }
+
 }

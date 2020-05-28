@@ -47,56 +47,56 @@ import org.openbowl.common.UserRole;
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
 public class TabDesk extends CommonTab implements Initializable {
-    
+
     private final String HEADER_TEXT = "Front Desk";
     private final String TAB_TEXT = "Desk";
     private final long DEFAULT_PULL_PERIOD = 300000l;    // 5 minutes
     private final long INITIAL_DELAY = 10000l;           // 10 seconds
     public static final String PREFS_PULL_PERIOD = "Lane_Pull_Period";
-    
+
     @FXML
     Button clearBtn;
-    
+
     @FXML
     Button getReceiptBtn;
-    
+
     @FXML
     Button otherBtn;
-    
+
     @FXML
     Label laneNumMin;
-    
+
     @FXML
     Label laneNumMax;
-    
+
     @FXML
     FlowPane lanePane;
-    
+
     @FXML
     FlowPane subDepartmentPane;
-    
+
     @FXML
     FlowPane packagePane;
-    
+
     @FXML
     FlowPane productPane;
-    
+
     @FXML
     FlowPane modifierPane;
-    
+
     @FXML
     HBox hbox;
-    
+
     Register mRegister;
     private ArrayList<LaneDisplay> laneDisplays;
     private ArrayList<LaneCheckTask> laneCheckers;
     private ObservableList<Node> lanes;
     private IntegerProperty minSelected, maxSelected;
     private Timer timer;
-    
+
     private Map<Integer, String> subDepartments;
     private Map<Integer, ArrayList<ProductUseage>> productMap;
-    
+
     public TabDesk(ObjectProperty<AuthorizedUser> User, ObjectProperty<AuthorizedUser> Manager, DatabaseConnector db) throws IOException {
         super(User, Manager, db);
         this.setText(TAB_TEXT);
@@ -104,48 +104,52 @@ public class TabDesk extends CommonTab implements Initializable {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/openbowl/client/DeskTab.fxml"));
         loader.setController(this);
         Parent root = loader.load();
-        
+
         mVBox.getChildren().add(root);
-        
+
         laneDisplays = new ArrayList<>();
         laneCheckers = new ArrayList<>();
-        
+
         this.lanes = lanePane.getChildren();
         timer = new Timer();
         minSelected = new SimpleIntegerProperty(-1);
         maxSelected = new SimpleIntegerProperty(-1);
-        
+
         minSelected.addListener(notUsed -> updateLaneSelected());
         maxSelected.addListener(notUsed -> updateLaneSelected());
         updateLaneSelected();
         clearBtn.setOnAction(notUsed -> onClearBtn());
-        
+
         subDepartments = new HashMap<Integer, String>();
         productMap = new HashMap<Integer, ArrayList<ProductUseage>>();
     }
-    
+
     @Override
     protected void onUserChange(AuthorizedUser newUser) {
         super.onUserChange(newUser);
         this.lanes.clear();
         this.laneCheckers.clear();
         this.laneDisplays.clear();
+        mRegister.setUser(AuthorizedUser.NON_USER);
         if (Permission.get(UserRole.GAME_ADMIN)) {
             loadLanes(newUser);
+            mRegister.setUser(newUser);
         }
     }
-    
+
     protected void onManagerChange(AuthorizedUser newManager) {
         super.onManagerChange(newManager);
         if (Permission.get(UserRole.GAME_ADMIN)) {
             loadLanes(newManager);
+            mRegister.setUser(newManager);
         } else {
+            mRegister.setUser(AuthorizedUser.NON_USER);
             this.lanes.clear();
             this.laneCheckers.clear();
             this.laneDisplays.clear();
         }
     }
-    
+
     private void loadLanes(AuthorizedUser u) {
         stopTimers();
         long period = mPrefs.getLong(PREFS_PULL_PERIOD, DEFAULT_PULL_PERIOD);
@@ -153,7 +157,7 @@ public class TabDesk extends CommonTab implements Initializable {
             LaneDisplay lane = new LaneDisplay(String.format("Lane %d", i + 1));
             String style = PermissionStyle.get(UserRole.GAME_ADMIN);
             lane.setStyle(style);
-            
+
             LaneCheckTask checkTask = new LaneCheckTask(dbConnector, i);
             lane.CrashProperty().bind(checkTask.CrashProperty());
             lane.GameStatusProperty().bind(checkTask.GameStatusProperty());
@@ -162,7 +166,7 @@ public class TabDesk extends CommonTab implements Initializable {
             lane.RebootProperty().bind(checkTask.RebootProperty());
             lane.UpdateProperty().bind(checkTask.UpdateProperty());
             lane.VoltProperty().bind(checkTask.VoltProperty());
-            
+
             lanes.add(lane);
             this.laneDisplays.add(lane);
             this.laneCheckers.add(checkTask);
@@ -187,7 +191,7 @@ public class TabDesk extends CommonTab implements Initializable {
                 productMap.put(i, dbConnector.getProducts(u, i));
             }
         }
-        
+
         subDepartmentPane.getChildren().clear();
         for (int i : subDepartments.keySet()) {
             Button deptBtn = new Button(subDepartments.get(i));
@@ -197,9 +201,9 @@ public class TabDesk extends CommonTab implements Initializable {
             deptBtn.setOnAction(notUsed -> onDepartmentChange(finalInt));
             subDepartmentPane.getChildren().add(deptBtn);
         }
-        
+
     }
-    
+
     private void onDepartmentChange(int i) {
         productPane.getChildren().clear();
         packagePane.getChildren().clear();
@@ -207,7 +211,7 @@ public class TabDesk extends CommonTab implements Initializable {
             Button btn = new Button(pu.getProduct_ID().getProduct_Name());
             btn.setMinSize(Styles.MIN_BUTTON_SIZE, Styles.MIN_BUTTON_SIZE);
             btn.setOnAction(notUsed -> onAddProductToRegister(pu));
-            
+
             if (!pu.getChildren().isEmpty()) {
                 btn.setId(Styles.ID_YELLOW_BUTTON);
                 packagePane.getChildren().add(btn);
@@ -217,26 +221,26 @@ public class TabDesk extends CommonTab implements Initializable {
             }
         }
     }
-    
+
     @Override
     public void initialize(URL arg0, ResourceBundle arg1) {
         if (hbox != null) {
             try {
-                mRegister = new Register();
+                mRegister = new Register(dbConnector);
             } catch (IOException ex) {
-                
+
             }
             hbox.getChildren().add(mRegister);
         }
     }
-    
+
     public void stopTimers() {
         for (LaneCheckTask task : this.laneCheckers) {
             task.cancel();
         }
         timer.purge();
     }
-    
+
     public void killTimers() {
         for (LaneCheckTask task : this.laneCheckers) {
             task.cancel();
@@ -246,7 +250,7 @@ public class TabDesk extends CommonTab implements Initializable {
         timer = null;
         mRegister.killTasks();
     }
-    
+
     private void onLaneClicked(MouseEvent mouseEvent, int laneID) {
         if (mouseEvent.getButton() == MouseButton.PRIMARY) {
             int oldMin;
@@ -273,7 +277,7 @@ public class TabDesk extends CommonTab implements Initializable {
             }
         }
     }
-    
+
     private void updateLaneSelected() {
         laneNumMin.setText("");
         laneNumMax.setText("");
@@ -292,9 +296,9 @@ public class TabDesk extends CommonTab implements Initializable {
                 laneDisplays.get(i).selectedProperty().set(selected);
             }
         }
-        
+
     }
-    
+
     private void onClearBtn() {
         minSelected.set(-1);
         maxSelected.set(-1);
