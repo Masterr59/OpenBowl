@@ -133,7 +133,14 @@ public class ProductUseage extends TreeItem {
 
     @Override
     public ProductUseage clone() {
-        return new ProductUseage(this.Transaction_ID, this.Product_ID.clone(), this.QTY.get(), this.laneID);
+        ProductUseage clone = new ProductUseage(this.Transaction_ID, this.Product_ID.clone(), this.QTY.get(), this.laneID);
+        for(Object o : this.getChildren()){
+            if(o instanceof ProductUseage){
+                ProductUseage pu = (ProductUseage)o;
+                clone.addChildProduct(pu.clone());
+            }
+        }
+        return clone;
     }
 
 }

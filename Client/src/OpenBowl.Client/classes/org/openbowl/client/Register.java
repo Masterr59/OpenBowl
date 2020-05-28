@@ -373,6 +373,6 @@ public class Register extends Pane implements Initializable {
     }
 
     public void addProductUseageToRegister(ProductUseage pu) {
-        this.recieptView.getRoot().getChildren().add(pu);
+        this.recieptView.getRoot().getChildren().add(pu.clone());
     }
 }

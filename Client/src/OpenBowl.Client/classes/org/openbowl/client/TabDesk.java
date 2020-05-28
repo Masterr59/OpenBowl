@@ -106,7 +106,6 @@ public class TabDesk extends CommonTab implements Initializable {
         Parent root = loader.load();
         
         mVBox.getChildren().add(root);
-        mRegister = new Register();
         
         laneDisplays = new ArrayList<>();
         laneCheckers = new ArrayList<>();
@@ -207,8 +206,7 @@ public class TabDesk extends CommonTab implements Initializable {
         for (ProductUseage pu : productMap.get(i)) {
             Button btn = new Button(pu.getProduct_ID().getProduct_Name());
             btn.setMinSize(Styles.MIN_BUTTON_SIZE, Styles.MIN_BUTTON_SIZE);
-            //ProductUseage npu = pu;
-            //btn.setOnAction(notUsed -> mRegister.addProductUseageToRegister(npu));
+            btn.setOnAction(notUsed -> onAddProductToRegister(pu));
             
             if (!pu.getChildren().isEmpty()) {
                 btn.setId(Styles.ID_YELLOW_BUTTON);
@@ -300,5 +298,9 @@ public class TabDesk extends CommonTab implements Initializable {
     private void onClearBtn() {
         minSelected.set(-1);
         maxSelected.set(-1);
+    }
+
+    private void onAddProductToRegister(ProductUseage pu) {
+        mRegister.addProductUseageToRegister(pu);
     }
 }
