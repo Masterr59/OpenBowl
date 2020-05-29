@@ -52,7 +52,7 @@ public class MockDB implements DatabaseConnector {
     private final Random rand;
     private final Gson gson;
 
-    private Map<Integer, TreeItem> tabs;
+    private Map<Integer, Receipt> tabs;
 
     public MockDB() {
         rand = new Random();
@@ -345,10 +345,12 @@ public class MockDB implements DatabaseConnector {
     }
 
     @Override
-    public Integer saveTab(AuthorizedUser user, TreeItem root) {
+    public Integer saveTab(AuthorizedUser user, Receipt root) {
         if (user.isAuthorized(UserRole.TRANSACTION_ADD)) {
             int i = rand.nextInt(Integer.MAX_VALUE);
-            tabs.put(i, root);
+            tabs.put(i, root.clone());
+            root.TransactionProperty().set(i);
+            System.out.printf("Saving tabID: %d\n%s", i, root);
             return i;
         }
         return -1;
@@ -364,16 +366,20 @@ public class MockDB implements DatabaseConnector {
     }
 
     @Override
-    public TreeItem getTab(AuthorizedUser user, Integer tabid) {
-        TreeItem item = new TreeItem("NONE");
+    public Receipt getTab(AuthorizedUser user, Integer tabid) {
+        Receipt item;
         if (user.isAuthorized(UserRole.TRANSACTION_ADD) && tabs.containsKey(tabid)) {
             item = tabs.get(tabid);
+            System.out.printf("Loading tabID: %d\n%s", tabid, item);
+        }
+        else{
+            item = new Receipt();
         }
         return item;
     }
 
     @Override
-    public Integer saveTransaction(AuthorizedUser user, TreeItem root) {
+    public Integer saveTransaction(AuthorizedUser user, Receipt root) {
         int transactionID = -1;
         if (user.isAuthorized(UserRole.TRANSACTION_ADD)) {
             if (root instanceof ProductUseage) {

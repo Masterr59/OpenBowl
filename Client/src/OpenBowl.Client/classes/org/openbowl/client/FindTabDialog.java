@@ -17,14 +17,13 @@
 package org.openbowl.client;
 
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogEvent;
 import javafx.scene.control.ListView;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import org.openbowl.common.AuthorizedUser;
 
 /**
@@ -33,37 +32,84 @@ import org.openbowl.common.AuthorizedUser;
  */
 public class FindTabDialog extends Alert {
 
+    private final String NONE_SELECTED = "None Selected";
+    private final String MSG_TEXT = "Open Tabs";
+
     private final DatabaseConnector dbConnector;
     private final AuthorizedUser user;
-    private final ListView listView;
+    private final ListView<Integer> listView;
     private final TreeView treeView;
-
+    private Integer tabID;
+    private boolean openTab;
+    private ButtonType reloadBtn;
 
     public FindTabDialog(DatabaseConnector dbConnector, AuthorizedUser user) {
         super(AlertType.INFORMATION);
+        this.getDialogPane().getStylesheets().add(getClass().getResource("DarkMode.css").toExternalForm());
+        this.titleProperty().set(MSG_TEXT);
+        this.headerTextProperty().set(MSG_TEXT);
+        this.graphicProperty().set(null);
         this.dbConnector = dbConnector;
         this.user = user;
-        this.listView = new ListView();
+        this.listView = new ListView<>();
+        this.listView.setPrefWidth(150);
+        this.listView.getSelectionModel().selectedItemProperty().addListener((obs, os, ns) -> onSelectionChange(ns));
+
         this.treeView = new TreeView();
-        this.setOnCloseRequest(eh -> onCancel(eh));
+        this.treeView.setMinWidth(296);
+        this.treeView.setId("reciept");
+        this.treeView.setRoot(new TreeItem(NONE_SELECTED));
+
+        this.tabID = -1;
+        this.openTab = false;
+        this.reloadBtn = new ButtonType("Reload");
+
+        this.setOnCloseRequest(eh -> onCloseRequest(eh));
 
         HBox hbox = new HBox();
         hbox.getChildren().addAll(this.listView, this.treeView);
 
         this.getDialogPane().setContent(hbox);
-        this.getButtonTypes().addAll(ButtonType.CANCEL);
+        this.getButtonTypes().addAll(ButtonType.CANCEL, reloadBtn);
+        onReloadTabs();
     }
 
     /**
      *
      * @param eh the value of eh
      */
-    private void onCancel(DialogEvent eh) {
-        System.out.println("On Cancel");
-        if(this.getResult() == ButtonType.OK){
-            System.out.println("ok");
+    private void onCloseRequest(DialogEvent eh) {
+        if (this.getResult() == ButtonType.OK) {
+            this.openTab = true;
+            this.tabID = this.listView.getSelectionModel().getSelectedItem();
+
+        } else if (this.getResult() == this.reloadBtn) {
             eh.consume();
-            
+            onReloadTabs();
+        }
+    }
+
+    public Integer getTabID() {
+        return tabID;
+    }
+
+    public boolean isOpenTab() {
+        return openTab;
+    }
+
+    private void onReloadTabs() {
+        this.listView.getItems().clear();
+        this.treeView.setRoot(new Receipt());
+        for (Integer I : dbConnector.findTabs(user)) {
+            this.listView.getItems().add(I);
+        }
+    }
+
+    private void onSelectionChange(Integer id) {
+        if (id != null) {
+            System.out.println("Selection Change");
+            this.treeView.setRoot(dbConnector.getTab(user, id).clone());
+            this.treeView.getRoot().expandedProperty().set(true);
         }
     }
 

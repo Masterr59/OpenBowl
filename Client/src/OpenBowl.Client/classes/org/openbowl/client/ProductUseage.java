@@ -22,13 +22,12 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.scene.control.TreeItem;
 
 /**
  *
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
-public class ProductUseage extends TreeItem {
+public class ProductUseage extends Receipt {
 
     private int Transaction_ID;
     private Product Product_ID;
@@ -142,5 +141,16 @@ public class ProductUseage extends TreeItem {
         }
         return clone;
     }
+
+    @Override
+    public String toString() {
+        String ret = this.productDescription.get() + "\n";
+        for(Object o : this.getChildren()){
+            ret += o.toString();
+        }
+        return ret;
+    }
+    
+    
 
 }

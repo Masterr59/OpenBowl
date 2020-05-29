@@ -166,7 +166,7 @@ public class Register extends Pane implements Initializable {
         timer.scheduleAtFixedRate(clockTask, 1000, 1000);
 
         specialBtn.setOnAction(not_used -> onSpecialBtn());
-        this.recieptView.setRoot(new TreeItem<String>(NEW_TAB_TITLE));
+        this.recieptView.setRoot(new Receipt());
         this.recieptView.getRoot().expandedProperty().set(true);
         this.recieptView.getRoot().addEventHandler(TreeItem.valueChangedEvent(), notUsed -> updateTotals());
         this.recieptView.getRoot().addEventHandler(TreeItem.childrenModificationEvent(), notUsed -> updateTotals());
@@ -386,7 +386,7 @@ public class Register extends Pane implements Initializable {
     private void saveTab() {
         if (!this.recieptView.getRoot().getChildren().isEmpty() && user != AuthorizedUser.NON_USER) {
 
-            Integer transID = dbConnector.saveTab(user, this.recieptView.getRoot());
+            Integer transID = dbConnector.saveTab(user, (Receipt)this.recieptView.getRoot());
             System.out.printf("Tab saved under tabID %d\n", transID);
             clearRegister(NEW_TAB_TITLE);
         }

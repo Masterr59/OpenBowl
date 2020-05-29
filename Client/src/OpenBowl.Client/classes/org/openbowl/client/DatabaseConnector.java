@@ -59,13 +59,13 @@ public interface DatabaseConnector {
     
     public ArrayList<ProductUseage> getProducts(AuthorizedUser user, Integer SubDepartment);
     
-    public Integer saveTab(AuthorizedUser user, TreeItem root);
+    public Integer saveTab(AuthorizedUser user, Receipt root);
     
     public ArrayList<Integer> findTabs(AuthorizedUser user);
     
-    public TreeItem getTab(AuthorizedUser user, Integer tabid);
+    public Receipt getTab(AuthorizedUser user, Integer tabid);
     
     public boolean removeTab(AuthorizedUser user, Integer tabid);
     
-    public Integer saveTransaction(AuthorizedUser user, TreeItem root);
+    public Integer saveTransaction(AuthorizedUser user, Receipt root);
 }
