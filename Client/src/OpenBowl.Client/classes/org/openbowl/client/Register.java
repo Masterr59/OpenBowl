@@ -23,8 +23,10 @@ import java.util.Timer;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -130,6 +132,7 @@ public class Register extends Pane implements Initializable {
     private Timer timer;
     private ClockUpdateTask clockTask;
     private AuthorizedUser user;
+    private IntegerProperty minLane, maxLane;
 
     public Register(DatabaseConnector db) throws IOException {
         dbConnector = db;
@@ -175,6 +178,9 @@ public class Register extends Pane implements Initializable {
 
         payLaterBtn.setOnAction(notUsed -> saveTab());
         findTabBtn.setOnAction(notUsed -> onFindTab());
+
+        minLane = new SimpleIntegerProperty(-1);
+        maxLane = new SimpleIntegerProperty(-1);
     }
 
     @Override
@@ -250,19 +256,20 @@ public class Register extends Pane implements Initializable {
     }
 
     private void onSpecialBtn() {
-        ProductUseage newUseage = new ProductUseage(Product.TEST_PRODUCT, 1, 1);
+        ProductUseage newUseage = new ProductUseage(Product.TEST_PRODUCT, 1);
         addProductUseageToRegister(newUseage);
-
         Product packageProduct = new Product(-1, "Pizza & Bowling Package", 29.99, -1, ProductType.TEST_TYPE, TaxType.TAX_META_PACKAGE);
         Product bowlingProduct = new Product(-1, "Bowling lane 1 hrs", 19.99, -1, ProductType.TEST_TYPE, TaxType.TEST_RATE);
         Product pizzaProduct = new Product(-1, "Pizza 1 lg 5 toppings", 19.99, -1, ProductType.TEST_TYPE, TaxType.TEST_RATE);
         Product discountProduct = new Product(-1, "line discount", -9.99, -1, ProductType.TEST_TYPE, TaxType.TAX_EXEMPT);
 
-        ProductUseage packageUse = new ProductUseage(packageProduct, 0, 1);
+        ProductUseage packageUse = new ProductUseage(packageProduct, 0);
+        packageUse.setMinLane(0);
+        packageUse.setMaxLane(1);
 
-        packageUse.addChildProduct(new ProductUseage(bowlingProduct, 1, 1));
-        packageUse.addChildProduct(new ProductUseage(pizzaProduct, 1, 1));
-        packageUse.addChildProduct(new ProductUseage(discountProduct, 1, 1));
+        packageUse.addChildProduct(new ProductUseage(bowlingProduct, 1));
+        packageUse.addChildProduct(new ProductUseage(pizzaProduct, 1));
+        packageUse.addChildProduct(new ProductUseage(discountProduct, 1));
         packageUse.QTYProperty().set(1);
 
         addProductUseageToRegister(packageUse);
@@ -375,7 +382,12 @@ public class Register extends Pane implements Initializable {
     }
 
     public void addProductUseageToRegister(ProductUseage pu) {
-        this.recieptView.getRoot().getChildren().add(pu.clone());
+        ProductUseage clone = pu.clone();
+        System.out.printf("min: %d, Max: %d\n", this.minLane.get(), this.maxLane.get());
+        clone.setMinLane(this.minLane.get());
+        clone.setMaxLane(this.maxLane.get());
+        System.out.println(clone);
+        this.recieptView.getRoot().getChildren().add(clone);
     }
 
     private void saveTab() {
@@ -410,6 +422,14 @@ public class Register extends Pane implements Initializable {
         this.recieptView.getRoot().addEventHandler(TreeItem.valueChangedEvent(), notUsed -> updateTotals());
         this.recieptView.getRoot().addEventHandler(TreeItem.childrenModificationEvent(), notUsed -> updateTotals());
         updateTotals();
+    }
+
+    public IntegerProperty MinLaneProperty() {
+        return minLane;
+    }
+
+    public IntegerProperty MaxLaneProperty() {
+        return maxLane;
     }
 
 }

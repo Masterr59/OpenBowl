@@ -386,6 +386,7 @@ public class MockDB implements DatabaseConnector {
                 transactionID = rand.nextInt(Integer.MAX_VALUE);
                 root.TransactionProperty().set(transactionID);
             }
+
         }
 
         return transactionID;

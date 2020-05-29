@@ -29,17 +29,19 @@ import javafx.beans.property.StringProperty;
  */
 public class ProductUseage extends Receipt {
 
-    private int Transaction_ID;
-    private Product Product_ID;
-    private IntegerProperty QTY;
-    private DoubleProperty subTotal;
-    private DoubleProperty taxTotal;
-    private int laneID;
-    private StringProperty productDescription;
+    private final Product Product_ID;
+    private final IntegerProperty QTY;
+    private final DoubleProperty subTotal;
+    private final DoubleProperty taxTotal;
+    private final StringProperty productDescription;
+    private int[] lanes;
     private int Depth;
 
     public ProductUseage(Product Product_ID, int qty) {
         this.Depth = 0;
+        this.lanes = new int[2];
+        this.lanes[0] = -1;
+        this.lanes[1] = -1;
         this.Product_ID = Product_ID;
         this.QTY = new SimpleIntegerProperty(qty);
         this.subTotal = new SimpleDoubleProperty(0.0);
@@ -55,43 +57,12 @@ public class ProductUseage extends Receipt {
         this.valueProperty().bind(productDescription);
     }
 
-    public ProductUseage(Product Product_ID, int QTY, int laneID) {
-        this(Product_ID, QTY);
-        this.laneID = laneID;
-
-    }
-
-    public ProductUseage(int Transaction_ID, Product Product_ID, int QTY, int laneID) {
-        this(Product_ID, QTY, laneID);
-        this.Transaction_ID = Transaction_ID;
-    }
-
-    public int getTransaction_ID() {
-        return Transaction_ID;
-    }
-
-    public void setTransaction_ID(int Transaction_ID) {
-        this.Transaction_ID = Transaction_ID;
-    }
-
     public Product getProduct_ID() {
         return Product_ID;
     }
 
-    public void setProduct_ID(Product Product_ID) {
-        this.Product_ID = Product_ID;
-    }
-
     public IntegerProperty QTYProperty() {
         return QTY;
-    }
-
-    public int getLaneID() {
-        return laneID;
-    }
-
-    public void setLaneID(int laneID) {
-        this.laneID = laneID;
     }
 
     public void addChildProduct(ProductUseage subProduct) {
@@ -104,6 +75,7 @@ public class ProductUseage extends Receipt {
     public void updateDisc() {
         String padd = "";
         String formattedLine = "";
+        String laneLine = "";
         int qty = this.QTY.get();
         double price = this.Product_ID.Product_PriceProperty().doubleValue();
         double total = price * qty;
@@ -114,12 +86,25 @@ public class ProductUseage extends Receipt {
             String bindingFormat = "%d @ $%(03.2f " + padd + "$%(03.2f";
             formattedLine = String.format(bindingFormat, qty, price, total);
         }
+
+        if (lanes[0] > -1) {
+            laneLine += "Lanes [" + (lanes[0] + 1);
+            if (lanes[1] > -1) {
+                laneLine += "-" + (lanes[1] + 1) + "]";
+            } else {
+                laneLine += "]";
+            }
+        }
+
         String disc = this.Product_ID.getProduct_Name();
         if (disc.length() > max) {
             disc = disc.substring(0, max - 2);
             disc += "…";
         }
         disc += "\n";
+        if (!laneLine.isEmpty()) {
+            disc += laneLine + "\n";
+        }
         disc += formattedLine;
         if (!this.productDescription.get().equals(disc)) {
             this.productDescription.set(disc);
@@ -132,10 +117,14 @@ public class ProductUseage extends Receipt {
 
     @Override
     public ProductUseage clone() {
-        ProductUseage clone = new ProductUseage(this.Transaction_ID, this.Product_ID.clone(), this.QTY.get(), this.laneID);
-        for(Object o : this.getChildren()){
-            if(o instanceof ProductUseage){
-                ProductUseage pu = (ProductUseage)o;
+        ProductUseage clone = new ProductUseage(this.Product_ID.clone(), this.QTY.get());
+        clone.setMinLane(this.lanes[0]);
+        clone.setMaxLane(this.lanes[1]);
+        clone.setDepth(Depth);
+
+        for (Object o : this.getChildren()) {
+            if (o instanceof ProductUseage) {
+                ProductUseage pu = (ProductUseage) o;
                 clone.addChildProduct(pu.clone());
             }
         }
@@ -145,12 +134,20 @@ public class ProductUseage extends Receipt {
     @Override
     public String toString() {
         String ret = this.productDescription.get() + "\n";
-        for(Object o : this.getChildren()){
+        for (Object o : this.getChildren()) {
             ret += o.toString();
         }
         return ret;
     }
-    
-    
+
+    public void setMinLane(int i) {
+        this.lanes[0] = i;
+        updateDisc();
+    }
+
+    public void setMaxLane(int i) {
+        this.lanes[1] = i;
+        updateDisc();
+    }
 
 }

@@ -122,6 +122,8 @@ public class TabDesk extends CommonTab implements Initializable {
 
         subDepartments = new HashMap<Integer, String>();
         productMap = new HashMap<Integer, ArrayList<ProductUseage>>();
+        mRegister.MinLaneProperty().bindBidirectional(minSelected);
+        mRegister.MaxLaneProperty().bindBidirectional(maxSelected);
     }
 
     @Override
@@ -227,6 +229,7 @@ public class TabDesk extends CommonTab implements Initializable {
         if (hbox != null) {
             try {
                 mRegister = new Register(dbConnector);
+
             } catch (IOException ex) {
 
             }
@@ -242,6 +245,7 @@ public class TabDesk extends CommonTab implements Initializable {
     }
 
     public void killTimers() {
+        System.out.println("Desk Tab - Killing Timers");
         for (LaneCheckTask task : this.laneCheckers) {
             task.cancel();
         }
@@ -305,6 +309,8 @@ public class TabDesk extends CommonTab implements Initializable {
     }
 
     private void onAddProductToRegister(ProductUseage pu) {
+        pu.setMinLane(this.minSelected.get());
+        pu.setMaxLane(this.maxSelected.get());
         mRegister.addProductUseageToRegister(pu);
     }
 
