@@ -28,6 +28,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
@@ -158,7 +159,7 @@ public class Register extends Pane implements Initializable {
         salesTax.textProperty().bind(Bindings.format("$%04.2f", taxProperty));
         salesTotal.textProperty().bind(Bindings.format("$%04.2f", totalSaleProperty));
 
-        cancelBtn.setOnAction(notUsed -> clearRegister(NEW_TAB_TITLE));
+        cancelBtn.setOnAction(notUsed -> clearRegister());
 
         timer = new Timer();
         clockTask = new ClockUpdateTask();
@@ -166,10 +167,8 @@ public class Register extends Pane implements Initializable {
         timer.scheduleAtFixedRate(clockTask, 1000, 1000);
 
         specialBtn.setOnAction(not_used -> onSpecialBtn());
-        this.recieptView.setRoot(new Receipt());
-        this.recieptView.getRoot().expandedProperty().set(true);
-        this.recieptView.getRoot().addEventHandler(TreeItem.valueChangedEvent(), notUsed -> updateTotals());
-        this.recieptView.getRoot().addEventHandler(TreeItem.childrenModificationEvent(), notUsed -> updateTotals());
+        clearRegister();
+
         this.recieptView.getSelectionModel().selectedItemProperty().addListener((obs, oo, no) -> onSelectionChange(oo, no));
 
         payLaterBtn.setOnAction(notUsed -> saveTab());
@@ -235,14 +234,8 @@ public class Register extends Pane implements Initializable {
         }
     }
 
-    public void clearRegister(String title) {
-        numPadProperty.set(0.0);
-        numPadStringValue = "";
-
-        recieptView.getRoot().getChildren().clear();
-        recieptView.getRoot().setValue(title);
-        recieptView.getRoot().expandedProperty().set(true);
-
+    public void clearRegister() {
+        loadRegister(new Receipt());
     }
 
     public void killTasks() {
@@ -385,10 +378,9 @@ public class Register extends Pane implements Initializable {
 
     private void saveTab() {
         if (!this.recieptView.getRoot().getChildren().isEmpty() && user != AuthorizedUser.NON_USER) {
-
-            Integer transID = dbConnector.saveTab(user, (Receipt)this.recieptView.getRoot());
+            Integer transID = dbConnector.saveTab(user, (Receipt) this.recieptView.getRoot());
             System.out.printf("Tab saved under tabID %d\n", transID);
-            clearRegister(NEW_TAB_TITLE);
+            clearRegister();
         }
     }
 
@@ -399,8 +391,23 @@ public class Register extends Pane implements Initializable {
     private void onFindTab() {
         FindTabDialog dialog = new FindTabDialog(this.dbConnector, this.user);
         dialog.showAndWait();
-        
-        
+        if (dialog.isOpenTab()) {
+            loadTab(dialog.getTabID());
+        }
+    }
+
+    private void loadTab(Integer tabID) {
+        loadRegister(this.dbConnector.getTab(user, tabID).clone());
+    }
+
+    private void loadRegister(Receipt root) {
+        numPadProperty.set(0.0);
+        numPadStringValue = "";
+        this.recieptView.setRoot(root);
+        this.recieptView.getRoot().expandedProperty().set(true);
+        this.recieptView.getRoot().addEventHandler(TreeItem.valueChangedEvent(), notUsed -> updateTotals());
+        this.recieptView.getRoot().addEventHandler(TreeItem.childrenModificationEvent(), notUsed -> updateTotals());
+        updateTotals();
     }
 
 }

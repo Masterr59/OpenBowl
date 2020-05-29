@@ -350,7 +350,7 @@ public class MockDB implements DatabaseConnector {
             int i = rand.nextInt(Integer.MAX_VALUE);
             tabs.put(i, root.clone());
             root.TransactionProperty().set(i);
-            System.out.printf("Saving tabID: %d\n%s", i, root);
+            //System.out.printf("Saving tabID: %d\n%s", i, root);
             return i;
         }
         return -1;
@@ -370,7 +370,7 @@ public class MockDB implements DatabaseConnector {
         Receipt item;
         if (user.isAuthorized(UserRole.TRANSACTION_ADD) && tabs.containsKey(tabid)) {
             item = tabs.get(tabid);
-            System.out.printf("Loading tabID: %d\n%s", tabid, item);
+            //System.out.printf("Loading tabID: %d\n%s", tabid, item);
         }
         else{
             item = new Receipt();
