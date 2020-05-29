@@ -21,7 +21,9 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -120,10 +122,10 @@ public class Register extends Pane implements Initializable {
     @FXML
     Button payNowbtn;
 
-    private DatabaseConnector dbConnector;
-    private DoubleProperty numPadProperty;
-    private DoubleProperty taxProperty;
-    private DoubleProperty totalSaleProperty;
+    private final DatabaseConnector dbConnector;
+    private final DoubleProperty numPadProperty;
+    private final DoubleProperty taxProperty;
+    private final DoubleProperty totalSaleProperty;
     private String numPadStringValue;
     private Timer timer;
     private ClockUpdateTask clockTask;

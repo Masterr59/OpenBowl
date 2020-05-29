@@ -64,9 +64,11 @@ public class Receipt extends TreeItem<String> {
         Receipt clone = new Receipt();
         if(this.TransactionProperty.get() > -1){
             clone.TransactionProperty().set(this.TransactionProperty.get());
+            System.out.printf("Setting clone id to %d\n", this.TransactionProperty.get());
         }
         for(TreeItem<String> ti : this.getChildren()){
             if(ti instanceof ProductUseage){
+                
                 clone.getChildren().add((ProductUseage)((ProductUseage) ti).clone());
             }
             else{

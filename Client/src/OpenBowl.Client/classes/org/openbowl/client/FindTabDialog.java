@@ -25,6 +25,7 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.HBox;
 import org.openbowl.common.AuthorizedUser;
+import org.openbowl.common.UserRole;
 
 /**
  *
@@ -42,6 +43,7 @@ public class FindTabDialog extends Alert {
     private Integer tabID;
     private boolean openTab;
     private ButtonType reloadBtn;
+    private ButtonType deleteBtn;
 
     public FindTabDialog(DatabaseConnector dbConnector, AuthorizedUser user) {
         super(AlertType.INFORMATION);
@@ -64,13 +66,21 @@ public class FindTabDialog extends Alert {
         this.openTab = false;
         this.reloadBtn = new ButtonType("Reload");
 
+        this.deleteBtn = new ButtonType("Delete");
+
         this.setOnCloseRequest(eh -> onCloseRequest(eh));
 
         HBox hbox = new HBox();
         hbox.getChildren().addAll(this.listView, this.treeView);
 
         this.getDialogPane().setContent(hbox);
-        this.getButtonTypes().addAll(ButtonType.CANCEL, reloadBtn);
+        this.getButtonTypes().addAll(ButtonType.CANCEL, deleteBtn, reloadBtn);
+        if (user.isAuthorized(UserRole.TRANSACTION_DELETE)) {
+
+        } else {
+            this.getDialogPane().lookupButton(deleteBtn).disableProperty().set(true);
+        }
+
         onReloadTabs();
     }
 
@@ -85,6 +95,11 @@ public class FindTabDialog extends Alert {
 
         } else if (this.getResult() == this.reloadBtn) {
             eh.consume();
+            onReloadTabs();
+        } else if (this.getResult() == this.deleteBtn && user.isAuthorized(UserRole.TRANSACTION_DELETE)) {
+            eh.consume();
+            Integer toDelete = this.listView.getSelectionModel().getSelectedItem();
+            dbConnector.removeTab(user, toDelete);
             onReloadTabs();
         }
     }

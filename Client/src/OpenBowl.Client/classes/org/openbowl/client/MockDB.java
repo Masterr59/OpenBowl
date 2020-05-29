@@ -348,9 +348,8 @@ public class MockDB implements DatabaseConnector {
     public Integer saveTab(AuthorizedUser user, Receipt root) {
         if (user.isAuthorized(UserRole.TRANSACTION_ADD)) {
             int i = rand.nextInt(Integer.MAX_VALUE);
-            tabs.put(i, root.clone());
             root.TransactionProperty().set(i);
-            //System.out.printf("Saving tabID: %d\n%s", i, root);
+            tabs.put(i, root.clone());
             return i;
         }
         return -1;
@@ -371,8 +370,7 @@ public class MockDB implements DatabaseConnector {
         if (user.isAuthorized(UserRole.TRANSACTION_ADD) && tabs.containsKey(tabid)) {
             item = tabs.get(tabid);
             //System.out.printf("Loading tabID: %d\n%s", tabid, item);
-        }
-        else{
+        } else {
             item = new Receipt();
         }
         return item;
@@ -382,16 +380,14 @@ public class MockDB implements DatabaseConnector {
     public Integer saveTransaction(AuthorizedUser user, Receipt root) {
         int transactionID = -1;
         if (user.isAuthorized(UserRole.TRANSACTION_ADD)) {
-            if (root instanceof ProductUseage) {
-                ProductUseage pu = (ProductUseage) root;
-                if (pu.getTransaction_ID() > 0) {
-                    transactionID = pu.getTransaction_ID();
-                } else {
-                    transactionID = rand.nextInt(Integer.MAX_VALUE);
-                }
+            if (root.TransactionProperty().get() > 0) {
+                transactionID = root.TransactionProperty().get();
+            } else {
+                transactionID = rand.nextInt(Integer.MAX_VALUE);
+                root.TransactionProperty().set(transactionID);
             }
-
         }
+
         return transactionID;
     }
 

@@ -307,4 +307,5 @@ public class TabDesk extends CommonTab implements Initializable {
     private void onAddProductToRegister(ProductUseage pu) {
         mRegister.addProductUseageToRegister(pu);
     }
+
 }
