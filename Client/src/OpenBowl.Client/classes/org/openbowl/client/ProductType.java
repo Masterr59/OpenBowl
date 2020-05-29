@@ -23,6 +23,8 @@ package org.openbowl.client;
 public class ProductType {
 
     public final static ProductType TEST_TYPE = new ProductType(-1, "Test Type");
+    public final static ProductType GAME_TYPE = new ProductType(0, "Game");
+    public final static ProductType FOOD_TYPE = new ProductType(1, "Food / Drink");
 
     private int ID;
     private String Name;

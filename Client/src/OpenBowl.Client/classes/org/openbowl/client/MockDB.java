@@ -23,7 +23,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import javafx.scene.control.TreeItem;
 import org.openbowl.common.AuthorizedUser;
 import org.openbowl.common.SystemStatus;
 import org.openbowl.common.UserRole;
@@ -230,8 +229,8 @@ public class MockDB implements DatabaseConnector {
 
     @Override
     public ArrayList<ProductUseage> getProducts(AuthorizedUser user, Integer SD) {
-        ProductType typeGame = new ProductType(0, "Game");
-        ProductType typeFood = new ProductType(1, "Food / Drink");
+        ProductType typeGame = ProductType.GAME_TYPE;
+        ProductType typeFood = ProductType.FOOD_TYPE;
         ProductType typeRetail = new ProductType(2, "Retail");
         ProductType typeOther = new ProductType(3, "Other");
         ProductType typeDiscount = new ProductType(4, "Discount");
