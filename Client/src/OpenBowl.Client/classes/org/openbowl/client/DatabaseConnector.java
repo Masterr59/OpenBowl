@@ -65,5 +65,7 @@ public interface DatabaseConnector {
     
     public TreeItem getTab(AuthorizedUser user, Integer tabid);
     
+    public boolean removeTab(AuthorizedUser user, Integer tabid);
+    
     public Integer saveTransaction(AuthorizedUser user, TreeItem root);
 }

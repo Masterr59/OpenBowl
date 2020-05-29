@@ -173,6 +173,7 @@ public class Register extends Pane implements Initializable {
         this.recieptView.getSelectionModel().selectedItemProperty().addListener((obs, oo, no) -> onSelectionChange(oo, no));
 
         payLaterBtn.setOnAction(notUsed -> saveTab());
+        findTabBtn.setOnAction(notUsed -> onFindTab());
     }
 
     @Override
@@ -393,6 +394,13 @@ public class Register extends Pane implements Initializable {
 
     public void setUser(AuthorizedUser user) {
         this.user = user;
+    }
+
+    private void onFindTab() {
+        FindTabDialog dialog = new FindTabDialog(this.dbConnector, this.user);
+        dialog.showAndWait();
+        
+        
     }
 
 }

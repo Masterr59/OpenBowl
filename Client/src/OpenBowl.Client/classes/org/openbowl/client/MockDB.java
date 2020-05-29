@@ -389,4 +389,16 @@ public class MockDB implements DatabaseConnector {
         return transactionID;
     }
 
+    @Override
+    public boolean removeTab(AuthorizedUser user, Integer tabid) {
+        boolean success = false;
+        if (user.isAuthorized(UserRole.TRANSACTION_ADD)) {
+            if (tabs.containsKey(tabid)) {
+                tabs.remove(tabid);
+                success = true;
+            }
+        }
+        return success;
+    }
+
 }
