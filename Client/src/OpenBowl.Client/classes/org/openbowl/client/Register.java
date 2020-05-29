@@ -133,9 +133,11 @@ public class Register extends Pane implements Initializable {
     private ClockUpdateTask clockTask;
     private AuthorizedUser user;
     private IntegerProperty minLane, maxLane;
+    private boolean allowChangeLane;
 
     public Register(DatabaseConnector db) throws IOException {
         dbConnector = db;
+        allowChangeLane = true;
         user = AuthorizedUser.NON_USER;
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/openbowl/client/Register.fxml"));
         loader.setController(this);
@@ -181,6 +183,8 @@ public class Register extends Pane implements Initializable {
 
         minLane = new SimpleIntegerProperty(-1);
         maxLane = new SimpleIntegerProperty(-1);
+        minLane.addListener((obs, on, nn) -> onLaneSelectChange());
+        maxLane.addListener((obs, on, nn) -> onLaneSelectChange());
     }
 
     @Override
@@ -346,6 +350,7 @@ public class Register extends Pane implements Initializable {
 
     private void onSelectionChange(Object oo, Object no) {
         ProductUseage pu;
+
         if (oo instanceof ProductUseage) {
             pu = (ProductUseage) oo;
             pu.QTYProperty().unbind();
@@ -355,6 +360,13 @@ public class Register extends Pane implements Initializable {
             numPadProperty.set(pu.QTYProperty().doubleValue());
             numPadStringValue = "";
             pu.QTYProperty().bind(numPadProperty);
+            this.allowChangeLane = false;
+            this.minLane.set(pu.getMinLane());
+            this.maxLane.set(pu.getMaxLane());
+            this.allowChangeLane = true;
+        } else {
+            this.minLane.set(-1);
+            this.maxLane.set(-1);
         }
         //System.out.println("Old: " + oo + " New: " + no);
     }
@@ -383,10 +395,8 @@ public class Register extends Pane implements Initializable {
 
     public void addProductUseageToRegister(ProductUseage pu) {
         ProductUseage clone = pu.clone();
-        System.out.printf("min: %d, Max: %d\n", this.minLane.get(), this.maxLane.get());
         clone.setMinLane(this.minLane.get());
         clone.setMaxLane(this.maxLane.get());
-        System.out.println(clone);
         this.recieptView.getRoot().getChildren().add(clone);
     }
 
@@ -430,6 +440,16 @@ public class Register extends Pane implements Initializable {
 
     public IntegerProperty MaxLaneProperty() {
         return maxLane;
+    }
+
+    private void onLaneSelectChange() {
+        for (Object o : this.recieptView.getSelectionModel().getSelectedItems()) {
+            if (o instanceof ProductUseage && this.allowChangeLane) {
+                ProductUseage pu = (ProductUseage) o;
+                pu.setMinLane(this.minLane.get());
+                pu.setMaxLane(this.maxLane.get());
+            }
+        }
     }
 
 }

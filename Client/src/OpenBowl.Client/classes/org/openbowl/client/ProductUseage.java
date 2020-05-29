@@ -150,4 +150,11 @@ public class ProductUseage extends Receipt {
         updateDisc();
     }
 
+    public int getMinLane() {
+        return this.lanes[0];
+    }
+
+    public int getMaxLane() {
+        return this.lanes[1];
+    }
 }
