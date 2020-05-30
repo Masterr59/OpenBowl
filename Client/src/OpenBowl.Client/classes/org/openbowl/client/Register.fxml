@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TreeView?>
@@ -14,4 +15,7 @@
       <Label id="salesTax" fx:id="salesTax" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="\$0.08" />
       <Label id="salesTotal" fx:id="salesTotal" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" text="\$0.00" />
    </children>
+   <padding>
+      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+   </padding>
 </VBox>
