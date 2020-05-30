@@ -37,6 +37,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import org.openbowl.common.AuthorizedUser;
 
 /**
@@ -44,11 +45,11 @@ import org.openbowl.common.AuthorizedUser;
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
 public class Register extends Pane implements Initializable {
-
+    
     public static final int MAX_LINE_LENGTH = 40;
     private final String NEW_TAB_TITLE = "New Tab";
     private final String OPEN_TAB_TITLE = "New Tab";
-
+    
     private enum NumPadKeys {
         KEY_0,
         KEY_1,
@@ -63,78 +64,33 @@ public class Register extends Pane implements Initializable {
         KEY_DOT,
         KEY_BACKSPACE,
     }
-
+    
     @FXML
     Label dateTime;
-
-    @FXML
-    TreeView recieptView;
-
+    
     @FXML
     Label salesTax;
-
+    
     @FXML
     Label salesTotal;
-
+    
     @FXML
-    Button adjustBtn;
-
+    TreeView recieptView;
+    
     @FXML
-    Button specialBtn;
-
-    @FXML
-    Button noSaleBtn;
-
-    @FXML
-    Button num0;
-    @FXML
-    Button num1;
-    @FXML
-    Button num2;
-    @FXML
-    Button num3;
-    @FXML
-    Button num4;
-    @FXML
-    Button num5;
-    @FXML
-    Button num6;
-    @FXML
-    Button num7;
-    @FXML
-    Button num8;
-    @FXML
-    Button num9;
-
-    @FXML
-    Button eraseBtn;
-
-    @FXML
-    Button numDot;
-
-    @FXML
-    Button cancelBtn;
-
-    @FXML
-    Button payLaterBtn;
-
-    @FXML
-    Button findTabBtn;
-
-    @FXML
-    Button payNowbtn;
-
+    VBox vbox;
+    
     private final DatabaseConnector dbConnector;
     private final DoubleProperty numPadProperty;
     private final DoubleProperty taxProperty;
     private final DoubleProperty totalSaleProperty;
-    private String numPadStringValue;
     private Timer timer;
     private ClockUpdateTask clockTask;
     private AuthorizedUser user;
     private IntegerProperty minLane, maxLane;
     private boolean allowChangeLane;
-
+    private NumPad numPad;
+    
     public Register(DatabaseConnector db) throws IOException {
         dbConnector = db;
         allowChangeLane = true;
@@ -142,114 +98,57 @@ public class Register extends Pane implements Initializable {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/openbowl/client/Register.fxml"));
         loader.setController(this);
         Parent root = loader.load();
-
+        
         getChildren().add(root);
-        numPadStringValue = "";
+        
+        numPad = new NumPad();
+        vbox.getChildren().add(numPad);
+        
         numPadProperty = new SimpleDoubleProperty(0.0);
-
+        numPadProperty.bind(numPad.NumPadValueProperty());
+        
         taxProperty = new SimpleDoubleProperty(0.0);
         totalSaleProperty = new SimpleDoubleProperty(0.0);
-
-        num0.setOnAction(notUsed -> onNumPadType(NumPadKeys.KEY_0));
-        num1.setOnAction(notUsed -> onNumPadType(NumPadKeys.KEY_1));
-        num2.setOnAction(notUsed -> onNumPadType(NumPadKeys.KEY_2));
-        num3.setOnAction(notUsed -> onNumPadType(NumPadKeys.KEY_3));
-        num4.setOnAction(notUsed -> onNumPadType(NumPadKeys.KEY_4));
-        num5.setOnAction(notUsed -> onNumPadType(NumPadKeys.KEY_5));
-        num6.setOnAction(notUsed -> onNumPadType(NumPadKeys.KEY_6));
-        num7.setOnAction(notUsed -> onNumPadType(NumPadKeys.KEY_7));
-        num8.setOnAction(notUsed -> onNumPadType(NumPadKeys.KEY_8));
-        num9.setOnAction(notUsed -> onNumPadType(NumPadKeys.KEY_9));
-        numDot.setOnAction(notUsed -> onNumPadType(NumPadKeys.KEY_DOT));
-        eraseBtn.setOnAction(notUsed -> onNumPadType(NumPadKeys.KEY_BACKSPACE));
-
+        
         salesTax.textProperty().bind(Bindings.format("$%04.2f", taxProperty));
         salesTotal.textProperty().bind(Bindings.format("$%04.2f", totalSaleProperty));
 
-        cancelBtn.setOnAction(notUsed -> clearRegister());
-
+        //Cancel Btn
+        numPad.setButtonOnAction(notUsed -> clearRegister(), 1, 3);
+        
         timer = new Timer();
         clockTask = new ClockUpdateTask();
         dateTime.textProperty().bind(clockTask.DateLabelProperty());
         timer.scheduleAtFixedRate(clockTask, 1000, 1000);
 
-        specialBtn.setOnAction(not_used -> onSpecialBtn());
+        //Special Btn
+        numPad.setButtonOnAction(not_used -> onSpecialBtn(), 0, 1);
         clearRegister();
-
+        
         this.recieptView.getSelectionModel().selectedItemProperty().addListener((obs, oo, no) -> onSelectionChange(oo, no));
 
-        payLaterBtn.setOnAction(notUsed -> saveTab());
-        findTabBtn.setOnAction(notUsed -> onFindTab());
-
+        //PayLater Btn
+        numPad.setButtonOnAction(notUsed -> saveTab(), 2, 3);
+        //FindTab Btn
+        numPad.setButtonOnAction(notUsed -> onFindTab(), 3, 3);
+        
         minLane = new SimpleIntegerProperty(-1);
         maxLane = new SimpleIntegerProperty(-1);
         minLane.addListener((obs, on, nn) -> onLaneSelectChange());
         maxLane.addListener((obs, on, nn) -> onLaneSelectChange());
+        
+        numPad.setOnZeroAction(notUsed -> onDeleteSelected());
     }
-
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-
+        
     }
-
-    private void onNumPadType(NumPadKeys keystroke) {
-        switch (keystroke) {
-            case KEY_0:
-                numPadStringValue += "0";
-                break;
-            case KEY_1:
-                numPadStringValue += "1";
-                break;
-            case KEY_2:
-                numPadStringValue += "2";
-                break;
-            case KEY_3:
-                numPadStringValue += "3";
-                break;
-            case KEY_4:
-                numPadStringValue += "4";
-                break;
-            case KEY_5:
-                numPadStringValue += "5";
-                break;
-            case KEY_6:
-                numPadStringValue += "6";
-                break;
-            case KEY_7:
-                numPadStringValue += "7";
-                break;
-            case KEY_8:
-                numPadStringValue += "8";
-                break;
-            case KEY_9:
-                numPadStringValue += "9";
-                break;
-            case KEY_DOT:
-                if (!numPadStringValue.contains(".")) {
-                    numPadStringValue += ".";
-                }
-
-                break;
-            case KEY_BACKSPACE:
-                if (!numPadStringValue.isBlank()) {
-                    numPadStringValue = numPadStringValue.substring(0, numPadStringValue.length() - 1);
-                }
-                break;
-        }
-        if (!numPadStringValue.isBlank()) {
-            numPadProperty.set(Double.parseDouble(numPadStringValue));
-        } else {
-            numPadProperty.set(0.0);
-        }
-        if (numPadStringValue.equals("0")) {
-            onDeleteSelected();
-        }
-    }
-
+    
     public void clearRegister() {
         loadRegister(new Receipt());
     }
-
+    
     public void killTasks() {
         System.out.println("Register - killing clock task");
         clockTask.cancel();
@@ -258,7 +157,7 @@ public class Register extends Pane implements Initializable {
         timer.purge();
         timer = null;
     }
-
+    
     private void onSpecialBtn() {
         ProductUseage newUseage = new ProductUseage(Product.TEST_PRODUCT, 1);
         addProductUseageToRegister(newUseage);
@@ -266,24 +165,24 @@ public class Register extends Pane implements Initializable {
         Product bowlingProduct = new Product(-1, "Bowling lane 1 hrs", 19.99, -1, ProductType.TEST_TYPE, TaxType.TEST_RATE);
         Product pizzaProduct = new Product(-1, "Pizza 1 lg 5 toppings", 19.99, -1, ProductType.TEST_TYPE, TaxType.TEST_RATE);
         Product discountProduct = new Product(-1, "line discount", -9.99, -1, ProductType.TEST_TYPE, TaxType.TAX_EXEMPT);
-
+        
         ProductUseage packageUse = new ProductUseage(packageProduct, 0);
         packageUse.setMinLane(0);
         packageUse.setMaxLane(1);
-
+        
         packageUse.addChildProduct(new ProductUseage(bowlingProduct, 1));
         packageUse.addChildProduct(new ProductUseage(pizzaProduct, 1));
         packageUse.addChildProduct(new ProductUseage(discountProduct, 1));
         packageUse.QTYProperty().set(1);
-
+        
         addProductUseageToRegister(packageUse);
     }
-
+    
     private void updateTotals() {
         updateSaleTotal();
         updateTaxTotal();
     }
-
+    
     private void updateSaleTotal() {
         double saleTotal = 0.0;
         for (Object ob : this.recieptView.getRoot().getChildren()) {
@@ -293,12 +192,12 @@ public class Register extends Pane implements Initializable {
             }
         }
         this.totalSaleProperty.set(saleTotal);
-
+        
     }
-
+    
     private double getSaleTotal(TreeItem root) {
         double sale = 0.0;
-
+        
         if (!root.getChildren().isEmpty()) {
             double childTotal = 0.0;
             for (Object ob : root.getChildren()) {
@@ -318,7 +217,7 @@ public class Register extends Pane implements Initializable {
         }
         return sale;
     }
-
+    
     private void updateTaxTotal() {
         double taxTotal = 0.0;
         for (Object ob : this.recieptView.getRoot().getChildren()) {
@@ -329,7 +228,7 @@ public class Register extends Pane implements Initializable {
         }
         this.taxProperty.set(taxTotal);
     }
-
+    
     private double getTaxTotal(TreeItem root) {
         double tax = 0.0;
         if (root instanceof ProductUseage) {
@@ -337,28 +236,27 @@ public class Register extends Pane implements Initializable {
             tax += child.getProduct_ID().Product_PriceProperty().get()
                     * child.QTYProperty().get()
                     * child.getProduct_ID().getTax_Type().getRate();
-
+            
             for (Object ob : child.getChildren()) {
                 if (ob instanceof ProductUseage) {
                     tax += getTaxTotal((ProductUseage) ob);
                 }
             }
         }
-
+        
         return tax;
     }
-
+    
     private void onSelectionChange(Object oo, Object no) {
         ProductUseage pu;
-
+        
         if (oo instanceof ProductUseage) {
             pu = (ProductUseage) oo;
             pu.QTYProperty().unbind();
         }
         if (no instanceof ProductUseage) {
             pu = (ProductUseage) no;
-            numPadProperty.set(pu.QTYProperty().doubleValue());
-            numPadStringValue = "";
+            numPad.setValue(0.0);
             pu.QTYProperty().bind(numPadProperty);
             this.allowChangeLane = false;
             this.minLane.set(pu.getMinLane());
@@ -370,16 +268,16 @@ public class Register extends Pane implements Initializable {
         }
         //System.out.println("Old: " + oo + " New: " + no);
     }
-
+    
     private void onDeleteSelected() {
         if (this.recieptView.getSelectionModel().getSelectedItem() instanceof TreeItem) {
             TreeItem toBeDeleted = (TreeItem) this.recieptView.getSelectionModel().getSelectedItem();
             deleteFromRegister(toBeDeleted, this.recieptView.getRoot());
-            numPadStringValue = "";
-
+            numPad.setValue(0.0);
+            
         }
     }
-
+    
     private void deleteFromRegister(TreeItem delete, TreeItem root) {
         if (root.getChildren().contains(delete)) {
             root.getChildren().remove(delete);
@@ -392,14 +290,14 @@ public class Register extends Pane implements Initializable {
             }
         }
     }
-
+    
     public void addProductUseageToRegister(ProductUseage pu) {
         ProductUseage clone = pu.clone();
         clone.setMinLane(this.minLane.get());
         clone.setMaxLane(this.maxLane.get());
         this.recieptView.getRoot().getChildren().add(clone);
     }
-
+    
     private void saveTab() {
         if (!this.recieptView.getRoot().getChildren().isEmpty() && user != AuthorizedUser.NON_USER) {
             Integer transID = dbConnector.saveTab(user, (Receipt) this.recieptView.getRoot());
@@ -407,11 +305,11 @@ public class Register extends Pane implements Initializable {
             clearRegister();
         }
     }
-
+    
     public void setUser(AuthorizedUser user) {
         this.user = user;
     }
-
+    
     private void onFindTab() {
         FindTabDialog dialog = new FindTabDialog(this.dbConnector, this.user);
         dialog.showAndWait();
@@ -419,29 +317,28 @@ public class Register extends Pane implements Initializable {
             loadTab(dialog.getTabID());
         }
     }
-
+    
     private void loadTab(Integer tabID) {
         loadRegister(this.dbConnector.getTab(user, tabID).clone());
     }
-
+    
     private void loadRegister(Receipt root) {
-        numPadProperty.set(0.0);
-        numPadStringValue = "";
+        numPad.setValue(0.0);
         this.recieptView.setRoot(root);
         this.recieptView.getRoot().expandedProperty().set(true);
         this.recieptView.getRoot().addEventHandler(TreeItem.valueChangedEvent(), notUsed -> updateTotals());
         this.recieptView.getRoot().addEventHandler(TreeItem.childrenModificationEvent(), notUsed -> updateTotals());
         updateTotals();
     }
-
+    
     public IntegerProperty MinLaneProperty() {
         return minLane;
     }
-
+    
     public IntegerProperty MaxLaneProperty() {
         return maxLane;
     }
-
+    
     private void onLaneSelectChange() {
         for (Object o : this.recieptView.getSelectionModel().getSelectedItems()) {
             if (o instanceof ProductUseage && this.allowChangeLane) {
@@ -451,5 +348,5 @@ public class Register extends Pane implements Initializable {
             }
         }
     }
-
+    
 }
