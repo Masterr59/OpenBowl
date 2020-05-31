@@ -85,7 +85,7 @@ public class NumPad extends Pane implements Initializable {
     Button findTabBtn;
 
     @FXML
-    Button payNowbtn;
+    Button payNowBtn;
 
     private final DoubleProperty numPadProperty;
     private String numPadStringValue;
@@ -240,7 +240,7 @@ public class NumPad extends Pane implements Initializable {
         } else if (row == 3 && col == 3) {
             return this.findTabBtn;
         } else if (row == 4 && col == 3) {
-            return this.payNowbtn;
+            return this.payNowBtn;
         }
         return new Button("NULL");
     }
