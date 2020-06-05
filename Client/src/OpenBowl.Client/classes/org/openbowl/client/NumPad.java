@@ -248,4 +248,15 @@ public class NumPad extends Pane implements Initializable {
     public void setOnZeroAction(EventHandler<ActionEvent> zero) {
         this.zeroAction = zero;
     }
+
+    public void setInitialValue(double d) {
+        String value = new Double(d).toString();
+        if (value.endsWith(".0")) {
+            value = value.substring(0, value.length() - 2);
+        }
+        if(value.equals("0")){
+            value = "";
+        }
+        this.numPadStringValue = value;
+    }
 }

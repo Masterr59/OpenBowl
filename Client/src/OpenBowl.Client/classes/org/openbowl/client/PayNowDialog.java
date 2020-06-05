@@ -21,11 +21,9 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
@@ -98,7 +96,7 @@ public class PayNowDialog extends Alert {
     }
 
     private void onTenderedChange() {
-        boolean enabled = this.tenderedProperty.greaterThan(amountDue).get();
+        boolean enabled = this.tenderedProperty.greaterThanOrEqualTo(amountDue).get();
         this.getDialogPane().lookupButton(ButtonType.OK).disableProperty().set(!enabled);
     }
 }

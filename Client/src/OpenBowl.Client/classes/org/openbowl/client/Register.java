@@ -240,7 +240,8 @@ public class Register extends Pane implements Initializable {
         }
         if (no instanceof ProductUseage) {
             pu = (ProductUseage) no;
-            numPad.setValue(0.0);
+            numPad.setValue(pu.QTYProperty().get());
+            numPad.setInitialValue(0.0);
             pu.QTYProperty().bind(numPadProperty);
             this.allowChangeLane = false;
             this.minLane.set(pu.getMinLane());
@@ -257,7 +258,7 @@ public class Register extends Pane implements Initializable {
         if (this.recieptView.getSelectionModel().getSelectedItem() instanceof TreeItem) {
             TreeItem toBeDeleted = (TreeItem) this.recieptView.getSelectionModel().getSelectedItem();
             deleteFromRegister(toBeDeleted, this.recieptView.getRoot());
-            numPad.setValue(0.0);
+            //numPad.setValue(0.0);
 
         }
     }
