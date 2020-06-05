@@ -18,6 +18,7 @@ package org.openbowl.client;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import javafx.beans.binding.Bindings;
@@ -31,6 +32,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
@@ -43,9 +45,13 @@ import org.openbowl.common.AuthorizedUser;
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
 public class Register extends Pane implements Initializable {
+
     private final String NO_RECEIPT_ALERT_TITLE = "Warning";
     private final String NO_RECEIPT_ALERT_HEADER = "Receipt Empty Warning";
     private final String NO_RECEIPT_ALERT_TEXT = "The receipt is empty.";
+
+    private final String DB_ERROR = "Database Error!";
+    private final String DB_ERROR_SAVE_TRANSACTION = "Error saving transaction to database code: %d";
 
     public static final int MAX_LINE_LENGTH = 40;
     private final String NEW_TAB_TITLE = "New Tab";
@@ -343,8 +349,38 @@ public class Register extends Pane implements Initializable {
         if (this.recieptView.getRoot().getChildren().size() > 0) {
             PayNowDialog dialog;
             try {
-                dialog = new PayNowDialog(this.totalSaleProperty.get() + this.taxProperty.get(), dbConnector, user);
-                dialog.showAndWait();
+                double total = this.totalSaleProperty.get() + this.taxProperty.get();
+                dialog = new PayNowDialog(total, dbConnector, user);
+                Optional<ButtonType> result = dialog.showAndWait();
+                if (result.get() == ButtonType.OK) {
+                    if (this.recieptView.getRoot() instanceof Receipt) {
+                        double change = dialog.tenderedProperty().get() - total;
+                        Receipt receipt = ((Receipt) this.recieptView.getRoot()).clone();
+                        receipt.setAmountDue(total);
+                        receipt.setAmountSubTotal(this.totalSaleProperty.get());
+                        receipt.setAmountTax(this.taxProperty.get());
+                        receipt.setAmountTendered(dialog.tenderedProperty().get());
+                        receipt.setPaymentType(dialog.getPaymentType());
+                        Integer transactionID = this.dbConnector.saveTransaction(user, receipt.clone());
+                        if (transactionID > 0) {
+                            receipt.TransactionProperty().set(transactionID);
+                            clearRegister();
+                            printReceipt(receipt);
+                            if (change > 0 || dialog.getPaymentType() == PaymentType.CASH
+                                    || dialog.getPaymentType() == PaymentType.CHECK) {
+                                onOpenCashDraw();
+                            }
+                        } else {
+                            Alert alert = new Alert(AlertType.ERROR);
+                            alert.setTitle(DB_ERROR);
+                            alert.setHeaderText(DB_ERROR);
+                            alert.setContentText(String.format(DB_ERROR_SAVE_TRANSACTION, transactionID.intValue()));
+
+                            alert.showAndWait();
+                        }
+                    }
+                }
+
             } catch (IOException ex) {
                 System.out.println("Error loading PayNowDialog: " + ex.toString());
             }
@@ -357,6 +393,28 @@ public class Register extends Pane implements Initializable {
 
             alert.showAndWait();
         }
+    }
+
+    private void printReceipt(Receipt receipt) {
+        String msg = "*** TODO print receipt ***";
+        System.out.println(msg);
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle(msg);
+        alert.setContentText(receipt.toString());
+        alert.setGraphic(null);
+        alert.setHeaderText(null);
+        alert.show();
+    }
+
+    private void onOpenCashDraw() {
+        String msg = "*** TODO trigger open cash drawer ***";
+        System.out.println(msg);
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle(msg);
+        alert.setContentText(msg);
+        alert.setGraphic(null);
+        alert.setHeaderText(null);
+        alert.show();
     }
 
 }

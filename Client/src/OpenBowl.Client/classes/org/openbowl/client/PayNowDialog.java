@@ -131,21 +131,29 @@ public class PayNowDialog extends Alert {
 
     private void onTenderedChange() {
         boolean enabled = this.tenderedProperty.greaterThanOrEqualTo(amountDue).get();
-        enabled = (this.paymentType == null) ? false: enabled;
+        enabled = (this.paymentType == null) ? false : enabled;
         this.getDialogPane().lookupButton(ButtonType.OK).disableProperty().set(!enabled);
     }
 
     private void setPaymentType(PaymentType pt) {
         this.paymentType = pt;
-        for(Object o : this.paymentTypeVBox.getChildren()){
-            if(o instanceof Button){
-                Button btn = (Button)o;
-                if(btn.getUserData() instanceof PaymentType){
-                    PaymentType btnPt = (PaymentType)btn.getUserData();
+        for (Object o : this.paymentTypeVBox.getChildren()) {
+            if (o instanceof Button) {
+                Button btn = (Button) o;
+                if (btn.getUserData() instanceof PaymentType) {
+                    PaymentType btnPt = (PaymentType) btn.getUserData();
                     btn.disableProperty().set(btnPt == pt);
                 }
             }
         }
         onTenderedChange();
+    }
+
+    public DoubleProperty tenderedProperty() {
+        return this.tenderedProperty;
+    }
+
+    public PaymentType getPaymentType() {
+        return this.paymentType;
     }
 }

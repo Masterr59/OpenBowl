@@ -18,7 +18,6 @@ package org.openbowl.client;
 
 import java.util.ArrayList;
 import java.util.Map;
-import javafx.scene.control.TreeItem;
 import org.openbowl.common.AuthorizedUser;
 import org.openbowl.common.SystemStatus;
 
