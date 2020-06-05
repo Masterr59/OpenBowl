@@ -29,6 +29,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
@@ -41,6 +43,9 @@ import org.openbowl.common.AuthorizedUser;
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
 public class Register extends Pane implements Initializable {
+    private final String NO_RECEIPT_ALERT_TITLE = "Warning";
+    private final String NO_RECEIPT_ALERT_HEADER = "Receipt Empty Warning";
+    private final String NO_RECEIPT_ALERT_TEXT = "The receipt is empty.";
 
     public static final int MAX_LINE_LENGTH = 40;
     private final String NEW_TAB_TITLE = "New Tab";
@@ -335,14 +340,23 @@ public class Register extends Pane implements Initializable {
     }
 
     private void onPayNow() {
-        PayNowDialog dialog;
-        try {
-            dialog = new PayNowDialog(this.totalSaleProperty.get());
-            dialog.showAndWait();
-        } catch (IOException ex) {
-            System.out.println("Error loading PayNowDialog: " + ex.toString());
-        }
+        if (this.recieptView.getRoot().getChildren().size() > 0) {
+            PayNowDialog dialog;
+            try {
+                dialog = new PayNowDialog(this.totalSaleProperty.get() + this.taxProperty.get());
+                dialog.showAndWait();
+            } catch (IOException ex) {
+                System.out.println("Error loading PayNowDialog: " + ex.toString());
+            }
 
+        } else {
+            Alert alert = new Alert(AlertType.WARNING);
+            alert.setTitle(NO_RECEIPT_ALERT_TITLE);
+            alert.setHeaderText(NO_RECEIPT_ALERT_HEADER);
+            alert.setContentText(NO_RECEIPT_ALERT_TEXT);
+
+            alert.showAndWait();
+        }
     }
 
 }
