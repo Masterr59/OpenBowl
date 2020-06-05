@@ -68,4 +68,6 @@ public interface DatabaseConnector {
     public boolean removeTab(AuthorizedUser user, Integer tabid);
     
     public Integer saveTransaction(AuthorizedUser user, Receipt root);
+    
+    public ArrayList<PaymentType> getPaymentTypes(AuthorizedUser user);
 }

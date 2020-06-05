@@ -343,7 +343,7 @@ public class Register extends Pane implements Initializable {
         if (this.recieptView.getRoot().getChildren().size() > 0) {
             PayNowDialog dialog;
             try {
-                dialog = new PayNowDialog(this.totalSaleProperty.get() + this.taxProperty.get());
+                dialog = new PayNowDialog(this.totalSaleProperty.get() + this.taxProperty.get(), dbConnector, user);
                 dialog.showAndWait();
             } catch (IOException ex) {
                 System.out.println("Error loading PayNowDialog: " + ex.toString());

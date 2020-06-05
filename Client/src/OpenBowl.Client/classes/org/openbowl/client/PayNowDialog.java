@@ -20,12 +20,15 @@ import java.io.IOException;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import org.openbowl.common.AuthorizedUser;
 import org.openbowl.common.Styles;
 
 /**
@@ -47,13 +50,18 @@ public class PayNowDialog extends Alert {
     private final double amountDue;
     private final DoubleProperty tenderedProperty;
     private PaymentType paymentType;
+    private DatabaseConnector dbConnector;
+    private AuthorizedUser user;
+    private VBox paymentTypeVBox;
 
-    public PayNowDialog(double d) throws IOException {
+    public PayNowDialog(double d, DatabaseConnector db, AuthorizedUser u) throws IOException {
         super(AlertType.INFORMATION);
         this.getDialogPane().getStylesheets().add(getClass().getResource("DarkMode.css").toExternalForm());
         this.titleProperty().set(MSG_TEXT);
         this.headerTextProperty().set(MSG_TEXT);
         this.graphicProperty().set(null);
+        this.dbConnector = db;
+        this.user = u;
 
         amountDue = d;
         tenderedProperty = new SimpleDoubleProperty(0.0);
@@ -74,12 +82,12 @@ public class PayNowDialog extends Alert {
         numPad.setButtonOnAction(notUsed -> addMoney(10.0), 2, 3);
         numPad.setButtonOnAction(notUsed -> addMoney(20.0), 3, 3);
         numPad.setButtonOnAction(notUsed -> addMoney(50.0), 4, 3);
-        
+
         numPad.setButtonID(Styles.ID_GREEN_BUTTON, 1, 3);
         numPad.setButtonID(Styles.ID_GREEN_BUTTON, 2, 3);
         numPad.setButtonID(Styles.ID_GREEN_BUTTON, 3, 3);
         numPad.setButtonID(Styles.ID_GREEN_BUTTON, 4, 3);
-        
+
         numPad.ButtonVisibleProperty(0, 1).set(false);
         numPad.ButtonVisibleProperty(0, 2).set(false);
 
@@ -94,7 +102,24 @@ public class PayNowDialog extends Alert {
 
         topHBox.getChildren().addAll(dueLabel, dueField, tenderedLabel, tenderedField);
 
-        outerVbox.getChildren().addAll(topHBox, numPad);
+        HBox numPadHBox = new HBox();
+        paymentTypeVBox = new VBox();
+        paymentTypeVBox.setPadding(new Insets(Styles.STD_PADDING,
+                Styles.STD_PADDING, Styles.STD_PADDING, Styles.STD_PADDING));
+        paymentTypeVBox.setSpacing(Styles.STD_PADDING * 2.0);
+        for (PaymentType pt : dbConnector.getPaymentTypes(user)) {
+            Button btn = new Button(pt.toString());
+
+            btn.setId(Styles.ID_YELLOW_BUTTON);
+            btn.setUserData(pt);
+            btn.setOnAction(notUsed -> setPaymentType(pt));
+            btn.setMinSize(Styles.MIN_BUTTON_SIZE, Styles.MIN_BUTTON_SIZE);
+            paymentTypeVBox.getChildren().add(btn);
+        }
+
+        numPadHBox.getChildren().addAll(numPad, paymentTypeVBox);
+
+        outerVbox.getChildren().addAll(topHBox, numPadHBox);
         this.getDialogPane().setContent(outerVbox);
         this.getButtonTypes().add(ButtonType.CANCEL);
     }
@@ -106,6 +131,21 @@ public class PayNowDialog extends Alert {
 
     private void onTenderedChange() {
         boolean enabled = this.tenderedProperty.greaterThanOrEqualTo(amountDue).get();
+        enabled = (this.paymentType == null) ? false: enabled;
         this.getDialogPane().lookupButton(ButtonType.OK).disableProperty().set(!enabled);
+    }
+
+    private void setPaymentType(PaymentType pt) {
+        this.paymentType = pt;
+        for(Object o : this.paymentTypeVBox.getChildren()){
+            if(o instanceof Button){
+                Button btn = (Button)o;
+                if(btn.getUserData() instanceof PaymentType){
+                    PaymentType btnPt = (PaymentType)btn.getUserData();
+                    btn.disableProperty().set(btnPt == pt);
+                }
+            }
+        }
+        onTenderedChange();
     }
 }

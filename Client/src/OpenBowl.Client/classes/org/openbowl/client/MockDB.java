@@ -403,4 +403,15 @@ public class MockDB implements DatabaseConnector {
         return success;
     }
 
+    @Override
+    public ArrayList<PaymentType> getPaymentTypes(AuthorizedUser user) {
+        ArrayList<PaymentType> list = new ArrayList<>();
+        if(user.isAuthorized(UserRole.TRANSACTION_ADD)){
+            list.add(PaymentType.CASH);
+            list.add(PaymentType.CHECK);
+            list.add(PaymentType.CREDIT_DEBIT);
+        }
+        return list;
+    }
+
 }
