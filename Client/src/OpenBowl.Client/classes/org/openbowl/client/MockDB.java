@@ -237,7 +237,7 @@ public class MockDB implements DatabaseConnector {
 
         Product item;
         ProductUseage pkg;
-        Product laneRental = new Product(2, "Lane Rental", 19.99, SD, typeFood, TaxType.TEST_RATE);
+        Product laneRental = new Product(2, "Lane Rental", 19.99, SD, typeGame, TaxType.TEST_RATE);
         Product smallPizza = new Product(13, "Small Pizza", 7.99, SD, typeFood, TaxType.TEST_RATE);
         Product medPizza = new Product(14, "Medium Pizza", 12.99, SD, typeFood, TaxType.TEST_RATE);
         Product largePizza = new Product(15, "Large Pizza", 19.99, SD, typeFood, TaxType.TEST_RATE);

@@ -104,7 +104,7 @@ public class Receipt extends TreeItem<String> {
             clone.setAmountDue(amountDue);
         }
         if (this.paymentType != null) {
-           clone.setPaymentType(paymentType);
+            clone.setPaymentType(paymentType);
         }
         if (this.amountTendered != DOUBLE_NOT_SET) {
             clone.setAmountTendered(amountTendered);
@@ -165,4 +165,15 @@ public class Receipt extends TreeItem<String> {
         return paymentType;
     }
 
+    public Receipt requiresLaneSelection() {
+        for (Object o : this.getChildren()) {
+            if (o instanceof ProductUseage) {
+                ProductUseage pu = (ProductUseage) o;
+                if (pu.requiresLaneSelection() != null) {
+                    return pu.requiresLaneSelection();
+                }
+            }
+        }
+        return null;
+    }
 }

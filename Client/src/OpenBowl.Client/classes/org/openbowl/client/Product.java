@@ -63,4 +63,10 @@ public class Product {
         return new Product(this.Product_ID, new String(this.Product_Name), this.Product_Price.get(), this.Sub_Dept_ID, this.Product_type.clone(), this.Tax_Type.clone());
     }
 
+    public ProductType getProduct_type() {
+        return Product_type;
+    }
+    
+    
+
 }

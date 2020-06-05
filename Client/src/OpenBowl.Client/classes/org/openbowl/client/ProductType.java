@@ -16,15 +16,17 @@
  */
 package org.openbowl.client;
 
+import java.util.Objects;
+
 /**
  *
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
 public class ProductType {
 
-    public final static ProductType TEST_TYPE = new ProductType(-1, "Test Type");
-    public final static ProductType GAME_TYPE = new ProductType(0, "Game");
-    public final static ProductType FOOD_TYPE = new ProductType(1, "Food / Drink");
+    public static final ProductType TEST_TYPE = new ProductType(-1, "Test Type");
+    public static final ProductType GAME_TYPE = new ProductType(0, "Game");
+    public static final ProductType FOOD_TYPE = new ProductType(1, "Food / Drink");
 
     private int ID;
     private String Name;
@@ -44,6 +46,21 @@ public class ProductType {
 
     @Override
     public ProductType clone() {
+        if (this == TEST_TYPE) {
+            return TEST_TYPE;
+        }
+        if (this == GAME_TYPE) {
+            return GAME_TYPE;
+        }
+        if (this == FOOD_TYPE) {
+            return FOOD_TYPE;
+        }
         return new ProductType(ID, new String(Name));
     }
+
+    @Override
+    public String toString() {
+        return "ProductType{" + "ID=" + ID + ", Name=" + Name + '}';
+    }
+
 }

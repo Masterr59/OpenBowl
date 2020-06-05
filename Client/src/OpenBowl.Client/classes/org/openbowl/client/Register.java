@@ -50,6 +50,10 @@ public class Register extends Pane implements Initializable {
     private final String NO_RECEIPT_ALERT_HEADER = "Receipt Empty Warning";
     private final String NO_RECEIPT_ALERT_TEXT = "The receipt is empty.";
 
+    private final String NO_LANE_SELECTION_TITLE = "Info";
+    private final String NO_LANE_SELECTION_HEADER = "Lane Selection";
+    private final String NO_LANE_SELECTION_TEXT = "A product requires a lane selection to continue";
+
     private final String DB_ERROR = "Database Error!";
     private final String DB_ERROR_SAVE_TRANSACTION = "Error saving transaction to database code: %d";
 
@@ -157,8 +161,8 @@ public class Register extends Pane implements Initializable {
         ProductUseage newUseage = new ProductUseage(Product.TEST_PRODUCT, 1);
         addProductUseageToRegister(newUseage);
         Product packageProduct = new Product(-1, "Pizza & Bowling Package", 29.99, -1, ProductType.TEST_TYPE, TaxType.TAX_META_PACKAGE);
-        Product bowlingProduct = new Product(-1, "Bowling lane 1 hrs", 19.99, -1, ProductType.TEST_TYPE, TaxType.TEST_RATE);
-        Product pizzaProduct = new Product(-1, "Pizza 1 lg 5 toppings", 19.99, -1, ProductType.TEST_TYPE, TaxType.TEST_RATE);
+        Product bowlingProduct = new Product(-1, "Bowling lane 1 hrs", 19.99, -1, ProductType.GAME_TYPE, TaxType.TEST_RATE);
+        Product pizzaProduct = new Product(-1, "Pizza 1 lg 5 toppings", 19.99, -1, ProductType.FOOD_TYPE, TaxType.TEST_RATE);
         Product discountProduct = new Product(-1, "line discount", -9.99, -1, ProductType.TEST_TYPE, TaxType.TAX_EXEMPT);
 
         ProductUseage packageUse = new ProductUseage(packageProduct, 0);
@@ -347,42 +351,60 @@ public class Register extends Pane implements Initializable {
 
     private void onPayNow() {
         if (this.recieptView.getRoot().getChildren().size() > 0) {
-            PayNowDialog dialog;
-            try {
-                double total = this.totalSaleProperty.get() + this.taxProperty.get();
-                dialog = new PayNowDialog(total, dbConnector, user);
-                Optional<ButtonType> result = dialog.showAndWait();
-                if (result.get() == ButtonType.OK) {
-                    if (this.recieptView.getRoot() instanceof Receipt) {
-                        double change = dialog.tenderedProperty().get() - total;
-                        Receipt receipt = ((Receipt) this.recieptView.getRoot()).clone();
-                        receipt.setAmountDue(total);
-                        receipt.setAmountSubTotal(this.totalSaleProperty.get());
-                        receipt.setAmountTax(this.taxProperty.get());
-                        receipt.setAmountTendered(dialog.tenderedProperty().get());
-                        receipt.setPaymentType(dialog.getPaymentType());
-                        Integer transactionID = this.dbConnector.saveTransaction(user, receipt.clone());
-                        if (transactionID > 0) {
-                            receipt.TransactionProperty().set(transactionID);
-                            clearRegister();
-                            printReceipt(receipt);
-                            if (change > 0 || dialog.getPaymentType() == PaymentType.CASH
-                                    || dialog.getPaymentType() == PaymentType.CHECK) {
-                                onOpenCashDraw();
+            if (this.recieptView.getRoot() instanceof Receipt) {
+                Receipt root = (Receipt) this.recieptView.getRoot();
+                Receipt needLaneSelection = root.requiresLaneSelection();
+                if (needLaneSelection == null) {
+                    PayNowDialog dialog;
+                    try {
+                        double total = this.totalSaleProperty.get() + this.taxProperty.get();
+                        dialog = new PayNowDialog(total, dbConnector, user);
+                        Optional<ButtonType> result = dialog.showAndWait();
+                        if (result.get() == ButtonType.OK) {
+                            if (this.recieptView.getRoot() instanceof Receipt) {
+                                double change = dialog.tenderedProperty().get() - total;
+                                Receipt receipt = ((Receipt) this.recieptView.getRoot()).clone();
+                                receipt.setAmountDue(total);
+                                receipt.setAmountSubTotal(this.totalSaleProperty.get());
+                                receipt.setAmountTax(this.taxProperty.get());
+                                receipt.setAmountTendered(dialog.tenderedProperty().get());
+                                receipt.setPaymentType(dialog.getPaymentType());
+                                Integer transactionID = this.dbConnector.saveTransaction(user, receipt.clone());
+                                if (transactionID > 0) {
+                                    receipt.TransactionProperty().set(transactionID);
+                                    clearRegister();
+                                    printReceipt(receipt);
+                                    if (change > 0 || dialog.getPaymentType() == PaymentType.CASH
+                                            || dialog.getPaymentType() == PaymentType.CHECK) {
+                                        onOpenCashDraw();
+                                    }
+                                } else {
+                                    Alert alert = new Alert(AlertType.ERROR);
+                                    alert.setTitle(DB_ERROR);
+                                    alert.setHeaderText(DB_ERROR);
+                                    alert.setContentText(String.format(DB_ERROR_SAVE_TRANSACTION, transactionID.intValue()));
+
+                                    alert.showAndWait();
+                                }
                             }
-                        } else {
-                            Alert alert = new Alert(AlertType.ERROR);
-                            alert.setTitle(DB_ERROR);
-                            alert.setHeaderText(DB_ERROR);
-                            alert.setContentText(String.format(DB_ERROR_SAVE_TRANSACTION, transactionID.intValue()));
-
-                            alert.showAndWait();
                         }
-                    }
-                }
 
-            } catch (IOException ex) {
-                System.out.println("Error loading PayNowDialog: " + ex.toString());
+                    } catch (IOException ex) {
+                        System.out.println("Error loading PayNowDialog: " + ex.toString());
+                    }
+
+                }// need lane selection 
+                else {
+                    this.recieptView.getSelectionModel().clearSelection();
+                    this.recieptView.getSelectionModel().select(needLaneSelection);
+                    Alert alert = new Alert(AlertType.INFORMATION);
+                    alert.setTitle(NO_LANE_SELECTION_TITLE);
+                    alert.setHeaderText(NO_LANE_SELECTION_HEADER);
+                    alert.setContentText(NO_LANE_SELECTION_TEXT + "\n" + needLaneSelection.toString());
+
+                    alert.showAndWait();
+
+                }
             }
 
         } else {
@@ -393,6 +415,7 @@ public class Register extends Pane implements Initializable {
 
             alert.showAndWait();
         }
+
     }
 
     private void printReceipt(Receipt receipt) {

@@ -157,4 +157,30 @@ public class ProductUseage extends Receipt {
     public int getMaxLane() {
         return this.lanes[1];
     }
+
+    @Override
+    public Receipt requiresLaneSelection() {
+        ProductUseage childRequired = null;
+        for (Object o : this.getChildren()) {
+            if (o instanceof ProductUseage) {
+                ProductUseage pu = (ProductUseage) o;
+                if (pu.requiresLaneSelection() != null) {
+                    childRequired = pu;
+                }
+            }
+        }
+        if (childRequired != null) {
+            if (lanes[0] > -1) {
+                return null;
+            }
+            return childRequired;
+        }
+        if (this.Product_ID.getProduct_type() == ProductType.GAME_TYPE) {
+            if (lanes[0] == -1) {
+                return this;
+            }
+        }
+        return null;
+    }
+
 }
