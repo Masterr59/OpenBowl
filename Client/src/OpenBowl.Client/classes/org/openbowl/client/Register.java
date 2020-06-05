@@ -380,6 +380,7 @@ public class Register extends Pane implements Initializable {
                                     }
                                 } else {
                                     Alert alert = new Alert(AlertType.ERROR);
+                                    alert.getDialogPane().getStylesheets().add(getClass().getResource("DarkMode.css").toExternalForm());
                                     alert.setTitle(DB_ERROR);
                                     alert.setHeaderText(DB_ERROR);
                                     alert.setContentText(String.format(DB_ERROR_SAVE_TRANSACTION, transactionID.intValue()));
@@ -398,6 +399,7 @@ public class Register extends Pane implements Initializable {
                     this.recieptView.getSelectionModel().clearSelection();
                     this.recieptView.getSelectionModel().select(needLaneSelection);
                     Alert alert = new Alert(AlertType.INFORMATION);
+                    alert.getDialogPane().getStylesheets().add(getClass().getResource("DarkMode.css").toExternalForm());
                     alert.setTitle(NO_LANE_SELECTION_TITLE);
                     alert.setHeaderText(NO_LANE_SELECTION_HEADER);
                     alert.setContentText(NO_LANE_SELECTION_TEXT + "\n" + needLaneSelection.toString());
@@ -409,6 +411,7 @@ public class Register extends Pane implements Initializable {
 
         } else {
             Alert alert = new Alert(AlertType.WARNING);
+            alert.getDialogPane().getStylesheets().add(getClass().getResource("DarkMode.css").toExternalForm());
             alert.setTitle(NO_RECEIPT_ALERT_TITLE);
             alert.setHeaderText(NO_RECEIPT_ALERT_HEADER);
             alert.setContentText(NO_RECEIPT_ALERT_TEXT);
@@ -422,6 +425,7 @@ public class Register extends Pane implements Initializable {
         String msg = "*** TODO print receipt ***";
         System.out.println(msg);
         Alert alert = new Alert(AlertType.INFORMATION);
+        alert.getDialogPane().getStylesheets().add(getClass().getResource("DarkMode.css").toExternalForm());
         alert.setTitle(msg);
         alert.setContentText(receipt.toString());
         alert.setGraphic(null);
@@ -433,6 +437,7 @@ public class Register extends Pane implements Initializable {
         String msg = "*** TODO trigger open cash drawer ***";
         System.out.println(msg);
         Alert alert = new Alert(AlertType.INFORMATION);
+        alert.getDialogPane().getStylesheets().add(getClass().getResource("DarkMode.css").toExternalForm());
         alert.setTitle(msg);
         alert.setContentText(msg);
         alert.setGraphic(null);

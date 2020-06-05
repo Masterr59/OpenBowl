@@ -16,8 +16,6 @@
  */
 package org.openbowl.client;
 
-import java.util.Objects;
-
 /**
  *
  * @author Open Bowl <http://www.openbowlscoring.org/>
