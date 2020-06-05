@@ -26,6 +26,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import org.openbowl.common.Styles;
 
 /**
  *
@@ -69,10 +70,18 @@ public class PayNowDialog extends Alert {
 
         numPad.setButtonOnAction(notUsed -> numPad.setValue(amountDue), 0, 0);
 
-        numPad.setButtonOnAction(nutUsed -> addMoney(5.0), 1, 3);
-        numPad.setButtonOnAction(nutUsed -> addMoney(10.0), 2, 3);
-        numPad.setButtonOnAction(nutUsed -> addMoney(20.0), 3, 3);
-        numPad.setButtonOnAction(nutUsed -> addMoney(50.0), 4, 3);
+        numPad.setButtonOnAction(notUsed -> addMoney(5.0), 1, 3);
+        numPad.setButtonOnAction(notUsed -> addMoney(10.0), 2, 3);
+        numPad.setButtonOnAction(notUsed -> addMoney(20.0), 3, 3);
+        numPad.setButtonOnAction(notUsed -> addMoney(50.0), 4, 3);
+        
+        numPad.setButtonID(Styles.ID_GREEN_BUTTON, 1, 3);
+        numPad.setButtonID(Styles.ID_GREEN_BUTTON, 2, 3);
+        numPad.setButtonID(Styles.ID_GREEN_BUTTON, 3, 3);
+        numPad.setButtonID(Styles.ID_GREEN_BUTTON, 4, 3);
+        
+        numPad.ButtonVisibleProperty(0, 1).set(false);
+        numPad.ButtonVisibleProperty(0, 2).set(false);
 
         VBox outerVbox = new VBox();
         HBox topHBox = new HBox();

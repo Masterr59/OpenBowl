@@ -19,6 +19,7 @@ package org.openbowl.client;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -254,9 +255,13 @@ public class NumPad extends Pane implements Initializable {
         if (value.endsWith(".0")) {
             value = value.substring(0, value.length() - 2);
         }
-        if(value.equals("0")){
+        if (value.equals("0")) {
             value = "";
         }
         this.numPadStringValue = value;
+    }
+
+    public BooleanProperty ButtonVisibleProperty(int row, int col) {
+        return getButton(row, col).visibleProperty();
     }
 }
