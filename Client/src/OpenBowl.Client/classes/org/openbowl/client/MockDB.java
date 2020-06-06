@@ -520,13 +520,7 @@ public class MockDB extends DatabaseConnector {
             } catch (IOException | InterruptedException ex) {
                 System.out.println("Error getting lane status - " + ex.toString());
             } catch (Exception ex) {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.getDialogPane().getStylesheets().add(getClass().getResource("DarkMode.css").toExternalForm());
-                alert.setTitle("ERROR");
-                alert.setHeaderText("Activation Error");
-                alert.setContentText(ex.toString());
-
-                alert.show();
+                showAlert("Lane Activation Error", ex.toString());
             }
         }
     }
@@ -547,6 +541,47 @@ public class MockDB extends DatabaseConnector {
             mPrefs.put(PREF_SCORER_IP, ft.textProperty().get());
 
         }
+    }
+
+    @Override
+    public void cycleLane(AuthorizedUser user, int laneID) {
+        if (user.isAuthorized(UserRole.GAME_ADMIN) && laneID < 2) {
+            Platform.runLater(() -> {
+                onCycleLane(laneID);
+            });
+        }
+    }
+
+    private void onCycleLane(int laneID) {
+        if (laneID == 0 || laneID == 1) {
+            String laneSide = (laneID == 0) ? "odd" : "even";
+            String postData = "{}";
+            String laneCommand = "lane/%s/?set=pinSetterCycleNoScore";
+            String Response = "";
+            try {
+                String ip = mPrefs.get(PREF_SCORER_IP, DEFAULT_SCORER_IP);
+                Response = WebFunctions.doHttpPostRequest(ip, String.format(laneCommand, laneSide), postData, DEFAULT_TOKEN);
+                Map<String, Object> statusMap = gson.fromJson(Response, Map.class);
+                if (statusMap.containsKey("success")) {
+                    if (statusMap.get("success") instanceof Boolean) {
+                        System.out.println("Lane cycle status: " + (Boolean) statusMap.get("success"));
+
+                    }
+                }
+            } catch (Exception ex) {
+                showAlert("Lane Cycle Error", ex.toString() + "\n" + Response);
+            }
+        }
+    }
+
+    private void showAlert(String title, String msg) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.getDialogPane().getStylesheets().add(getClass().getResource("DarkMode.css").toExternalForm());
+        alert.setTitle(title);
+        alert.setHeaderText(title);
+        alert.setContentText(msg);
+
+        alert.show();
     }
 
 }

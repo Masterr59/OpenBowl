@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Timer;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -167,7 +168,7 @@ public class TabDesk extends CommonTab implements Initializable {
             LaneDisplay lane = new LaneDisplay(String.format("Lane %d", i + 1));
             String style = PermissionStyle.get(UserRole.GAME_ADMIN);
             lane.setStyle(style);
-            lane.setContextMenu(createLaneContextMenu(i));
+            lane.setContextMenu(createLaneContextMenu(i, lane.OnlineProperty(), lane.GameStatusProperty()));
             LaneCheckTask checkTask = new LaneCheckTask(dbConnector, i);
             lane.CrashProperty().bind(checkTask.CrashProperty());
             lane.GameStatusProperty().bind(checkTask.GameStatusProperty());
@@ -351,18 +352,31 @@ public class TabDesk extends CommonTab implements Initializable {
         }
     }
 
-    private ContextMenu createLaneContextMenu(int i) {
+    private ContextMenu createLaneContextMenu(int i, BooleanProperty OnlineProperty, BooleanProperty GameStatusProperty) {
         ContextMenu contextMenu = new ContextMenu();
         MenuItem addUser = new MenuItem("Add Player");
+        addUser.disableProperty().bind(GameStatusProperty.not());
+        addUser.setOnAction(notUsed -> onAddUserDialog(i));
         MenuItem refresh = new MenuItem("Refresh Status");
         ActionEvent refreshEvent = new ActionEvent(i, null);
         refresh.setOnAction(notUsed -> onLaneRefreshRequested(refreshEvent));
-        
+
         MenuItem cycle = new MenuItem("Cycle Lane");
+        cycle.disableProperty().bind(OnlineProperty.not());
+        AuthorizedUser u = this.getUser().get();
+        if (!u.isAuthorized(UserRole.GAME_ADMIN)) {
+            u = this.getManager().get();
+        }
+        AuthorizedUser user = u;
+        cycle.setOnAction(notUsed -> dbConnector.cycleLane(user, i));
         MenuItem maint = new MenuItem("Lane Maintenance");
         maint.disableProperty().set(!this.Permission.get(UserRole.MANAGE_SCORER));
         contextMenu.getItems().addAll(addUser, refresh, cycle, maint);
         return contextMenu;
+    }
+
+    private void onAddUserDialog(int i) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

@@ -79,5 +79,7 @@ public abstract class DatabaseConnector {
         this.onLaneActivated = onLaneActivated;
     }
     
+    public abstract void cycleLane(AuthorizedUser user, int laneID);
+    
     public abstract void configurationDialog();
 }
