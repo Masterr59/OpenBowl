@@ -21,6 +21,8 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
@@ -63,6 +65,7 @@ public class LaneDisplay extends Region {
     private BooleanProperty crashProperty;
     private BooleanProperty gameStatusProperty;
     private CommonImages commonImage;
+    private ContextMenu contextMenu;
 
     public LaneDisplay(String laneName) {
         this.laneName = laneName;
@@ -88,10 +91,11 @@ public class LaneDisplay extends Region {
         this.crashProperty.addListener(notUsed -> draw());
         this.gameStatusProperty.addListener(notUsed -> draw());
         commonImage = new CommonImages();
+        this.contextMenu = new ContextMenu();
 
         draw();
         this.hoverProperty().addListener((obs, ob, nb) -> draw());
-        //this.setOnContextMenuRequested(value -> onContextMenuRequest(value));
+        this.setOnContextMenuRequested(value -> onContextMenuRequest(value));
 
     }
 
@@ -192,7 +196,7 @@ public class LaneDisplay extends Region {
 
     private void onContextMenuRequest(ContextMenuEvent value) {
         value.consume();
-        System.out.println("rightClicked");
+        contextMenu.show(this, value.getScreenX(), value.getScreenY());
     }
 
     public BooleanProperty selectedProperty() {
@@ -229,6 +233,10 @@ public class LaneDisplay extends Region {
 
     public String getLaneName() {
         return laneName;
+    }
+
+    public void setContextMenu(ContextMenu contextMenu) {
+        this.contextMenu = contextMenu;
     }
 
 }

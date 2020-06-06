@@ -35,7 +35,9 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.FlowPane;
@@ -126,7 +128,7 @@ public class TabDesk extends CommonTab implements Initializable {
         productMap = new HashMap<Integer, ArrayList<ProductUseage>>();
         mRegister.MinLaneProperty().bindBidirectional(minSelected);
         mRegister.MaxLaneProperty().bindBidirectional(maxSelected);
-        dbConnector.setOnLaneActivated(ae -> onLaneActivated(ae));
+        dbConnector.setOnLaneActivated(ae -> onLaneRefreshRequested(ae));
     }
 
     @Override
@@ -157,12 +159,15 @@ public class TabDesk extends CommonTab implements Initializable {
 
     private void loadLanes(AuthorizedUser u) {
         stopTimers();
+        this.lanes.clear();
+        this.laneCheckers.clear();
+        this.laneDisplays.clear();
         long period = mPrefs.getLong(PREFS_PULL_PERIOD, DEFAULT_PULL_PERIOD);
         for (int i = 0; i < dbConnector.getNumLanes(u); i++) {
             LaneDisplay lane = new LaneDisplay(String.format("Lane %d", i + 1));
             String style = PermissionStyle.get(UserRole.GAME_ADMIN);
             lane.setStyle(style);
-
+            lane.setContextMenu(createLaneContextMenu(i));
             LaneCheckTask checkTask = new LaneCheckTask(dbConnector, i);
             lane.CrashProperty().bind(checkTask.CrashProperty());
             lane.GameStatusProperty().bind(checkTask.GameStatusProperty());
@@ -283,6 +288,9 @@ public class TabDesk extends CommonTab implements Initializable {
                     maxSelected.set(-1);
                 }
             }
+        } else if (mouseEvent.getButton() == MouseButton.MIDDLE) {
+            ActionEvent ae = new ActionEvent(laneID, null);
+            onLaneRefreshRequested(ae);
         }
     }
 
@@ -318,12 +326,12 @@ public class TabDesk extends CommonTab implements Initializable {
         mRegister.addProductUseageToRegister(pu);
     }
 
-    private void onLaneActivated(ActionEvent ae) {
+    private void onLaneRefreshRequested(ActionEvent ae) {
         if (ae.getSource() instanceof Integer) {
             Integer i = (Integer) ae.getSource();
+            System.out.println("Refresh Lane Status on lane " + i.intValue());
             LaneCheckTask checkTask = new LaneCheckTask(dbConnector, i.intValue());
             LaneDisplay lane = laneDisplays.get(i);
-
             checkTask.CrashProperty().set(lane.CrashProperty().get());
             checkTask.GameStatusProperty().set(lane.GameStatusProperty().get());
             checkTask.HeatProperty().set(lane.HeatProperty().get());
@@ -341,6 +349,20 @@ public class TabDesk extends CommonTab implements Initializable {
             lane.VoltProperty().bind(checkTask.VoltProperty());
             timer.schedule(checkTask, ACTIVATION_DELAY);
         }
+    }
+
+    private ContextMenu createLaneContextMenu(int i) {
+        ContextMenu contextMenu = new ContextMenu();
+        MenuItem addUser = new MenuItem("Add Player");
+        MenuItem refresh = new MenuItem("Refresh Status");
+        ActionEvent refreshEvent = new ActionEvent(i, null);
+        refresh.setOnAction(notUsed -> onLaneRefreshRequested(refreshEvent));
+        
+        MenuItem cycle = new MenuItem("Cycle Lane");
+        MenuItem maint = new MenuItem("Lane Maintenance");
+        maint.disableProperty().set(!this.Permission.get(UserRole.MANAGE_SCORER));
+        contextMenu.getItems().addAll(addUser, refresh, cycle, maint);
+        return contextMenu;
     }
 
 }
