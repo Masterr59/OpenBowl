@@ -95,10 +95,6 @@ public class GameHandler extends CommonHandler {
                         map.put(ERROR_MSG, "invalid or missing player id");
                     }
                     break;
-                case "currentSession":
-                    map.put(SUCCESS, true);
-                    map.put("UUID", onGetUUID());
-                    break;
                 default:
                     map.put(SUCCESS, false);
                     map.put(ERROR_MSG, "missing or unsupported request");
@@ -116,6 +112,10 @@ public class GameHandler extends CommonHandler {
                     }
                     map.put(SUCCESS, true);
                     map.put("allSessions", allSessions);
+                    break;
+                case "currentSession":
+                    map.put(SUCCESS, true);
+                    map.put("UUID", onGetUUID());
                     break;
                 default:
                     map.put(SUCCESS, false);
@@ -185,6 +185,7 @@ public class GameHandler extends CommonHandler {
                 break;
             case "pauseSession":
                 if (gameSession != null) {
+                    System.out.println("Pausing Session");
                     gameSession.pauseSession();
                     map.put(SUCCESS, true);
                 } else {
@@ -195,6 +196,7 @@ public class GameHandler extends CommonHandler {
             case "resumeSession":
                 if (gameSession != null) {
                     gameSession.resumeSession();
+                    System.out.println("Resuming Session");
                     map.put(SUCCESS, true);
                 } else {
                     map.put(SUCCESS, false);
@@ -203,7 +205,9 @@ public class GameHandler extends CommonHandler {
                 break;
             case "abortSession":
                 if (gameSession != null) {
+
                     gameSession.abortSession();
+                    System.out.println("Aborting Session");
                     map.put(SUCCESS, true);
                 } else {
                     map.put(SUCCESS, false);
