@@ -143,7 +143,8 @@ public class MockDB extends DatabaseConnector {
         if (lane < 2) {
             String Response = "";
             try {
-                Response = WebFunctions.doHttpGetRequest("127.0.0.1", GET_LANE_STATUS_PATH, DEFAULT_TOKEN);
+                String ip = mPrefs.get(PREF_SCORER_IP, DEFAULT_SCORER_IP);
+                Response = WebFunctions.doHttpGetRequest(ip, GET_LANE_STATUS_PATH, DEFAULT_TOKEN);
                 Map<String, ArrayList<String>> status = gson.fromJson(Response, Map.class);
                 if (status.containsKey("status")) {
                     ArrayList<SystemStatus> laneStatus = new ArrayList<>();
@@ -481,13 +482,9 @@ public class MockDB extends DatabaseConnector {
                 alert.show();
 
             } else {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.getDialogPane().getStylesheets().add(getClass().getResource("DarkMode.css").toExternalForm());
-                alert.setTitle(ACTIVATION_ERROR_TITLE);
-                alert.setHeaderText(ACTIVATION_ERROR_HEADER);
-                alert.setContentText(String.format(ACTIVATION_ERROR_TEXT, gameType));
 
-                alert.show();
+                showAlert(ACTIVATION_ERROR_TITLE, String.format(ACTIVATION_ERROR_TEXT, gameType));
+
             }
         }
         for (Object o : root.getChildren()) {
@@ -582,6 +579,59 @@ public class MockDB extends DatabaseConnector {
         alert.setContentText(msg);
 
         alert.show();
+    }
+
+    @Override
+    public void pauseResumeAbortSession(AuthorizedUser user, String type, int laneID) {
+        if (user.isAuthorized(UserRole.GAME_ADMIN) && laneID < 2) {
+            Platform.runLater(() -> {
+                onPauseResumeAbortSession(type, laneID);
+            });
+        }
+    }
+
+    private void onPauseResumeAbortSession(String type, int laneID) {
+        if (laneID == 0 || laneID == 1) {
+            String laneSide = (laneID == 0) ? "odd" : "even";
+            String postData = String.format("{\"UUID\": %s}", getCurrentSession(laneID));
+            String laneCommand = "game/%s/?set=" + type;
+            String Response = "";
+            try {
+                String ip = mPrefs.get(PREF_SCORER_IP, DEFAULT_SCORER_IP);
+                Response = WebFunctions.doHttpPostRequest(ip, String.format(laneCommand, laneSide), postData, DEFAULT_TOKEN);
+                Map<String, Object> statusMap = gson.fromJson(Response, Map.class);
+                if (statusMap.containsKey("success")) {
+                    if (statusMap.get("success") instanceof Boolean) {
+                        System.out.println("Lane cycle status: " + (Boolean) statusMap.get("success"));
+
+                    }
+                }
+            } catch (Exception ex) {
+                showAlert("Lane " + type + " session error", ex.toString() + "\n" + Response);
+            }
+        }
+    }
+
+    @Override
+    public String getCurrentSession(int laneID) {
+        if (laneID == 0 || laneID == 1) {
+            String laneSide = (laneID == 0) ? "odd" : "even";
+            String laneCommand = "game/%s/?get=currentSession";
+            String Response = "";
+            try {
+                String ip = mPrefs.get(PREF_SCORER_IP, DEFAULT_SCORER_IP);
+                Response = WebFunctions.doHttpGetRequest(ip, String.format(laneCommand, laneSide), DEFAULT_TOKEN);
+                Map<String, String> status = gson.fromJson(Response, Map.class);
+                if (status.containsKey("UUID")) {
+                    return status.get("UUID");
+                }
+
+            } catch (Exception ex) {
+                showAlert("Lane get session error", ex.toString() + "\n" + Response);
+            }
+
+        }
+        return "";
     }
 
 }

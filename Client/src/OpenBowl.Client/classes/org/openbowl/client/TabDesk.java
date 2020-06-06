@@ -29,6 +29,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import org.openbowl.common.AuthorizedUser;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -38,6 +39,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -371,11 +373,27 @@ public class TabDesk extends CommonTab implements Initializable {
         cycle.setOnAction(notUsed -> dbConnector.cycleLane(user, i));
         MenuItem maint = new MenuItem("Lane Maintenance");
         maint.disableProperty().set(!this.Permission.get(UserRole.MANAGE_SCORER));
-        contextMenu.getItems().addAll(addUser, refresh, cycle, maint);
+
+        Menu sessionMenu = new Menu("Session");
+        MenuItem pauseSession = new MenuItem("Pause");
+        pauseSession.setOnAction(notUsed -> dbConnector.pauseResumeAbortSession(user, "pauseSession", i));
+        MenuItem resumeSession = new MenuItem("Resume");
+        resumeSession.setOnAction(notUsed -> dbConnector.pauseResumeAbortSession(user, "resumeSession", i));
+        MenuItem abortSession = new MenuItem("Abort");
+        abortSession.setOnAction(notUsed -> dbConnector.pauseResumeAbortSession(user, "abortSession", i));
+        sessionMenu.getItems().addAll(pauseSession, resumeSession, abortSession);
+
+        maint.setOnAction(notUsed -> onShowLaneMaint(i));
+
+        contextMenu.getItems().addAll(addUser, refresh, cycle, sessionMenu, maint);
         return contextMenu;
     }
 
     private void onAddUserDialog(int i) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private void onShowLaneMaint(int i) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

@@ -81,5 +81,9 @@ public abstract class DatabaseConnector {
     
     public abstract void cycleLane(AuthorizedUser user, int laneID);
     
+    public abstract void pauseResumeAbortSession(AuthorizedUser user, String type, int laneID);
+    
+    public abstract String getCurrentSession(int laneID);
+    
     public abstract void configurationDialog();
 }
