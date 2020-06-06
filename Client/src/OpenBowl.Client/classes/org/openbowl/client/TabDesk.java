@@ -49,6 +49,7 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import org.openbowl.common.Styles;
 import org.openbowl.common.UserRole;
+import org.openbowl.scorer.Lane;
 
 /**
  *
@@ -404,7 +405,8 @@ public class TabDesk extends CommonTab implements Initializable {
     }
 
     private void onShowLaneMaint(int i) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Lane lane = new Lane("tempLane");
+        
     }
 
 }
