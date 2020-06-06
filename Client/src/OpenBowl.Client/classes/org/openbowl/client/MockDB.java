@@ -24,7 +24,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.prefs.Preferences;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
 import org.openbowl.common.AuthorizedUser;
 import org.openbowl.common.SystemStatus;
@@ -35,7 +37,7 @@ import org.openbowl.common.WebFunctions;
  *
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
-public class MockDB implements DatabaseConnector {
+public class MockDB extends DatabaseConnector {
 
     private final String ADMIN = "Admin";
     private final String MANAGER = "Manager";
@@ -60,8 +62,12 @@ public class MockDB implements DatabaseConnector {
 
     private final String[] DEPTS = {DatabaseConnector.GAME_DEPARTMENT_NAME, DEPT_REST, DEPT_BAR, DEPT_PRO};
 
+    private final String PREF_SCORER_IP = "ScorerIP";
+    private final String DEFAULT_SCORER_IP = "127.0.0.1";
+    
     private final Random rand;
     private final Gson gson;
+    private Preferences mPrefs;
 
     private Map<Integer, Receipt> tabs;
 
@@ -69,6 +75,7 @@ public class MockDB implements DatabaseConnector {
         rand = new Random();
         gson = new Gson();
         tabs = new HashMap<>();
+        mPrefs = Preferences.userNodeForPackage(this.getClass());
     }
 
     @Override
@@ -166,7 +173,8 @@ public class MockDB implements DatabaseConnector {
         ArrayList<SystemStatus> status = new ArrayList<>();
         if (lane < 2) {
             try {
-                String Response = WebFunctions.doHttpGetRequest("127.0.0.1", GET_LANE_STATUS_PATH, DEFAULT_TOKEN);
+                String ip = mPrefs.get(PREF_SCORER_IP, DEFAULT_SCORER_IP);
+                String Response = WebFunctions.doHttpGetRequest(ip, GET_LANE_STATUS_PATH, DEFAULT_TOKEN);
                 Map<String, ArrayList<String>> statusMap = gson.fromJson(Response, Map.class);
                 if (statusMap.containsKey("status")) {
 
@@ -454,7 +462,7 @@ public class MockDB implements DatabaseConnector {
             if (gameType.equals("Per Game")) {
                 String msg = "Sending lane activations to:\n";
                 for (int i = 0; i < perLane.length; i++) {
-                    int laneID = laneMin + i + 1;
+                    int laneID = laneMin + i;
                     int numGames = perLane[i];
                     Platform.runLater(() -> {
                         activateGamesOnLane(laneID, numGames);
@@ -493,11 +501,16 @@ public class MockDB implements DatabaseConnector {
             String uuid = UUID.randomUUID().toString();
             String postData = String.format("{\"type\": \"numbered\", \"games\": %d, \"UUID\": %s}", games, uuid);
             try {
-                String Response = WebFunctions.doHttpPostRequest("127.0.0.1", String.format(LANE_GAME_ACTIVATION_PATH, laneSide), postData, DEFAULT_TOKEN);
+                String ip = mPrefs.get(PREF_SCORER_IP, DEFAULT_SCORER_IP);
+                String Response = WebFunctions.doHttpPostRequest(ip, String.format(LANE_GAME_ACTIVATION_PATH, laneSide), postData, DEFAULT_TOKEN);
                 Map<String, Object> statusMap = gson.fromJson(Response, Map.class);
                 if (statusMap.containsKey("success")) {
                     if (statusMap.get("success") instanceof Boolean) {
                         System.out.println("Lane Activation Status: " + (Boolean) statusMap.get("success"));
+                        if(this.onLaneActivated != null){
+                            ActionEvent ae = new ActionEvent(laneID, null);
+                            this.onLaneActivated.handle(ae);
+                        }
                     }
                 }
 

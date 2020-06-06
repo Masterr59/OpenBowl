@@ -62,7 +62,7 @@ public class LaneCheckTask extends TimerTask {
             boolean reboot = status.contains(SystemStatus.REBOOT_REQUIRED);
             boolean crash = status.contains(SystemStatus.CRASH_DETECTED);
             boolean gameS = (lane % 2 == 0) ? status.contains(SystemStatus.ODD_GAME_RUNNING) : status.contains(SystemStatus.EVEN_GAME_RUNNING);
-            
+
             this.onlineProperty.set(online);
             this.updateProperty.set(update);
             this.heatProperty.set(heat);
@@ -73,7 +73,7 @@ public class LaneCheckTask extends TimerTask {
 
         } else {
             onlineProperty.set(dbConnector.isLaneOnline(lane));
-            System.out.println("Lane " + lane + " was offline now " + onlineProperty.toString());
+            System.out.println("Lane " + lane + " was offline now " + onlineProperty.get());
         }
 
     }

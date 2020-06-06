@@ -22,8 +22,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.ContextMenuEvent;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -40,6 +38,9 @@ public class LaneDisplay extends Region {
     private final Paint BACKGROUND_HOVER = Color.web("#222222");
     private final Paint BACKGROUND_SELECTED_STD = Color.web("#00aac4");
     private final Paint BACKGROUND_SELECTED_HOVER = Color.web("#04c3e0");
+
+    private final Paint BACKGROUND_ACTIVE_STD = Color.web("#5B8F5A");
+    private final Paint BACKGROUND_ACTIVE_HOVER = Color.web("#71B46F");
 
     private final String VOLT_ICON = "⚡";   // U+26A1 High Voltage
     private final String HEAT_ICON = "🌡";   // U+1F321 Thermometer
@@ -89,8 +90,8 @@ public class LaneDisplay extends Region {
         commonImage = new CommonImages();
 
         draw();
-        //this.hoverProperty().addListener((obs, ob, nb) -> onHoverChange(nb));
-        this.setOnContextMenuRequested(value -> onContextMenuRequest(value));
+        this.hoverProperty().addListener((obs, ob, nb) -> draw());
+        //this.setOnContextMenuRequested(value -> onContextMenuRequest(value));
 
     }
 
@@ -181,8 +182,10 @@ public class LaneDisplay extends Region {
     private void setBackgroundColor() {
         if (this.hoverProperty() != null && this.hoverProperty().get()) {
             backgroundColor = selectedProperty.get() ? BACKGROUND_SELECTED_HOVER : BACKGROUND_HOVER;
+            backgroundColor = gameStatusProperty.get() ? BACKGROUND_ACTIVE_HOVER : backgroundColor;
         } else {
             backgroundColor = selectedProperty.get() ? BACKGROUND_SELECTED_STD : BACKGROUND_STD;
+            backgroundColor = gameStatusProperty.get() ? BACKGROUND_ACTIVE_STD : backgroundColor;
         }
         //draw();
     }

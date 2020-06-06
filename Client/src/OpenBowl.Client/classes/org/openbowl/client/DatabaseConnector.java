@@ -18,6 +18,8 @@ package org.openbowl.client;
 
 import java.util.ArrayList;
 import java.util.Map;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import org.openbowl.common.AuthorizedUser;
 import org.openbowl.common.SystemStatus;
 
@@ -25,8 +27,11 @@ import org.openbowl.common.SystemStatus;
  *
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
-public interface DatabaseConnector {
+public abstract class DatabaseConnector {
+
     public static final String GAME_DEPARTMENT_NAME = "Game";
+
+    protected EventHandler<ActionEvent> onLaneActivated;
 
     /**
      *
@@ -35,7 +40,7 @@ public interface DatabaseConnector {
      * @return An AuthorizedUser object if login was successful otherwise
      * AuthorizedUser.NON_USER
      */
-    public AuthorizedUser login(String UserName, String Password);
+    public abstract AuthorizedUser login(String UserName, String Password);
 
     /**
      *
@@ -44,29 +49,33 @@ public interface DatabaseConnector {
      * @param newPassword
      * @return Human readable string stating the status up the update
      */
-    public String updateUserPassword(AuthorizedUser user, String oldPassword, String newPassword);
+    public abstract String updateUserPassword(AuthorizedUser user, String oldPassword, String newPassword);
 
-    public int getNumLanes(AuthorizedUser user);
+    public abstract int getNumLanes(AuthorizedUser user);
 
-    public boolean isLaneOnline(int lane);
-    
-    public ArrayList<SystemStatus> getLaneStatus(int lane);
-    
-    public Map<Integer, String> getDepartments(AuthorizedUser user);
-    
-    public Map<Integer, String> getSubDepartments(AuthorizedUser user, Integer DepartmentID);
-    
-    public ArrayList<ProductUseage> getProducts(AuthorizedUser user, Integer SubDepartment);
-    
-    public Integer saveTab(AuthorizedUser user, Receipt root);
-    
-    public ArrayList<Integer> findTabs(AuthorizedUser user);
-    
-    public Receipt getTab(AuthorizedUser user, Integer tabid);
-    
-    public boolean removeTab(AuthorizedUser user, Integer tabid);
-    
-    public Integer saveTransaction(AuthorizedUser user, Receipt root);
-    
-    public ArrayList<PaymentType> getPaymentTypes(AuthorizedUser user);
+    public abstract boolean isLaneOnline(int lane);
+
+    public abstract ArrayList<SystemStatus> getLaneStatus(int lane);
+
+    public abstract Map<Integer, String> getDepartments(AuthorizedUser user);
+
+    public abstract Map<Integer, String> getSubDepartments(AuthorizedUser user, Integer DepartmentID);
+
+    public abstract ArrayList<ProductUseage> getProducts(AuthorizedUser user, Integer SubDepartment);
+
+    public abstract Integer saveTab(AuthorizedUser user, Receipt root);
+
+    public abstract ArrayList<Integer> findTabs(AuthorizedUser user);
+
+    public abstract Receipt getTab(AuthorizedUser user, Integer tabid);
+
+    public abstract boolean removeTab(AuthorizedUser user, Integer tabid);
+
+    public abstract Integer saveTransaction(AuthorizedUser user, Receipt root);
+
+    public abstract ArrayList<PaymentType> getPaymentTypes(AuthorizedUser user);
+
+    public void setOnLaneActivated(EventHandler<ActionEvent> onLaneActivated) {
+        this.onLaneActivated = onLaneActivated;
+    }
 }

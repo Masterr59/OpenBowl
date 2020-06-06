@@ -27,6 +27,7 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import org.openbowl.common.AuthorizedUser;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -52,6 +53,7 @@ public class TabDesk extends CommonTab implements Initializable {
     private final String TAB_TEXT = "Desk";
     private final long DEFAULT_PULL_PERIOD = 300000l;    // 5 minutes
     private final long INITIAL_DELAY = 10000l;           // 10 seconds
+    private final long ACTIVATION_DELAY = 5000l;         // 5 Seconds
     public static final String PREFS_PULL_PERIOD = "Lane_Pull_Period";
 
     @FXML
@@ -87,7 +89,7 @@ public class TabDesk extends CommonTab implements Initializable {
     @FXML
     HBox hbox;
 
-    Register mRegister;
+    private Register mRegister;
     private ArrayList<LaneDisplay> laneDisplays;
     private ArrayList<LaneCheckTask> laneCheckers;
     private ObservableList<Node> lanes;
@@ -124,6 +126,7 @@ public class TabDesk extends CommonTab implements Initializable {
         productMap = new HashMap<Integer, ArrayList<ProductUseage>>();
         mRegister.MinLaneProperty().bindBidirectional(minSelected);
         mRegister.MaxLaneProperty().bindBidirectional(maxSelected);
+        dbConnector.setOnLaneActivated(ae -> onLaneActivated(ae));
     }
 
     @Override
@@ -261,7 +264,8 @@ public class TabDesk extends CommonTab implements Initializable {
             oldMin = minSelected.get();
             boolean select = laneDisplays.get(laneID).selectedProperty().get();
             boolean online = laneDisplays.get(laneID).OnlineProperty().get();
-            if (online) {
+            boolean active = laneDisplays.get(laneID).GameStatusProperty().get();
+            if (online && !active) {
                 System.out.println(laneID + " Clicked!");
                 if (!select) {
                     if (oldMin < 0) {//no prev selected
@@ -312,6 +316,31 @@ public class TabDesk extends CommonTab implements Initializable {
         pu.setMinLane(this.minSelected.get());
         pu.setMaxLane(this.maxSelected.get());
         mRegister.addProductUseageToRegister(pu);
+    }
+
+    private void onLaneActivated(ActionEvent ae) {
+        if (ae.getSource() instanceof Integer) {
+            Integer i = (Integer) ae.getSource();
+            LaneCheckTask checkTask = new LaneCheckTask(dbConnector, i.intValue());
+            LaneDisplay lane = laneDisplays.get(i);
+
+            checkTask.CrashProperty().set(lane.CrashProperty().get());
+            checkTask.GameStatusProperty().set(lane.GameStatusProperty().get());
+            checkTask.HeatProperty().set(lane.HeatProperty().get());
+            checkTask.OnlineProperty().set(lane.OnlineProperty().get());
+            checkTask.RebootProperty().set(lane.RebootProperty().get());
+            checkTask.UpdateProperty().set(lane.UpdateProperty().get());
+            checkTask.VoltProperty().set(lane.VoltProperty().get());
+
+            lane.CrashProperty().bind(checkTask.CrashProperty());
+            lane.GameStatusProperty().bind(checkTask.GameStatusProperty());
+            lane.HeatProperty().bind(checkTask.HeatProperty());
+            lane.OnlineProperty().bind(checkTask.OnlineProperty());
+            lane.RebootProperty().bind(checkTask.RebootProperty());
+            lane.UpdateProperty().bind(checkTask.UpdateProperty());
+            lane.VoltProperty().bind(checkTask.VoltProperty());
+            timer.schedule(checkTask, ACTIVATION_DELAY);
+        }
     }
 
 }
