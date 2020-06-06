@@ -682,4 +682,74 @@ public class MockDB extends DatabaseConnector {
         }
     }
 
+    @Override
+    public Map<String, Object> getLaneConfig(AuthorizedUser user, int laneID, String type) {
+        Map<String, Object> map = new HashMap<>();
+        if (user.isAuthorized(UserRole.MANAGE_SCORER)) {
+            if (laneID == 0 || laneID == 1) {
+                String laneSide = (laneID == 0) ? "odd" : "even";
+                String laneCommand = "game/%s/?get=" + type;
+                String Response = "";
+                try {
+                    String ip = mPrefs.get(PREF_SCORER_IP, DEFAULT_SCORER_IP);
+                    Response = WebFunctions.doHttpGetRequest(ip, String.format(laneCommand, laneSide), DEFAULT_TOKEN);
+                    Map<String, String> status = gson.fromJson(Response, Map.class);
+                    if (status.containsKey("CurentConfig")) {
+                        map.putAll(gson.fromJson(status.get("CurentConfig"), Map.class));
+                    }
+
+                } catch (Exception ex) {
+                    showAlert("Lane get session error", ex.toString() + "\n" + Response);
+                }
+
+            }
+        }
+        return map;
+    }
+
+    @Override
+    public void setLaneConfig(AuthorizedUser user, int laneID, String type, Map<String, Object> config) {
+
+        if ((laneID == 0 || laneID == 1) && user.isAuthorized(UserRole.MANAGE_SCORER)) {
+            String laneSide = (laneID == 0) ? "odd" : "even";
+            String laneCommand = "lane/%s/?set=" + type;
+            String postData = gson.toJson(config);
+            String Response = "";
+            try {
+                String ip = mPrefs.get(PREF_SCORER_IP, DEFAULT_SCORER_IP);
+                Response = WebFunctions.doHttpPostRequest(ip, String.format(laneCommand, laneSide), postData, DEFAULT_TOKEN);
+                Map<String, Object> statusMap = gson.fromJson(Response, Map.class);
+                if (statusMap.containsKey("success")) {
+
+                }
+            } catch (Exception ex) {
+                showAlert("Set lane Config Error", ex.toString() + "\n" + Response);
+            }
+        }
+    }
+
+    @Override
+    public byte[] getLastImage(AuthorizedUser user, int laneID) {
+        if (user.isAuthorized(UserRole.MANAGE_SCORER)) {
+            if (laneID == 0 || laneID == 1) {
+                String laneSide = (laneID == 0) ? "odd" : "even";
+                String laneCommand = "lane/%s/?get=lastImage";
+                String Response = "";
+                try {
+                    String ip = mPrefs.get(PREF_SCORER_IP, DEFAULT_SCORER_IP);
+                    Response = WebFunctions.doHttpGetRequest(ip, String.format(laneCommand, laneSide), DEFAULT_TOKEN);
+                    Map<String, String> status = gson.fromJson(Response, Map.class);
+                    if (status.containsKey("file")) {
+                        return status.get("file").getBytes();
+                    }
+
+                } catch (Exception ex) {
+                    showAlert("Lane get image error", ex.toString());
+                }
+
+            }
+        }
+        return new String("Error Retreaving image").getBytes();
+    }
+
 }

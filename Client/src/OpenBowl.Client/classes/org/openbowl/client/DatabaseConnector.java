@@ -79,16 +79,22 @@ public abstract class DatabaseConnector {
     public void setOnLaneActivated(EventHandler<ActionEvent> onLaneActivated) {
         this.onLaneActivated = onLaneActivated;
     }
-    
+
     public abstract void cycleLane(AuthorizedUser user, int laneID);
-    
+
     public abstract void pauseResumeAbortSession(AuthorizedUser user, String type, int laneID);
-    
+
     public abstract String getCurrentSession(int laneID);
-    
+
     public abstract void configurationDialog();
-    
+
     public abstract ArrayList<SimplePlayer> getPlayers(AuthorizedUser user);
-    
+
     public abstract void addPlayer(AuthorizedUser user, int laneID, SimplePlayer player);
+
+    public abstract Map<String, Object> getLaneConfig(AuthorizedUser user, int laneID, String type);
+
+    public abstract void setLaneConfig(AuthorizedUser user, int laneID, String type, Map<String, Object> config);
+
+    public abstract byte[] getLastImage(AuthorizedUser user, int laneID);
 }

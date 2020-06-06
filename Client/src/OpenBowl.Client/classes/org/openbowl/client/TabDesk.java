@@ -16,8 +16,12 @@
  */
 package org.openbowl.client;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +34,6 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import org.openbowl.common.AuthorizedUser;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -49,6 +52,10 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import org.openbowl.common.Styles;
 import org.openbowl.common.UserRole;
+import org.openbowl.scorer.BasicDetector;
+import org.openbowl.scorer.BasicPinCounter;
+import org.openbowl.scorer.BasicPinSetter;
+import org.openbowl.scorer.DisplayConnector;
 import org.openbowl.scorer.Lane;
 
 /**
@@ -405,8 +412,61 @@ public class TabDesk extends CommonTab implements Initializable {
     }
 
     private void onShowLaneMaint(int i) {
-        Lane lane = new Lane("tempLane");
-        
+        AuthorizedUser u = this.getUser().get();
+        if (!u.isAuthorized(UserRole.MANAGE_SCORER)) {
+            u = this.getManager().get();
+        }
+        if (u.isAuthorized(UserRole.MANAGE_SCORER)) {
+            System.out.println("Loading last Image");
+            File f = new File("currentPinImage.png");
+            if (f.canWrite()) {
+                byte[] data = dbConnector.getLastImage(u, i);
+                try {
+                    Files.write(f.toPath(), data, StandardOpenOption.WRITE);
+                } catch (IOException ex) {
+                    System.out.println("Error writing file");
+                }
+            }
+
+            System.out.println("Loading lane Configs");
+            Lane lane = new Lane("tempLane");
+            lane.setConfiguration(dbConnector.getLaneConfig(u, i, "laneConfig"));
+
+            BasicDetector ball = new BasicDetector("temp_Ball_Detector");
+            ball.setConfiguration(dbConnector.getLaneConfig(u, i, "ballDetectConfig"));
+            lane.setBall(ball);
+
+            BasicDetector foul = new BasicDetector("temp_Foul_Detector");
+            foul.setConfiguration(dbConnector.getLaneConfig(u, i, "foulDetectConfig"));
+            lane.setFoul(foul);
+
+            BasicDetector sweep = new BasicDetector("temp_Sweep_Detector");
+            sweep.setConfiguration(dbConnector.getLaneConfig(u, i, "sweepDetectConfig"));
+            lane.setSweep(sweep);
+
+            BasicPinSetter setter = new BasicPinSetter("temp_Pin_Setter");
+            setter.setConfiguration(dbConnector.getLaneConfig(u, i, "pinSetterConfig"));
+            lane.setPinSetter(setter);
+
+            BasicPinCounter count = new BasicPinCounter("temp_Ball_Detector");
+            count.setConfiguration(dbConnector.getLaneConfig(u, i, "pinCounterConfig"));
+            lane.setPinCounter(count);
+
+            DisplayConnector disp = new DisplayConnector("temp", "token");
+            disp.setConfiguration(dbConnector.getLaneConfig(u, i, "displayConnectorConfig"));
+            lane.setDisplay(disp);
+            lane.configureDialog();
+            System.out.println("Dialog Closed");
+            System.out.println("Saving Config");
+            dbConnector.setLaneConfig(u, i, "laneConfig", lane.getConfiguration());
+            dbConnector.setLaneConfig(u, i, "ballDetectConfig", lane.getConfiguration());
+            dbConnector.setLaneConfig(u, i, "foulDetectConfig", lane.getConfiguration());
+            dbConnector.setLaneConfig(u, i, "sweepDetectConfig", lane.getConfiguration());
+            dbConnector.setLaneConfig(u, i, "pinSetterConfig", lane.getConfiguration());
+            dbConnector.setLaneConfig(u, i, "pinCounterConfig", lane.getConfiguration());
+            dbConnector.setLaneConfig(u, i, "displayConnectorConfig", lane.getConfiguration());
+            System.out.println("Saving complete");
+        }
     }
 
 }
