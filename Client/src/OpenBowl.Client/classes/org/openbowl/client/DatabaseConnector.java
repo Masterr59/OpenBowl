@@ -21,6 +21,7 @@ import java.util.Map;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import org.openbowl.common.AuthorizedUser;
+import org.openbowl.common.SimplePlayer;
 import org.openbowl.common.SystemStatus;
 
 /**
@@ -86,4 +87,8 @@ public abstract class DatabaseConnector {
     public abstract String getCurrentSession(int laneID);
     
     public abstract void configurationDialog();
+    
+    public abstract ArrayList<SimplePlayer> getPlayers(AuthorizedUser user);
+    
+    public abstract void addPlayer(AuthorizedUser user, int laneID, SimplePlayer player);
 }

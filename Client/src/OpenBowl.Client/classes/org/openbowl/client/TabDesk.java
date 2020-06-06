@@ -21,6 +21,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import javafx.beans.property.BooleanProperty;
@@ -37,6 +38,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
@@ -58,7 +60,7 @@ public class TabDesk extends CommonTab implements Initializable {
     private final String TAB_TEXT = "Desk";
     private final long DEFAULT_PULL_PERIOD = 300000l;    // 5 minutes
     private final long INITIAL_DELAY = 10000l;           // 10 seconds
-    private final long ACTIVATION_DELAY = 5000l;         // 5 Seconds
+    private final long ACTIVATION_DELAY = 2000l;         // 2 Seconds
     public static final String PREFS_PULL_PERIOD = "Lane_Pull_Period";
 
     @FXML
@@ -390,7 +392,15 @@ public class TabDesk extends CommonTab implements Initializable {
     }
 
     private void onAddUserDialog(int i) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        AuthorizedUser u = this.getUser().get();
+        if (!u.isAuthorized(UserRole.GAME_ADMIN)) {
+            u = this.getManager().get();
+        }
+        AddPlayerDialog dialog = new AddPlayerDialog(dbConnector, u);
+        Optional<ButtonType> result = dialog.showAndWait();
+        if (result.get() == ButtonType.OK) {
+
+        }
     }
 
     private void onShowLaneMaint(int i) {

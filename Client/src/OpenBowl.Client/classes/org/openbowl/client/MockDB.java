@@ -32,6 +32,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
 import org.openbowl.common.AuthorizedUser;
+import org.openbowl.common.SimplePlayer;
 import org.openbowl.common.SystemStatus;
 import org.openbowl.common.UserRole;
 import org.openbowl.common.WebFunctions;
@@ -632,6 +633,53 @@ public class MockDB extends DatabaseConnector {
 
         }
         return "";
+    }
+
+    @Override
+    public ArrayList<SimplePlayer> getPlayers(AuthorizedUser user) {
+        ArrayList<SimplePlayer> list = new ArrayList<>();
+        list.add(new SimplePlayer("Fred F."));
+        list.add(new SimplePlayer("Barney R."));
+        list.add(new SimplePlayer("Mr. Slate"));
+        list.add(new SimplePlayer("GR8 Gazoo"));
+
+        return list;
+    }
+
+    @Override
+    public void addPlayer(AuthorizedUser user, int laneID, SimplePlayer player) {
+        if (user.isAuthorized(UserRole.GAME_ADMIN) && laneID < 2) {
+            Platform.runLater(() -> {
+                onAddPlayer(player, laneID);
+            });
+        }
+    }
+
+    private void onAddPlayer(SimplePlayer player, int laneID) {
+        if (laneID == 0 || laneID == 1) {
+            String laneSide = (laneID == 0) ? "odd" : "even";
+            Map<String, Object> map = new HashMap<>();
+            map.put("UUID", getCurrentSession(laneID));
+            map.put("playerName", player.getName());
+            map.put("playerUUID", player.getUuid());
+            map.put("playerHDCP", player.getHdcp());
+            String postData = gson.toJson(map);
+            String laneCommand = "game/%s/?set=newPlayer";
+            String Response = "";
+            try {
+                String ip = mPrefs.get(PREF_SCORER_IP, DEFAULT_SCORER_IP);
+                Response = WebFunctions.doHttpPostRequest(ip, String.format(laneCommand, laneSide), postData, DEFAULT_TOKEN);
+                Map<String, Object> statusMap = gson.fromJson(Response, Map.class);
+                if (statusMap.containsKey("success")) {
+                    if (statusMap.get("success") instanceof Boolean) {
+                        System.out.println("Lane cycle status: " + (Boolean) statusMap.get("success"));
+
+                    }
+                }
+            } catch (Exception ex) {
+                showAlert("Lane add player " + player.toString() + " error", ex.toString() + "\n" + Response);
+            }
+        }
     }
 
 }
