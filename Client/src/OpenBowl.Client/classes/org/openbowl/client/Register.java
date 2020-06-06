@@ -161,7 +161,7 @@ public class Register extends Pane implements Initializable {
         ProductUseage newUseage = new ProductUseage(Product.TEST_PRODUCT, 1);
         addProductUseageToRegister(newUseage);
         Product packageProduct = new Product(-1, "Pizza & Bowling Package", 29.99, -1, ProductType.TEST_TYPE, TaxType.TAX_META_PACKAGE);
-        Product bowlingProduct = new Product(-1, "Bowling lane 1 hrs", 19.99, -1, ProductType.GAME_TYPE, TaxType.TEST_RATE);
+        Product bowlingProduct = new Product(3, "Per Game", 7.99, 1, ProductType.GAME_TYPE, TaxType.TEST_RATE);
         Product pizzaProduct = new Product(-1, "Pizza 1 lg 5 toppings", 19.99, -1, ProductType.FOOD_TYPE, TaxType.TEST_RATE);
         Product discountProduct = new Product(-1, "line discount", -9.99, -1, ProductType.TEST_TYPE, TaxType.TAX_EXEMPT);
 
@@ -169,7 +169,7 @@ public class Register extends Pane implements Initializable {
         packageUse.setMinLane(0);
         packageUse.setMaxLane(1);
 
-        packageUse.addChildProduct(new ProductUseage(bowlingProduct, 1));
+        packageUse.addChildProduct(new ProductUseage(bowlingProduct, 4));
         packageUse.addChildProduct(new ProductUseage(pizzaProduct, 1));
         packageUse.addChildProduct(new ProductUseage(discountProduct, 1));
         packageUse.QTYProperty().set(1);

@@ -170,9 +170,9 @@ public class ProductUseage extends Receipt {
             }
         }
         if (childRequired != null) {
-            if (lanes[0] > -1) {
-                return null;
-            }
+            //if (lanes[0] > -1) {
+            //    return null;
+            //}
             return childRequired;
         }
         if (this.Product_ID.getProduct_type() == ProductType.GAME_TYPE) {

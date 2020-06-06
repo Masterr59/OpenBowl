@@ -23,6 +23,9 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
+import javafx.application.Platform;
+import javafx.scene.control.Alert;
 import org.openbowl.common.AuthorizedUser;
 import org.openbowl.common.SystemStatus;
 import org.openbowl.common.UserRole;
@@ -41,6 +44,15 @@ public class MockDB implements DatabaseConnector {
     private final String NONE = "None";
     private final String DEFAULT_TOKEN = "yZ9Ut95MG3xdf5gc6WgT";
     private final String GET_LANE_STATUS_PATH = "system/?get=status";
+
+    private final String ACTIVATION_ERROR_TITLE = "Error";
+    private final String ACTIVATION_ERROR_HEADER = "Unsuported Game Type";
+    private final String ACTIVATION_ERROR_TEXT = "Game Type %s is not recognized";
+
+    private final String ACTIVATION_TITLE = "Information";
+    private final String ACTIVATION_HEADER = "Lane Activation Information";
+
+    private final String LANE_GAME_ACTIVATION_PATH = "game/%s/?set=newSession";
 
     private final String DEPT_REST = "Restaurant";
     private final String DEPT_BAR = "Bar";
@@ -385,6 +397,12 @@ public class MockDB implements DatabaseConnector {
                 transactionID = rand.nextInt(Integer.MAX_VALUE);
                 root.TransactionProperty().set(transactionID);
             }
+            for (Object o : root.getChildren()) {
+                if (o instanceof ProductUseage) {
+                    ProductUseage pu = (ProductUseage) o;
+                    checkForLaneActivations(pu);
+                }
+            }
 
         }
 
@@ -406,12 +424,95 @@ public class MockDB implements DatabaseConnector {
     @Override
     public ArrayList<PaymentType> getPaymentTypes(AuthorizedUser user) {
         ArrayList<PaymentType> list = new ArrayList<>();
-        if(user.isAuthorized(UserRole.TRANSACTION_ADD)){
+        if (user.isAuthorized(UserRole.TRANSACTION_ADD)) {
             list.add(PaymentType.CASH);
             list.add(PaymentType.CHECK);
             list.add(PaymentType.CREDIT_DEBIT);
         }
         return list;
+    }
+
+    private void checkForLaneActivations(ProductUseage root) {
+        if (root.getProduct_ID().getProduct_type() == ProductType.GAME_TYPE) {
+            int laneMin = root.getMinLane();
+            int laneMax = root.getMaxLane();
+            int numLanes = laneMax - laneMin + 1;
+            numLanes = (laneMax == -1) ? 1 : numLanes;
+            int qty = root.QTYProperty().get();
+            int perLane[] = new int[numLanes];
+            for (int i = 0; i < perLane.length; i++) {
+                perLane[i] = 0;
+            }
+            int pos = 0;
+            while (qty > 0) {
+                perLane[pos]++;
+                pos++;
+                pos = pos % numLanes;
+                qty--;
+            }
+            String gameType = root.getProduct_ID().getProduct_Name();
+            if (gameType.equals("Per Game")) {
+                String msg = "Sending lane activations to:\n";
+                for (int i = 0; i < perLane.length; i++) {
+                    int laneID = laneMin + i + 1;
+                    int numGames = perLane[i];
+                    Platform.runLater(() -> {
+                        activateGamesOnLane(laneID, numGames);
+                    });
+                    msg += String.format("%d Games => Lane %d \n", perLane[i], laneID);
+                }
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.getDialogPane().getStylesheets().add(getClass().getResource("DarkMode.css").toExternalForm());
+                alert.setTitle(ACTIVATION_TITLE);
+                alert.setHeaderText(ACTIVATION_HEADER);
+                alert.setContentText(msg);
+
+                alert.show();
+
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.getDialogPane().getStylesheets().add(getClass().getResource("DarkMode.css").toExternalForm());
+                alert.setTitle(ACTIVATION_ERROR_TITLE);
+                alert.setHeaderText(ACTIVATION_ERROR_HEADER);
+                alert.setContentText(String.format(ACTIVATION_ERROR_TEXT, gameType));
+
+                alert.show();
+            }
+        }
+        for (Object o : root.getChildren()) {
+            if (o instanceof ProductUseage) {
+                ProductUseage pu = (ProductUseage) o;
+                checkForLaneActivations(pu);
+            }
+        }
+    }
+
+    private void activateGamesOnLane(int laneID, int games) {
+        if (laneID == 0 || laneID == 1) {
+            String laneSide = (laneID == 0) ? "odd" : "even";
+            String uuid = UUID.randomUUID().toString();
+            String postData = String.format("{\"type\": \"numbered\", \"games\": %d, \"UUID\": %s}", games, uuid);
+            try {
+                String Response = WebFunctions.doHttpPostRequest("127.0.0.1", String.format(LANE_GAME_ACTIVATION_PATH, laneSide), postData, DEFAULT_TOKEN);
+                Map<String, Object> statusMap = gson.fromJson(Response, Map.class);
+                if (statusMap.containsKey("success")) {
+                    if (statusMap.get("success") instanceof Boolean) {
+                        System.out.println("Lane Activation Status: " + (Boolean) statusMap.get("success"));
+                    }
+                }
+
+            } catch (IOException | InterruptedException ex) {
+                System.out.println("Error getting lane status - " + ex.toString());
+            } catch (Exception ex) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.getDialogPane().getStylesheets().add(getClass().getResource("DarkMode.css").toExternalForm());
+                alert.setTitle("ERROR");
+                alert.setHeaderText("Activation Error");
+                alert.setContentText(ex.toString());
+
+                alert.show();
+            }
+        }
     }
 
 }
