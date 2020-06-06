@@ -95,7 +95,10 @@ public class GameHandler extends CommonHandler {
                         map.put(ERROR_MSG, "invalid or missing player id");
                     }
                     break;
-
+                case "currentSession":
+                    map.put(SUCCESS, true);
+                    map.put("UUID", onGetUUID());
+                    break;
                 default:
                     map.put(SUCCESS, false);
                     map.put(ERROR_MSG, "missing or unsupported request");
@@ -235,10 +238,10 @@ public class GameHandler extends CommonHandler {
     }
 
     private boolean onNewPlayer(Map<String, Object> requestBody, BowlingSession session) {
-        for(String k : requestBody.keySet()){
+        for (String k : requestBody.keySet()) {
             System.out.println(k + " =>" + requestBody.get(k));
         }
-        
+
         if (requestBody.containsKey("playerName") && requestBody.containsKey("playerUUID")) {
             String name = (String) requestBody.get("playerName");
             int handicap = new Double((double) requestBody.get("playerHDCP")).intValue();
@@ -260,5 +263,12 @@ public class GameHandler extends CommonHandler {
         }
 
         return false;
+    }
+
+    private String onGetUUID() {
+        if (currentSession != null) {
+            return currentSession.getUUID();
+        }
+        return "Not in Session";
     }
 }

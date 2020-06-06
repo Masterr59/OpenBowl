@@ -20,6 +20,7 @@ import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
+import java.util.Timer;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import javafx.application.Application;
@@ -38,6 +39,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.openbowl.common.AboutOpenBowl;
 import org.openbowl.common.BowlingGame;
+import org.openbowl.common.ExitTask;
 import org.openbowl.common.WebFunctions;
 import org.openbowl.scorer.remote.GameHandler;
 import org.openbowl.scorer.remote.LaneHandler;
@@ -240,6 +242,8 @@ public class MainApp extends Application {
         evenSessionManager.interrupt();
         remoteControl.stop(0);
         Platform.exit();
+        Timer timer = new Timer();
+        timer.schedule(new ExitTask(0), ExitTask.DEFAULT_EXIT_TIME);
     }
 
     private void onPinSetterMaint(PinSetter p, String n) {
