@@ -78,4 +78,6 @@ public abstract class DatabaseConnector {
     public void setOnLaneActivated(EventHandler<ActionEvent> onLaneActivated) {
         this.onLaneActivated = onLaneActivated;
     }
+    
+    public abstract void configurationDialog();
 }

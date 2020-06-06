@@ -22,12 +22,15 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import java.util.prefs.Preferences;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.TextField;
 import org.openbowl.common.AuthorizedUser;
 import org.openbowl.common.SystemStatus;
 import org.openbowl.common.UserRole;
@@ -64,7 +67,7 @@ public class MockDB extends DatabaseConnector {
 
     private final String PREF_SCORER_IP = "ScorerIP";
     private final String DEFAULT_SCORER_IP = "127.0.0.1";
-    
+
     private final Random rand;
     private final Gson gson;
     private Preferences mPrefs;
@@ -507,7 +510,7 @@ public class MockDB extends DatabaseConnector {
                 if (statusMap.containsKey("success")) {
                     if (statusMap.get("success") instanceof Boolean) {
                         System.out.println("Lane Activation Status: " + (Boolean) statusMap.get("success"));
-                        if(this.onLaneActivated != null){
+                        if (this.onLaneActivated != null) {
                             ActionEvent ae = new ActionEvent(laneID, null);
                             this.onLaneActivated.handle(ae);
                         }
@@ -525,6 +528,24 @@ public class MockDB extends DatabaseConnector {
 
                 alert.show();
             }
+        }
+    }
+
+    @Override
+    public void configurationDialog() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.getDialogPane().getStylesheets().add(getClass().getResource("DarkMode.css").toExternalForm());
+        alert.setTitle("MockDB Config");
+        alert.setGraphic(null);
+        alert.setHeaderText("Scorer IP");
+        String ip = mPrefs.get(PREF_SCORER_IP, DEFAULT_SCORER_IP);
+        TextField ft = new TextField(ip);
+        alert.getDialogPane().setContent(ft);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK) {
+            mPrefs.put(PREF_SCORER_IP, ft.textProperty().get());
+
         }
     }
 

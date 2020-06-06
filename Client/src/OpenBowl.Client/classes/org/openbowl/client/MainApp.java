@@ -46,9 +46,10 @@ import org.openbowl.common.UserRole;
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
 public class MainApp extends Application {
+
     public static final String DEFAULT_WEB_CLIENT_SITE = "http://northbowl.openbowlscoring.org";
-    public static final String PREFS_WEB_CLIENT_SITE = "WebClientSite";    
-    
+    public static final String PREFS_WEB_CLIENT_SITE = "WebClientSite";
+
     private final String ApplicationName = "Open Bowl - Client";
 
     private TabPane mTabPane;
@@ -65,6 +66,7 @@ public class MainApp extends Application {
     private ObjectProperty<AuthorizedUser> User;
     private ObjectProperty<AuthorizedUser> Manager;
 
+    private MenuItem dbConfig;
     private Preferences mPrefs;
 
     @Override
@@ -137,7 +139,11 @@ public class MainApp extends Application {
         MenuItem managerLogout = new MenuItem("Logout");
         managerLogout.setOnAction(not_used -> onManagerLogout());
 
-        managerMenu.getItems().addAll(managerLogin, managerLogout);
+        dbConfig = new MenuItem("Database Configuration");
+        dbConfig.disableProperty().set(true);
+        dbConfig.setOnAction(notUsed -> dbConnector.configurationDialog());
+
+        managerMenu.getItems().addAll(managerLogin, managerLogout, new SeparatorMenuItem(), dbConfig);
 
         Menu helpMenu = new Menu("_Help");
         MenuItem aboutMenuItem = new MenuItem("_About");
@@ -169,6 +175,7 @@ public class MainApp extends Application {
 
     private void onManagerLogout() {
         Manager.set(AuthorizedUser.NON_USER);
+        dbConfig.disableProperty().set(true);
     }
 
     private void onLogin() {
@@ -183,6 +190,7 @@ public class MainApp extends Application {
 
     private void onLogout() {
         User.set(AuthorizedUser.NON_USER);
+        dbConfig.disableProperty().set(true);
     }
 
     private void onUserChange(AuthorizedUser newU) {
@@ -256,6 +264,9 @@ public class MainApp extends Application {
                 BowlerTab.setStyleManager(true);
                 mTabPane.getTabs().add(BowlerTab);
             }
+            if (dbConfigAuthorized(newM)) {
+                dbConfig.disableProperty().set(false);
+            }
         }
     }
 
@@ -304,5 +315,17 @@ public class MainApp extends Application {
         Platform.exit();
         Timer timer = new Timer();
         timer.schedule(new ExitTask(0), ExitTask.DEFAULT_EXIT_TIME);
+    }
+
+    private boolean dbConfigAuthorized(AuthorizedUser u) {
+        return u.isAuthorized(UserRole.GAME_ADMIN)
+                && u.isAuthorized(UserRole.GENERATE_REPORTS)
+                && u.isAuthorized(UserRole.USER_ADD)
+                && u.isAuthorized(UserRole.USER_DELETE)
+                && u.isAuthorized(UserRole.USER_RENAME)
+                && u.isAuthorized(UserRole.MANAGE_SCORER)
+                && u.isAuthorized(UserRole.MANAGE_DISPLAY)
+                && u.isAuthorized(UserRole.TRANSACTION_ADD)
+                && u.isAuthorized(UserRole.TRANSACTION_DELETE);
     }
 }
