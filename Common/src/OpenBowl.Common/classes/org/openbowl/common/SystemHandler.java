@@ -53,6 +53,8 @@ public abstract class SystemHandler extends CommonHandler {
                 }
             } catch (IOException | InterruptedException ex) {
                 System.out.println("Get System Status ERROR - Update Check");
+                status.add(SystemStatus.ERROR);
+                status.add(SystemStatus.CRASH_DETECTED);
             }//end update check
             if (isPi()) {
                 try {
@@ -67,6 +69,8 @@ public abstract class SystemHandler extends CommonHandler {
                     }
                 } catch (IOException | InterruptedException ex) {
                     System.out.println("Get System Status ERROR - Undervolt Check");
+                    status.add(SystemStatus.ERROR);
+                    status.add(SystemStatus.CRASH_DETECTED);
                 }//end undervolt check
                 try {
                     Process p = Runtime.getRuntime().exec(PI_TEMP_COMMAND);
@@ -74,7 +78,8 @@ public abstract class SystemHandler extends CommonHandler {
                     if (exitValue == 0) {
                         String stdout = new String(p.getInputStream().readAllBytes());
                         if (stdout.trim().startsWith("temp=") && stdout.trim().endsWith("'C")) {
-                            String stringTemp = stdout.trim().substring(4, stdout.trim().length() - 2);
+                            String stringTemp = stdout.trim().substring(5, stdout.trim().length() - 2);
+                            //System.out.println(stringTemp);
                             double temp = Double.parseDouble(stringTemp);
                             if (temp > 75) {
                                 status.add(SystemStatus.ERROR);
@@ -82,8 +87,10 @@ public abstract class SystemHandler extends CommonHandler {
                             }
                         }
                     }
-                } catch (IOException | InterruptedException ex) {
-                    System.out.println("Get System Status ERROR - Undervolt Check");
+                } catch (IOException | InterruptedException | NumberFormatException ex) {
+                    System.out.println("Get System Status ERROR - OverHeat Check");
+                    status.add(SystemStatus.ERROR);
+                    status.add(SystemStatus.CRASH_DETECTED);
                 }//end temp check
             }//end is pi
 
