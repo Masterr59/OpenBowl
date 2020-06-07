@@ -14,8 +14,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import org.openbowl.common.Ball;
-import org.openbowl.common.BallUtil;
 import org.openbowl.common.BowlingFrame;
 import org.openbowl.common.BowlingFrame.ScoreType;
 
@@ -188,16 +186,15 @@ public class BowlingGameDisplay extends Region {
             gc.fillText(hdcp, x + fontBuffer + (7 * xDist), yFont);
         }
         //stroke scores
-        for (int i = 0; i < game.getFrameIndex(); i++) {
+        for (int i = 0; i <= game.getFrameIndex(); i++) {
             BowlingFrame cFrame = game.getFrames()[i];
-            Ball ballValues[] = cFrame.getBalls();
             ScoreType scoreTypes[] = cFrame.getScoreTypes();
 
             //frames 1-9 (pins)
             if (i < 9) {
                 for (int j = 0; j < 2; j++) {
                     if (scoreTypes[j] != ScoreType.NONE) {
-                        String ballString = String.valueOf(BallUtil.toChar(ballValues[j]));
+                        String ballString = game.getBallStringValue(i, j);
                         gc.strokeText(ballString, x + fontBuffer + ((10 + j + (3 * i)) * xDist), yFont);
                         gc.fillText(ballString, x + fontBuffer + ((10 + j + (3 * i)) * xDist), yFont);
                     }
@@ -205,7 +202,7 @@ public class BowlingGameDisplay extends Region {
             } else if (i == 9) {
                 for (int j = 0; j < 3; j++) {
                     if (scoreTypes[j] != ScoreType.NONE) {
-                        String ballString = String.valueOf(BallUtil.toChar(ballValues[j]));
+                        String ballString = game.getBallStringValue(i, j);
                         gc.strokeText(ballString, x + fontBuffer + ((36 + j) * xDist), yFont);
                         gc.fillText(ballString, x + fontBuffer + ((36 + j) * xDist), yFont);
                     }
@@ -218,7 +215,7 @@ public class BowlingGameDisplay extends Region {
         gc.setFont(new Font(gc.getFont().getName(), fontSize * 1.5));
         fontBuffer = yDist / 10.0;
         yFont = y + (yDist * 3) - fontBuffer;
-        for (int i = 0; i < game.getFrameIndex(); i++) {
+        for (int i = 0; i <= game.getFrameIndex(); i++) {
             BowlingFrame cFrame = game.getFrames()[i];
             if (cFrame.getFrameScore() >= 0) {
                 gc.strokeText(Integer.toString(cFrame.getFrameScore()), x + fontBuffer + ((9 + (3 * i)) * xDist), yFont);
