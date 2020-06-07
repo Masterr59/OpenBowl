@@ -123,12 +123,13 @@ public class Lane extends Node {
         } catch (NullPointerException e) {
             results += "NullPointException: " + e.getMessage();
         }
-
+        log("Set configuration called: " + results);
         return results;
 
     }
 
     public Map<String, Object> getConfiguration() {
+        log("Get Configuration called");
         Map<String, Object> ret = new HashMap<>();
         ret.put("Type", this.getClass().getName());
         ret.put(BALL_SWEEP_DISTANCE_SETTING, foulSweepDistance);
@@ -278,5 +279,9 @@ public class Lane extends Node {
         ball.teardown();
         foul.teardown();
         sweep.teardown();
+    }
+    
+    private void log(String s){
+        System.out.println("Lane - " + s);
     }
 }

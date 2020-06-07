@@ -96,12 +96,13 @@ public class BasicDetector extends Detector {
         } catch (NullPointerException e) {
             results += "NullPointException: " + e.getMessage();
         }
-
+        log("Set configuration: " + results);
         return results;
     }
 
     @Override
     public Map<String, Object> getConfiguration() {
+        log("Get Configuration called");
         Map<String, Object> ret = new HashMap<>();
         ret.put("Type", this.getClass().getName());
         ret.put(PIN_SETTING, prefs.get(name + PIN_SETTING, DEFAULT_PIN));

@@ -107,12 +107,13 @@ public class BasicPinSetter implements PinSetter {
         catch (NullPointerException e){
             results += "NullPointException: " + e.getMessage();
         }
-
+        log("Set configuration called: " + results);
         return results;
     }
 
     @Override
     public Map<String, Object> getConfiguration() {
+        log("Get Configuration called");
         String powerPinName = prefs.get(name + POWER_PIN_SETTING_NAME, DEFAULT_SETTING_POWER_PIN);
         String cyclePinName = prefs.get(name + CYCLE_PIN_SETTING_NAME, DEFAULT_SETTING_CYCLE_PIN);
         String powerPinState = prefs.get(name + POWER_STATE_SETTING_NAME, DEFAULT_SETTING_POWER_STATE);

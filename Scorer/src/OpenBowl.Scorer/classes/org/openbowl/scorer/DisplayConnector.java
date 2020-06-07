@@ -202,11 +202,12 @@ public class DisplayConnector {
         } catch (NullPointerException e) {
             results += "NullPointException: " + e.getMessage();
         }
-
+        log("Set configuration: " + results);
         return results;
     }
 
     public Map<String, Object> getConfiguration() {
+        log("Get configuration called");
         Map<String, Object> ret = new HashMap<>();
         ret.put("Type", this.getClass().getName());
         ret.put(ADDRESS_SETTING, prefs.get(name + ADDRESS_SETTING, DEFAULT_ADDRESS));
@@ -225,4 +226,7 @@ public class DisplayConnector {
         return processResponse(response);
     }
 
+    private void log(String s) {
+        System.out.println("Display Connector - " + s);
+    }
 }
