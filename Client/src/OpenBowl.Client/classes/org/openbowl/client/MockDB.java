@@ -157,13 +157,13 @@ public class MockDB extends DatabaseConnector {
                     return laneStatus.contains(SystemStatus.ONLINE);
                 }
                 return false;
-            } catch (IOException | InterruptedException ex) {
+            } catch (Exception ex) {
                 System.out.println("Error isLaneOnline - " + ex.toString());
                 System.out.println(Response);
-                return false;
-            } catch (IllegalStateException ex) {
-                System.out.println("Error isLaneOnline - " + ex.toString());
-                System.out.println(Response);
+                //String errorMsg = "Error checking is lane online\n" + ex.toString() + "\n" + Response;
+                //Platform.runLater(() -> {
+                //   showAlert("Error checking lane online", errorMsg);
+                //});
                 return false;
             }
 
@@ -178,9 +178,10 @@ public class MockDB extends DatabaseConnector {
     public ArrayList<SystemStatus> getLaneStatus(int lane) {
         ArrayList<SystemStatus> status = new ArrayList<>();
         if (lane < 2) {
+            String Response = "";
             try {
                 String ip = mPrefs.get(PREF_SCORER_IP, DEFAULT_SCORER_IP);
-                String Response = WebFunctions.doHttpGetRequest(ip, GET_LANE_STATUS_PATH, DEFAULT_TOKEN);
+                Response = WebFunctions.doHttpGetRequest(ip, GET_LANE_STATUS_PATH, DEFAULT_TOKEN);
                 Map<String, ArrayList<String>> statusMap = gson.fromJson(Response, Map.class);
                 if (statusMap.containsKey("status")) {
 
@@ -191,8 +192,13 @@ public class MockDB extends DatabaseConnector {
                     return laneStatus;
                 }
 
-            } catch (IOException | InterruptedException ex) {
-                System.out.println("Error getting lane status - " + ex.toString());
+            } catch (Exception ex) {
+                System.out.println("Error getting lane status lane " + lane + "\n" + ex.toString()
+                        + "\n" + Response);
+                //String errorMsg = "Error getting lane status on lane " + lane + "\n" + ex.toString() + "\n" + Response;
+                //Platform.runLater(() -> {
+                //    showAlert("Error Lane Status", errorMsg);
+                //});
             }
         } else if (lane == 2) {
             status.add(SystemStatus.ONLINE);
@@ -665,6 +671,8 @@ public class MockDB extends DatabaseConnector {
             map.put("playerName", player.getName());
             map.put("playerUUID", player.getUuid());
             map.put("playerHDCP", player.getHdcp());
+            map.put("playerTap", player.getTap());
+
             String postData = gson.toJson(map);
             String laneCommand = "game/%s/?set=newPlayer";
             String Response = "";
@@ -674,8 +682,12 @@ public class MockDB extends DatabaseConnector {
                 Map<String, Object> statusMap = gson.fromJson(Response, Map.class);
                 if (statusMap.containsKey("success")) {
                     if (statusMap.get("success") instanceof Boolean) {
-                        System.out.println("Lane cycle status: " + (Boolean) statusMap.get("success"));
+                        System.out.println("Game add Player status: " + (Boolean) statusMap.get("success"));
+                        System.out.println(String.format(laneCommand, laneSide));
+                        System.out.println(postData);
 
+                    } else {
+                        System.out.println("Game add player failed\n " + Response);
                     }
                 }
             } catch (Exception ex) {
@@ -690,18 +702,24 @@ public class MockDB extends DatabaseConnector {
         if (user.isAuthorized(UserRole.MANAGE_SCORER)) {
             if (laneID == 0 || laneID == 1) {
                 String laneSide = (laneID == 0) ? "odd" : "even";
-                String laneCommand = "game/%s/?get=" + type;
+                String laneCommand = "lane/%s/?get=" + type;
                 String Response = "";
                 try {
                     String ip = mPrefs.get(PREF_SCORER_IP, DEFAULT_SCORER_IP);
                     Response = WebFunctions.doHttpGetRequest(ip, String.format(laneCommand, laneSide), DEFAULT_TOKEN);
-                    Map<String, String> status = gson.fromJson(Response, Map.class);
+                    Map<String, Object> status = gson.fromJson(Response, Map.class);
                     if (status.containsKey("CurentConfig")) {
-                        map.putAll(gson.fromJson(status.get("CurentConfig"), Map.class));
+                        if (status.get("CurentConfig") instanceof Map) {
+                            map.putAll((Map) status.get("CurentConfig"));
+                        }
+                    } else {
+                        System.out.println("Unable to get config lane " + laneID + " type " + type);
+                        System.out.println("laneCommand");
+                        System.out.println(Response);
                     }
 
                 } catch (Exception ex) {
-                    showAlert("Lane get session error", ex.toString() + "\n" + Response);
+                    showAlert("Lane get config error", ex.toString() + "\n" + Response);
                 }
 
             }

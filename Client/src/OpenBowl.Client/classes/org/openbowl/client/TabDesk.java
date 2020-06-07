@@ -49,6 +49,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
+import org.openbowl.common.SimplePlayer;
 import org.openbowl.common.Styles;
 import org.openbowl.common.UserRole;
 import org.openbowl.scorer.BasicDetector;
@@ -406,7 +407,10 @@ public class TabDesk extends CommonTab implements Initializable {
         AddPlayerDialog dialog = new AddPlayerDialog(dbConnector, u);
         Optional<ButtonType> result = dialog.showAndWait();
         if (result.get() == ButtonType.OK) {
-
+            SimplePlayer player = dialog.getPlayer();
+            if (player != null) {
+                dbConnector.addPlayer(u, i, player);
+            }
         }
     }
 
@@ -468,12 +472,12 @@ public class TabDesk extends CommonTab implements Initializable {
             System.out.println("Dialog Closed");
             System.out.println("Saving Config");
             dbConnector.setLaneConfig(u, i, "laneConfig", lane.getConfiguration());
-            dbConnector.setLaneConfig(u, i, "ballDetectConfig", lane.getConfiguration());
-            dbConnector.setLaneConfig(u, i, "foulDetectConfig", lane.getConfiguration());
-            dbConnector.setLaneConfig(u, i, "sweepDetectConfig", lane.getConfiguration());
-            dbConnector.setLaneConfig(u, i, "pinSetterConfig", lane.getConfiguration());
-            dbConnector.setLaneConfig(u, i, "pinCounterConfig", lane.getConfiguration());
-            dbConnector.setLaneConfig(u, i, "displayConnectorConfig", lane.getConfiguration());
+            dbConnector.setLaneConfig(u, i, "ballDetectConfig", lane.getBall().getConfiguration());
+            dbConnector.setLaneConfig(u, i, "foulDetectConfig", lane.getFoul().getConfiguration());
+            dbConnector.setLaneConfig(u, i, "sweepDetectConfig", lane.getSweep().getConfiguration());
+            dbConnector.setLaneConfig(u, i, "pinSetterConfig", lane.getPinSetter().getConfiguration());
+            dbConnector.setLaneConfig(u, i, "pinCounterConfig", lane.getPinCounter().getConfiguration());
+            dbConnector.setLaneConfig(u, i, "displayConnectorConfig", lane.getDisplay().getConfiguration());
             System.out.println("Saving complete");
         }
     }

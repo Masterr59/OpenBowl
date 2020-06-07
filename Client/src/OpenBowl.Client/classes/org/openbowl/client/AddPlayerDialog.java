@@ -39,6 +39,7 @@ public class AddPlayerDialog extends Alert {
     private TextField playerName;
     private TextField playerUUID;
     private TextField playerHDCP;
+    private TextField playerTAP;
     private ListView<SimplePlayer> list;
 
     public AddPlayerDialog(DatabaseConnector db, AuthorizedUser u) {
@@ -54,6 +55,7 @@ public class AddPlayerDialog extends Alert {
         this.playerUUID = new TextField(UUID.randomUUID().toString());
         this.playerUUID.focusedProperty().addListener(notUsed -> onUUIDFocus());
         this.playerHDCP = new TextField("0");
+        this.playerTAP = new TextField("10");
 
         this.list = new ListView<>();
         this.list.getItems().addAll(dbConnector.getPlayers(user));
@@ -64,9 +66,11 @@ public class AddPlayerDialog extends Alert {
         gp.add(new Label("Name:"), 0, 0);
         gp.add(new Label("UUID:"), 0, 1);
         gp.add(new Label("HDCP:"), 0, 2);
+        gp.add(new Label("Tap:"), 0, 3);
         gp.add(playerName, 1, 0);
         gp.add(playerUUID, 1, 1);
         gp.add(playerHDCP, 1, 2);
+        gp.add(playerTAP, 1, 3);
 
         this.list.getSelectionModel().selectedItemProperty().addListener((obs, o, n) -> onSelctionChange(n));
 
@@ -87,15 +91,18 @@ public class AddPlayerDialog extends Alert {
         String name = this.playerName.textProperty().get();
         String UUID = this.playerUUID.textProperty().get();
         String hdcpString = this.playerHDCP.textProperty().get();
+        String tapString = this.playerTAP.textProperty().get();
         int hdcp = 0;
+        int tap = 10;
         boolean isInt = true;
         try {
             hdcp = Integer.parseInt(hdcpString);
+            tap = Integer.parseInt(tapString);
         } catch (NumberFormatException ex) {
             isInt = false;
         }
         if (!name.isEmpty() && !UUID.isEmpty() && isInt) {
-            return new SimplePlayer(name, UUID, hdcp);
+            return new SimplePlayer(name, UUID, hdcp, tap);
         } else {
             return null;
         }
