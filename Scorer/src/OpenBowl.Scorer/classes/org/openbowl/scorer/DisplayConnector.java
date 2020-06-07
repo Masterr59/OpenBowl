@@ -21,8 +21,6 @@ import com.google.gson.JsonSyntaxException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 import org.openbowl.common.BowlingGame;
 import org.openbowl.common.BowlingSplash;
@@ -84,7 +82,7 @@ public class DisplayConnector {
         try {
             response = WebFunctions.doHttpPostRequest(address, "gamedisplay/" + endpoint + "/" + parms, gson.toJson(map), authToken);
         } catch (IOException | InterruptedException ex) {
-            Logger.getLogger(DisplayConnector.class.getName()).log(Level.SEVERE, null, ex);
+            log(ex.toString());
         }
         return processResponse(response);
     }
@@ -105,7 +103,7 @@ public class DisplayConnector {
             //System.out.println(address + "gamedisplay/" + endpoint + parms);
             response = WebFunctions.doHttpPostRequest(address, "gamedisplay/" + endpoint + "/" + parms, gson.toJson(g), authToken);
         } catch (IOException | InterruptedException ex) {
-            Logger.getLogger(DisplayConnector.class.getName()).log(Level.SEVERE, null, ex);
+            log(ex.toString());
         }
         //System.out.println("no error");
         //System.out.println(response);
@@ -125,7 +123,7 @@ public class DisplayConnector {
         try {
             response = WebFunctions.doHttpPostRequest(address, "gamedisplay/" + endpoint + "/" + parms, gson.toJson(g), authToken);
         } catch (IOException | InterruptedException ex) {
-            Logger.getLogger(DisplayConnector.class.getName()).log(Level.SEVERE, null, ex);
+            log(ex.toString());
         }
         return processResponse(response);
     }
@@ -145,7 +143,7 @@ public class DisplayConnector {
         try {
             response = WebFunctions.doHttpPostRequest(address, "splash/" + endpoint + "/" + parms, gson.toJson(map), authToken);
         } catch (IOException | InterruptedException ex) {
-            Logger.getLogger(DisplayConnector.class.getName()).log(Level.SEVERE, null, ex);
+            log(ex.toString());
         }
         return processResponse(response);
     }
@@ -167,7 +165,7 @@ public class DisplayConnector {
         try {
             response = WebFunctions.doHttpPostRequest(address, "message/" + endpoint + "/" + parms, gson.toJson(map), authToken);
         } catch (IOException | InterruptedException ex) {
-            Logger.getLogger(DisplayConnector.class.getName()).log(Level.SEVERE, null, ex);
+            log(ex.toString());
         }
         return processResponse(response);
     }
@@ -221,9 +219,29 @@ public class DisplayConnector {
         try {
             response = WebFunctions.doHttpPostRequest(address, "gamedisplay/" + endpoint + "/" + parms, "{}", authToken);
         } catch (InterruptedException | IOException ex) {
-            Logger.getLogger(DisplayConnector.class.getName()).log(Level.SEVERE, null, ex);
+            log(ex.toString());
         }
         return processResponse(response);
+    }
+
+    public void screenPower(boolean state) {
+        String parms = "?set=screenPower";
+        String postData = "{\"state\": " + state + "}";
+        try {
+            WebFunctions.doHttpPostRequest(address, "gamedisplay/" + endpoint + "/" + parms, postData, authToken);
+        } catch (InterruptedException | IOException ex) {
+            log(ex.toString());
+        }
+    }
+    
+    public void screenSaver(boolean state) {
+        String parms = "?set=screenSaver";
+        String postData = "{\"state\": " + state + "}";
+        try {
+            WebFunctions.doHttpPostRequest(address, "gamedisplay/" + endpoint + "/" + parms, postData, authToken);
+        } catch (InterruptedException | IOException ex) {
+            log(ex.toString());
+        }
     }
 
     private void log(String s) {

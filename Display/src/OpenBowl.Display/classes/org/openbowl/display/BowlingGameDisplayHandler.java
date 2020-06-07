@@ -8,6 +8,8 @@ package org.openbowl.display;
 import com.google.gson.JsonSyntaxException;
 import java.util.HashMap;
 import java.util.Map;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import org.openbowl.common.BowlingGame;
 import org.openbowl.common.CommonHandler;
 
@@ -19,11 +21,15 @@ public class BowlingGameDisplayHandler extends CommonHandler {
 
     private final int lane;
     private final BowlingGameDisplay game;
+    private BooleanProperty saverProperty;
+    private BooleanProperty powerProperty;
 
     public BowlingGameDisplayHandler(int lane, BowlingGameDisplay g) {
         super();
         this.lane = lane;
         this.game = g;
+        this.saverProperty = new SimpleBooleanProperty(false);
+        this.powerProperty = new SimpleBooleanProperty(true);
     }
 
     @Override
@@ -56,7 +62,7 @@ public class BowlingGameDisplayHandler extends CommonHandler {
                 case "currentPlayer":
                     try {
                         int newCurrentPlayer = (int) requestBody.get("player");
-                        System.out.printf("Lane %d - Setting current player to ", lane,  newCurrentPlayer);
+                        System.out.printf("Lane %d - Setting current player to ", lane, newCurrentPlayer);
                         if (newCurrentPlayer < game.getNumPlayers()) {
                             game.setCurentPlayer(newCurrentPlayer);
                             map.put(SUCCESS, true);
@@ -106,8 +112,41 @@ public class BowlingGameDisplayHandler extends CommonHandler {
                         System.out.printf("lane %d - Resetting game display", lane);
                         game.reset();
                         map.put(SUCCESS, true);
-                        
 
+                    } catch (Exception e) {
+                        map.put(SUCCESS, false);
+                        map.put(ERROR_MSG, e.toString());
+                    }
+                    break;
+                case "screenPower":
+                    try {
+                        Map<String, Object> postData = gson.fromJson(body, Map.class);
+                        if (postData.containsKey("state") && postData.get("state") instanceof Boolean) {
+                            boolean state = ((Boolean) postData.get("state")).booleanValue();
+                            System.out.printf("lane %d - screen power :" + state, lane);
+                            this.powerProperty.set(state);
+                            map.put(SUCCESS, true);
+                        } else {
+                            System.out.printf("lane %d - screen power parm error", lane);
+                            map.put(SUCCESS, false);
+                        }
+                    } catch (Exception e) {
+                        map.put(SUCCESS, false);
+                        map.put(ERROR_MSG, e.toString());
+                    }
+                    break;
+                case "screenSaver":
+                    try {
+                        Map<String, Object> postData = gson.fromJson(body, Map.class);
+                        if (postData.containsKey("state") && postData.get("state") instanceof Boolean) {
+                            boolean state = ((Boolean) postData.get("state")).booleanValue();
+                            System.out.printf("lane %d - screen saver :" + state, lane);
+                            this.saverProperty.set(state);
+                            map.put(SUCCESS, true);
+                        } else {
+                            System.out.printf("lane %d - screen saver parm error", lane);
+                            map.put(SUCCESS, false);
+                        }
                     } catch (Exception e) {
                         map.put(SUCCESS, false);
                         map.put(ERROR_MSG, e.toString());
