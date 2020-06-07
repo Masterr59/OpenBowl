@@ -61,8 +61,8 @@ public class BowlingGameDisplayHandler extends CommonHandler {
             switch (parms.getOrDefault("set", "none")) {
                 case "currentPlayer":
                     try {
-                        int newCurrentPlayer = (int) requestBody.get("player");
-                        System.out.printf("Lane %d - Setting current player to ", lane, newCurrentPlayer);
+                        int newCurrentPlayer = (new Double((double) requestBody.get("player"))).intValue();
+                        System.out.printf("Lane %d - Setting current player to %d\n", lane, newCurrentPlayer);
                         if (newCurrentPlayer < game.getNumPlayers()) {
                             game.setCurentPlayer(newCurrentPlayer);
                             map.put(SUCCESS, true);

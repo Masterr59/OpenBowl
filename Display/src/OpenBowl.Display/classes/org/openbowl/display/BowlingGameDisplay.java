@@ -112,6 +112,15 @@ public class BowlingGameDisplay extends Region {
         drawScoreCardHeader(xDist, yDist);
         for (int i = 0; i < games.size(); i++) {
             drawScoreCard(xDist, (2 * yDist) + (i * 3 * yDist), games.get(i));
+            if (i == curentPlayer && !this.games.isEmpty()) {
+                String arrow = "-->"; 
+                double fontSize = getFontSize(arrow, yDist);
+                gc.setFont(new Font(gc.getFont().getName(), fontSize));
+                gc.setStroke(textOutlineColor);
+                gc.setFill(textFillColor);
+                gc.strokeText(arrow, xDist * 1.01, (3 * yDist) + (i * 3 * yDist));
+                gc.fillText(arrow, xDist * 1.01, (3 * yDist) + (i * 3 * yDist));
+            }
         }
 
         gc.restore();
@@ -292,6 +301,7 @@ public class BowlingGameDisplay extends Region {
 
     public void setCurentPlayer(int curentPlayer) {
         this.curentPlayer = curentPlayer;
+        draw();
     }
 
     @Override
