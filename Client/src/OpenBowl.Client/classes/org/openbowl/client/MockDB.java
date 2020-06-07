@@ -19,6 +19,7 @@ package org.openbowl.client;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -580,6 +581,7 @@ public class MockDB extends DatabaseConnector {
         alert.setContentText(msg);
 
         alert.show();
+        System.out.println(msg);
     }
 
     @Override
@@ -738,13 +740,17 @@ public class MockDB extends DatabaseConnector {
                 try {
                     String ip = mPrefs.get(PREF_SCORER_IP, DEFAULT_SCORER_IP);
                     Response = WebFunctions.doHttpGetRequest(ip, String.format(laneCommand, laneSide), DEFAULT_TOKEN);
+                    //System.out.println(Response);
                     Map<String, String> status = gson.fromJson(Response, Map.class);
                     if (status.containsKey("file")) {
-                        return status.get("file").getBytes();
+                        byte[] bytes = Base64.getDecoder().decode(status.get("file"));
+                        return bytes;
+                        //return status.get("file");
                     }
 
                 } catch (Exception ex) {
                     showAlert("Lane get image error", ex.toString());
+
                 }
 
             }

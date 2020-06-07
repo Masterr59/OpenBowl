@@ -18,14 +18,11 @@ package org.openbowl.scorer.remote;
 
 import com.google.gson.JsonSyntaxException;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.openbowl.common.CommonHandler;
 import org.openbowl.scorer.Lane;
 
@@ -213,15 +210,21 @@ public class LaneHandler extends CommonHandler {
         return map;
     }
 
-    private byte[] getLastImage() {
+    private String getLastImage() {
         File f = new File("currentPinImage.png");
+        System.out.println("Getting last Image");
         if (f.exists() && f.canRead()) {
             try {
-                return Files.readAllBytes(f.toPath());
+                System.out.println("Image found");
+                byte[] data = Files.readAllBytes(f.toPath());
+                System.out.println("File is " + data.length + " bytes long");
+
+                return Base64.getEncoder().encodeToString(data);
             } catch (IOException ex) {
                 System.out.println("Error opening file " + ex.toString());
             }
         }
-        return new String("Error").getBytes();
+        System.out.println("Image Not Found");
+        return new String("Error");
     }
 }

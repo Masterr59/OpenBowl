@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -419,13 +418,23 @@ public class TabDesk extends CommonTab implements Initializable {
         if (u.isAuthorized(UserRole.MANAGE_SCORER)) {
             System.out.println("Loading last Image");
             File f = new File("currentPinImage.png");
+            if (!f.exists()) {
+                try {
+                    f.createNewFile();
+                } catch (IOException ex) {
+                    System.out.println("Error creating file");
+                }
+            }
             if (f.canWrite()) {
                 byte[] data = dbConnector.getLastImage(u, i);
+                System.out.println("Bytes recieved: " + data.length);
                 try {
                     Files.write(f.toPath(), data, StandardOpenOption.WRITE);
                 } catch (IOException ex) {
                     System.out.println("Error writing file");
                 }
+            } else {
+                System.out.println("Unable to write");
             }
 
             System.out.println("Loading lane Configs");
