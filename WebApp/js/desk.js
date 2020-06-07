@@ -7,6 +7,9 @@ var currentPackagePage = 0;
 var currentProductsPage = 0;
 var currentModifiersPage = 0;
 var subDepartments = [];
+var packages = [];
+var products = [];
+var modifiers = [];
 var sales = [];
 var taxTypes = [];
 
@@ -20,6 +23,10 @@ var laneIsSelected = false;
 var numOfSales = 0;
 var totalPrice = 0;
 var salesTax = 0;
+var totalSubDepartments = 0;
+var totalPackages = 0;
+var totalProducts = 0;
+var totalModifiers = 0;
 
 //adjust buttons
 roundUpBtnEnabled = false;
@@ -47,9 +54,10 @@ class SubDepartment {
     }
 }
 class Package {
-    constructor(pkgID, pkgName, containsLane){
+    constructor(pkgID, pkgName, subdptID, containsLane){
         this.pkgID = pkgID;
         this.pkgName = pkgName;
+        this.subdptID = subdptID;
         this.packageProducts = new Array();
         this.containsLane = containsLane;
     }
@@ -58,9 +66,10 @@ class Package {
     }
 }
 class Product {
-    constructor(prodID, prodName, prodPrice, hasModifiers, containsLane, taxType){
+    constructor(prodID, prodName, subdptID, prodPrice, hasModifiers, containsLane, taxType){
         this.prodID = prodID;
         this.prodName = prodName;
+        this.subdptID = subdptID;
         this.prodPrice = prodPrice;
         this.hasModifiers = hasModifiers;
         this.containsLane = containsLane;
@@ -72,9 +81,10 @@ class Product {
     }
 }
 class Modifier {
-    constructor(modID, modName, modPrice){
+    constructor(modID, modName, prodID, modPrice){
         this.modID = modID;
         this.modName = modName;
+        this.prodID = prodID;
         this.modPrice = modPrice;
     }
 }
@@ -118,9 +128,7 @@ function start() {
     $("#generalSalesBtn").click(function() {
         displayPanel(3);
     });
-    $(".laneBtn").click(function() {
-        selectLanes(this);
-    });
+    
     $("#clearBtn").click(function() {
         toggleLaneButtons(false);
         laneIsSelected = false;
@@ -295,7 +303,7 @@ function addSale(saleType, selectedProdID, clickedButton) {
         for (var i = 0; i < subDepartments[selectedSubID].subdptPackages[selectedProdID].packageProducts.length; i++)
         {
             const selectedProdName = packages[selectedProdID].packageProducts[i].prodName;
-            const priceString = packages[selectedProdID].packageProducts[i].prodPrice.toLocaleString('us-US', { style: 'currency', currency: 'USD'});
+            const priceString = parseFloat(packages[selectedProdID].packageProducts[i].prodPrice).toLocaleString('us-US', { style: 'currency', currency: 'USD'});
             $("#receipt #receipt_sale" + numOfSales + " #row3_"+selectedSubID+"_"+selectedProdID).append(
                 "<div class=\"row1\"><b>&nbsp;..." + selectedProdName + "</b></div>" +
                 "<div class=\"row3\">" +
@@ -303,7 +311,7 @@ function addSale(saleType, selectedProdID, clickedButton) {
                 "<div class=\"productPrice\"><b>" + priceString + "</b></div>" +
                 "</div>"
             );
-            sales[numOfSales].price += packages[selectedProdID].packageProducts[i].prodPrice;
+            sales[numOfSales].price += parseFloat(packages[selectedProdID].packageProducts[i].prodPrice);
         }
     }
 
@@ -357,7 +365,8 @@ function clearSubDepartmentBtns() {
     var subdptID;
     for (subdptID = 0; subdptID < subDepartments.length; subdptID++)
     {
-        var s = "#subdpt" + subdptID;
+        var c = subDepartments[subdptID].subdptID;
+        var s = "#subdpt" + c;
         var selectedBtn = document.querySelector(s);
         selectedBtn.classList = "greenBtn";
     }
@@ -428,6 +437,9 @@ function displayLanes() {
     {
         document.querySelector("#lanes_down_arrow").classList = "arrow_panel_enabled";
     }
+    $(".laneBtn").click(function() {
+        selectLanes(this);
+    });
 }
 function displayPanel(n) {
     switch (n) {
@@ -459,10 +471,10 @@ function displayPanel(n) {
     }
 }
 function displaySubDepartments() {
-    var subdptID = 0;
-    var numOfSubDpts = subDepartments.length;
-    var numberOfPages = Math.floor(numOfSubDpts/maxNumOfProductsPerPage);
-    if (numOfSubDpts == maxNumOfProductsPerPage)
+    var sID = 0;
+    var totalSubDepartments = subDepartments.length;
+    var numberOfPages = Math.floor(totalSubDepartments/maxNumOfProductsPerPage);
+    if (totalSubDepartments == maxNumOfProductsPerPage)
     {
         numberOfPages = 0;
     }
@@ -471,15 +483,15 @@ function displaySubDepartments() {
     {
         var s = "#sub_page" + i;
         $("#subdptDiv").append("<div class=\"sub_page\" id=\""+ s + "\"></div>");
-        for (subdptID; subdptID < i * maxNumOfProductsPerPage + maxNumOfProductsPerPage; subdptID++)
+        for (sID; sID < i * maxNumOfProductsPerPage + maxNumOfProductsPerPage; sID++)
         {
-            if (subDepartments[subdptID] != null)
+            if (subDepartments[sID] != null)
             {
-                $(document.getElementById(s)).append("<div class=\"greenBtn\" id=\"subdpt" + subdptID + "\">" + subDepartments[subdptID].subdptName + "</div>");
+                $(document.getElementById(s)).append("<div class=\"greenBtn\" id=\"subdpt" + subDepartments[sID].subdptID + "\">" + subDepartments[sID].subdptName + "</div>");
             }
             else
             {
-                subdptID = i * maxNumOfProductsPerPage + maxNumOfProductsPerPage;
+                sID = i * maxNumOfProductsPerPage + maxNumOfProductsPerPage;
             }
         }
     }
@@ -501,6 +513,15 @@ function displayPackages(clickedButton) {
     var matches = s.match(/(\d+)/);
     currentPackagePage = 0;
     selectedSubID = parseInt(matches[0]);
+
+    for (var j = 0; j < subDepartments.length; j++)
+    {
+        if (subDepartments[j].subdptID == selectedSubID)
+        {
+            selectedSubID = j;
+        }
+    }
+
     var packages = subDepartments[selectedSubID].subdptPackages;
     var numOfPackages = packages.length;
     var numberOfPages = Math.floor(numOfPackages/maxNumOfProductsPerPage);
@@ -557,6 +578,15 @@ function displayProducts(clickedButton) {
     currentProductsPage = 0;
     selectedSubID = parseInt(matches[0]);
     var prodID = 0;
+
+    for (var j = 0; j < subDepartments.length; j++)
+    {
+        if (subDepartments[j].subdptID == selectedSubID)
+        {
+            selectedSubID = j;
+        }
+    }
+
     var products = subDepartments[selectedSubID].subdptProducts;
     var numOfProducts = products.length;
     var numberOfPages = Math.floor(numOfProducts/maxNumOfProductsPerPage);
@@ -701,77 +731,198 @@ function init() {
     $("#generalSalesPanel").hide();
 
     disableAdjustBtns();
-
-    var numOfSubDpts = Math.floor( Math.random() * 7) + 1;
+    loadSubDepartments();
 
     //load tax types
     taxTypes.push(new TaxType(1, "Bowling", 8.1));
     taxTypes.push(new TaxType(2, "Restaurant", 8.0));
 
-    for (var subdptID = 0; subdptID < numOfSubDpts; subdptID++)
-    {
-        var numOfPackages = Math.floor( Math.random() * 8) + 1;
-        var numOfProducts = Math.floor( Math.random() * 8) + 1;
-        subDepartments.push(new SubDepartment(1,"SubDpt #" + subdptID));
-        for (var pkgID = 0; pkgID < numOfPackages; pkgID++)
-        {
-            var hasLanes = Math.floor( Math.random() * 2);
-            if (hasLanes == 1){hasLanes = true;}
-            else {hasLanes = false;}
-            var numOfPackageProducts = Math.floor( Math.random() * 5) + 1;
-            subDepartments[subdptID].addPackage(new Package(1, "SubDpt #" + subdptID + " Package #" + pkgID, hasLanes));
-            for (var prodID = 0; prodID < numOfPackageProducts; prodID++)
+}
+function loadSubDepartments()
+{
+    var sql = 'SELECT * FROM sub_department';
+    var table = 'sub_department';
+    var ajaxRequest = {
+        url: './retrieve.php',
+        type: 'POST',
+        data: { 'id' : 0, 'table' : table, 'key' : "sub_depart_id", 'sql' : sql },
+        dataType: 'json',
+        success:function(JSONObject){
+            var i = 0;
+            for (i = 0; i < JSONObject.length; i++)
             {
-                //Test generation
-                var hasLanes = Math.floor( Math.random() * 2);
-                if (hasLanes == 1){hasLanes = true;}
-                else {hasLanes = false;}
-                var hasMods = Math.floor( Math.random() * 2);
-                if (hasMods == 1) {hasMods = true;}
-                else {hasMods = false;}
-                var price =  Math.floor(Math.random() * 15) + 1;
-                var tt = Math.floor( Math.random() * 2);
-                //Test generation end
-                //var tt = get taxtype id from product and replace the below constructor with this (tt)
-                subDepartments[subdptID].subdptPackages[pkgID].addProduct(new Product(1, "Pkg #" + pkgID + " PkgProd #" + prodID, price, hasMods, hasLanes, tt));
+                subDepartments.push(new SubDepartment(JSONObject[i]["sub_depart_id"],JSONObject[i]["sub_depart_name"]));
             }
-        }
-        for (var prodID = 0; prodID < numOfProducts; prodID++)
-        {
-            var numOfModifiers = Math.floor( Math.random() * 7) + 1;
-
-            //Test generation
-            var hasLanes;
-            var hasMods = Math.floor( Math.random() * 2);
-            if (hasMods == 1) {
-                hasMods = true;
-                hasLanes = true;
-            }
-            else {
-                hasMods = false;
-                hasLanes = Math.floor( Math.random() * 2);
-                if (hasLanes == 1){
-                    hasLanes = true;
-                }
-                else {
-                    hasLanes = false;
-                }
-            }
-            var price =  Math.floor(Math.random() * 15) + 1;
-            var tt = Math.floor( Math.random() * 2);
-            //Test generation end
-            subDepartments[subdptID].addProduct(new Product(1, "SubDpt #" + subdptID + " Product #" + prodID, price, hasMods, hasLanes, tt));
-            for (var modID = 0; modID < numOfModifiers; modID++)
-            {
-                price =  Math.floor(Math.random() * 15) + 1;
-                subDepartments[subdptID].subdptProducts[prodID].addModifier(new Modifier(1, "Prod #" + prodID + " Modifier #" + modID, price));
-            }
+            totalSubDepartments = i;
+            displaySubDepartments();
+            //loadPackages();
+            loadProducts();
+            
         }
     }
+    $.ajax(ajaxRequest);
+}
+function loadPackages()
+{
+    var sql = 'SELECT * FROM package';
+    var table = 'package';
+    var ajaxRequest = {
+        url: './retrieve.php',
+        type: 'POST',
+        data: { 'id' : 0, 'table' : table, 'key' : "package_id", 'sql' : sql },
+        dataType: 'json',
+        success:function(JSONObject){
+            var i = 0;
+            for (i = 0; i < JSONObject.length; i++)
+            {
+                var x = new Package(JSONObject[i]["package_id"],JSONObject[i]["package_name"],JSONObject[i]["sub_depart_id"],JSONObject[i]["contains_lane"]);
+                packages.push(x);
 
-    displayLanes();
-    displaySubDepartments();
-    updateTotal();
+                var a = 0;
+                for (var j = 0; j < subDepartments.length; j++)
+                {
+                    if (subDepartments[j].subdptID == JSONObject["sub_depart_id"])
+                    {
+                        a = j;
+                    }
+                }
+
+                subDepartments[a].subdptPackages.push(x);
+            }
+            totalPackages = i;
+            loadPackageProducts();
+        }
+    }
+    $.ajax(ajaxRequest);
+}
+function loadPackageProducts()
+{
+    var sql = 'SELECT * FROM package_product';
+    var table = 'package_product';
+    var ajaxRequest = {
+        url: './retrieve.php',
+        type: 'POST',
+        data: { 'id' : 0, 'table' : table, 'key' : "package_product_id", 'sql' : sql },
+        dataType: 'json',
+        success:function(JSONObject){
+            var i = 0;
+            for (i = 0; i < JSONObject.length; i++)
+            {
+                var c = 0;
+                var a = 0;
+                for (var j = 0; j < products.length; j++)
+                {
+                    if (products[j].prodID == JSONObject[i]["product_id"])
+                    {
+                        c = products[j].subdptID;
+                        a = j;
+                    }
+                }
+                var b = 0;
+                for (var j = 0; j < packages.length; j++)
+                {
+                    if (packages[j].pkgID == JSONObject[i]["package_id"])
+                    {
+                        b = j;
+                    }
+                }
+                var d = 0;
+                for (var j = 0; j < subDepartments.length; j++)
+                {
+                    if (subDepartments[j].subdptID == packages[b].subdptID)
+                    {
+                        d = j;
+                    }
+                }
+                var x = products[e];
+                subDepartments[d].subdptPackages[b].addProduct(products[a]);
+            }
+            updateTotal();
+            displayLanes();
+        }
+    }
+    $.ajax(ajaxRequest);
+}
+function loadProducts()
+{
+    var sql = 'SELECT * FROM product';
+    var table = 'product';
+    var ajaxRequest = {
+        url: './retrieve.php',
+        type: 'POST',
+        data: { 'id' : 0, 'table' : table, 'key' : "product_id", 'sql' : sql },
+        dataType: 'json',
+        success:function(JSONObject){
+            var i = 0;
+            for (i = 0; i < JSONObject.length; i++)
+            {
+                var em = JSONObject[i]["enable_modifiers"];
+                if (em == 1)
+                    em = true;
+                else
+                    em = false;
+                var x = new Product(JSONObject[i]["product_id"],JSONObject[i]["product_name"], JSONObject[i]["sub_depart_id"], JSONObject[i]["price"], em,
+                true, JSONObject[i]["tax_type_id"]);
+                products.push(x);
+
+                var a = 0;
+                for (var j = 0; j < subDepartments.length; j++)
+                {
+                    if (subDepartments[j].subdptID == JSONObject["sub_depart_id"])
+                    {
+                        a = j;
+                    }
+                }
+
+                subDepartments[a].subdptProducts.push(x);
+            }
+            totalProducts = i;
+            loadModifiers();
+        }
+    }
+    $.ajax(ajaxRequest);
+}
+function loadModifiers()
+{
+    var sql = 'SELECT * FROM modifier';
+    var table = 'modifier';
+    var ajaxRequest = {
+        url: './retrieve.php',
+        type: 'POST',
+        data: { 'id' : 0, 'table' : table, 'key' : "modifier_id", 'sql' : sql },
+        dataType: 'json',
+        success:function(JSONObject){
+            var i = 0;
+            for (i = 0; i < JSONObject.length; i++)
+            {
+                var x = new Modifier(JSONObject[i]["modifier_id"],JSONObject[i]["modifier_name"],JSONObject[i]["product_id"],JSONObject[i]["modifier_price"]);
+                modifiers.push(x);
+                var c = 0;
+                e = 0;
+                for (var j = 0; j < products.length; j++)
+                {
+                    if (products[j].prodID == JSONObject[i]["product_id"])
+                    {
+                        c = products[j].subdptID;
+                        e = j;
+                    }
+                }
+                var a = 0;
+                for (var j = 0; j < subDepartments.length; j++)
+                {
+                    if (subDepartments[j].subdptID == products[e].subdptID)
+                    {
+                        a = j;
+                    }
+                }
+                subDepartments[a].subdptProducts[e].addModifier(x);
+                
+            }
+            totalModifiers = i;
+            loadPackages();
+        }
+    }
+    $.ajax(ajaxRequest);
 }
 function scrollLanes(direction)
 {
