@@ -27,15 +27,21 @@ public class SimplePlayer {
     private String name;
     private String uuid;
     private int hdcp;
+    private int tap;
 
     public SimplePlayer(String name) {
-        this(name, UUID.randomUUID().toString(), 0);
+        this(name, UUID.randomUUID().toString());
     }
 
-    public SimplePlayer(String name, String uuid, int hdcp) {
+    public SimplePlayer(String n, String u) {
+        this(n, u, 0, 10);
+    }
+
+    public SimplePlayer(String name, String uuid, int hdcp, int t) {
         this.name = name;
         this.uuid = uuid;
         this.hdcp = hdcp;
+        this.tap = t;
     }
 
     public String getName() {
@@ -65,6 +71,14 @@ public class SimplePlayer {
     @Override
     public String toString() {
         return name;
+    }
+
+    public int getTap() {
+        return tap;
+    }
+
+    public void setTap(int tap) {
+        this.tap = tap;
     }
 
 }
