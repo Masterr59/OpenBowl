@@ -776,4 +776,35 @@ public class MockDB extends DatabaseConnector {
         return new String("Error Retreaving image").getBytes();
     }
 
+    @Override
+    public void displayMaint(AuthorizedUser user, int laneID, String type) {
+        if (user.isAuthorized(UserRole.GAME_ADMIN) && laneID < 2) {
+            Platform.runLater(() -> {
+                onDisplayMaint(laneID, type);
+            });
+        }
+    }
+    
+    private void onDisplayMaint(int laneID, String type){
+        if (laneID == 0 || laneID == 1) {
+            String laneSide = (laneID == 0) ? "odd" : "even";
+            String postData = String.format("{\"UUID\": %s}", getCurrentSession(laneID));
+            String laneCommand = "game/%s/?set=" + type;
+            String Response = "";
+            try {
+                String ip = mPrefs.get(PREF_SCORER_IP, DEFAULT_SCORER_IP);
+                Response = WebFunctions.doHttpPostRequest(ip, String.format(laneCommand, laneSide), postData, DEFAULT_TOKEN);
+                Map<String, Object> statusMap = gson.fromJson(Response, Map.class);
+                if (statusMap.containsKey("success")) {
+                    if (statusMap.get("success") instanceof Boolean) {
+                        System.out.println("Display status: " + (Boolean) statusMap.get("success"));
+
+                    }
+                }
+            } catch (Exception ex) {
+                showAlert("Lane " + type + " Display error", ex.toString() + "\n" + Response);
+            }
+        }
+    }
+
 }

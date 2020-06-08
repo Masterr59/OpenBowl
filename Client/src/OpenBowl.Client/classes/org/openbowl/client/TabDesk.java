@@ -393,9 +393,16 @@ public class TabDesk extends CommonTab implements Initializable {
         abortSession.setOnAction(notUsed -> dbConnector.pauseResumeAbortSession(user, "abortSession", i));
         sessionMenu.getItems().addAll(pauseSession, resumeSession, abortSession);
 
+        Menu displayMenu = new Menu("Display");
+        MenuItem resetDisplay = new MenuItem("Reset game");
+        resetDisplay.setOnAction(notUsed -> dbConnector.pauseResumeAbortSession(user, "resetDisplay", i));
+        MenuItem refreshDisplay = new MenuItem("Refresh Game");
+        refreshDisplay.setOnAction(notUsed -> dbConnector.pauseResumeAbortSession(user, "refreshDisplay", i));
+        displayMenu.getItems().addAll(resetDisplay, refreshDisplay);
+
         maint.setOnAction(notUsed -> onShowLaneMaint(i));
 
-        contextMenu.getItems().addAll(addUser, refresh, cycle, sessionMenu, maint);
+        contextMenu.getItems().addAll(addUser, refresh, cycle, displayMenu, sessionMenu, maint);
         return contextMenu;
     }
 

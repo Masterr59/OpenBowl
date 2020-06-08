@@ -97,4 +97,6 @@ public abstract class DatabaseConnector {
     public abstract void setLaneConfig(AuthorizedUser user, int laneID, String type, Map<String, Object> config);
 
     public abstract byte[] getLastImage(AuthorizedUser user, int laneID);
+    
+    public abstract void displayMaint(AuthorizedUser user, int laneID, String type);
 }
