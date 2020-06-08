@@ -172,7 +172,7 @@ public class BowlingGame {
         return ret;
     }
 
-    private boolean isStrikeSpare(int rawScore) {
+    public boolean isStrikeSpare(int rawScore) {
         return rawScore >= mTap;
     }
 
