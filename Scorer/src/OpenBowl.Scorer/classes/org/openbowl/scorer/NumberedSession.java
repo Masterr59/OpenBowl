@@ -16,8 +16,6 @@
  */
 package org.openbowl.scorer;
 
-import java.util.ArrayList;
-import org.openbowl.common.BowlingFrame;
 import org.openbowl.common.BowlingGame;
 
 /**

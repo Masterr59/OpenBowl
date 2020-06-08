@@ -214,6 +214,19 @@ public class GameHandler extends CommonHandler {
                     map.put(ERROR_MSG, "session not found");
                 }
                 break;
+            case "resetDisplay":
+                map.put(SUCCESS, true);
+                if (currentSession != null) {
+                    gameSession.resetDisplay();
+                }
+                break;
+            case "refreshDisplay":
+                map.put(SUCCESS, true);
+                if (currentSession != null) {
+                    gameSession.refreshDisplay();
+                }
+                break;
+
             default:
                 map.put(SUCCESS, false);
                 map.put(ERROR_MSG, "missing or unsupported request");
@@ -250,7 +263,7 @@ public class GameHandler extends CommonHandler {
             String name = (String) requestBody.get("playerName");
             int handicap = new Double((double) requestBody.get("playerHDCP")).intValue();
             String playerUUID = (String) requestBody.get("playerUUID");
-            int i = session.addPlayer(new BowlingGame(name, handicap, playerUUID));
+            int i = session.addPlayer(new BowlingGame(name, handicap, playerUUID, 10));
             return i >= 0;
         }
 

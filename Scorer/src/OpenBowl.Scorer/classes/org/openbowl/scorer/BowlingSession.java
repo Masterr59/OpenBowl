@@ -35,6 +35,7 @@ public abstract class BowlingSession implements Runnable, Comparable<BowlingSess
     protected BooleanProperty isRunning;
     protected boolean mSessionFinished;
     protected int currentPlayer;
+    protected int currentBall;
     protected String UUID;
 
     public BowlingSession(Lane lane) {
@@ -46,6 +47,8 @@ public abstract class BowlingSession implements Runnable, Comparable<BowlingSess
         players = new ArrayList<>();
         this.UUID = "";
         this.mSessionFinished = false;
+        this.currentPlayer = 0;
+        this.currentBall = 0;
     }
 
     public ArrayList<BowlingGame> getPlayers() {
@@ -90,45 +93,45 @@ public abstract class BowlingSession implements Runnable, Comparable<BowlingSess
         boolean foul = lane.isLastBallFoul();
         double speed = lane.getLastBallSpeed();
         ArrayList<BowlingPins> pins = lane.getLastBallPins();
+        int currentFrame = players.get(currentBall).getFrameIndex();
         players.get(currentPlayer).bowled(pins, foul, speed);
         display.setScore(players.get(currentPlayer), currentPlayer);
+        currentBall++;
 
         if (foul) {
             display.showSplash(BowlingSplash.Foul);
         }
-        
-        if(players.get(currentPlayer).getFinishedFrame())
-        {
-            players.get(currentPlayer).setFinishedFrame(false);
-            if (isFinished())
-            {
-                mSessionFinished = true;
+
+        if (currentFrame < 9) {
+            if (currentBall == 1) {
+                if (players.get(currentBall).isStrikeSpare(10 - pins.size())) {
+                    display.showSplash(BowlingSplash.Spare);
+                }
+                incrementPlayer();
+            } else if (players.get(currentBall).isStrikeSpare(10 - pins.size())) {
+                display.showSplash(BowlingSplash.Strike);
+                incrementPlayer();
+                lane.cycleNoScore();
             }
-            else
-               iteratePlayers();
+
         }
+        if (currentFrame == 9) {
+
+        }
+
     }
-    
-    private boolean isFinished()
-    {
-        for (int x = 0; x < players.size(); x++)
-        {
-            if (!players.get(x).isFinished())
+
+    private boolean isFinished() {
+        for (int x = 0; x < players.size(); x++) {
+            if (!players.get(x).isFinished()) {
                 return false;
+            }
         }
-        
+
         return true;
     }
-    
+
     public abstract void newGame();
-    
-    private void iteratePlayers()
-    {
-        if (currentPlayer >= players.size())
-            currentPlayer = 0;
-        else
-            currentPlayer++;
-    }
 
     /**
      *
@@ -140,9 +143,17 @@ public abstract class BowlingSession implements Runnable, Comparable<BowlingSess
         }
     }
 
+    public void resetDisplay() {
+        display.newGame();
+        for (int i = 0; i < players.size(); i++) {
+            display.newPlayer(players.get(i));
+        }
+    }
+
     protected void incrementPlayer() {
         currentPlayer = (currentPlayer + 1) % players.size();
         display.setCurentPlayer(currentPlayer);
+        currentBall = 0;
     }
 
     @Override
