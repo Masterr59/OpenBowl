@@ -21,7 +21,7 @@ import org.openbowl.common.BowlingGame;
 /**
  *
  * A bowling session with a number of games
- * 
+ *
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
 public class NumberedSession extends BowlingSession {
@@ -43,6 +43,7 @@ public class NumberedSession extends BowlingSession {
             this.players.add(g);
             display.newPlayer(g);
             GamesRemaining--;
+            display.setCurentPlayer(currentPlayer);
         }
         return GamesRemaining;
     }
@@ -72,18 +73,19 @@ public class NumberedSession extends BowlingSession {
 
     @Override
     public void run() {
+        display.newGame();
         isRunning.setValue(true);
         lane.getPinSetter().setPower(true);
         boolean triggerDisplayRefresh = false;
         while (run && !Thread.currentThread().isInterrupted()) {
             try {
-                if (triggerDisplayRefresh)
+                if (triggerDisplayRefresh) {
                     refreshDisplay();
+                }
                 if (mSessionFinished && GamesRemaining < 1) {
                     run = false;
                     lane.getPinSetter().setPower(false);
-                } 
-                else if (mSessionFinished && GamesRemaining > 0) {
+                } else if (mSessionFinished && GamesRemaining > 0) {
                     //create new game
                     newGame();
                     triggerDisplayRefresh = true;
@@ -100,14 +102,11 @@ public class NumberedSession extends BowlingSession {
         isRunning.setValue(false);
 
     }
-    
+
     @Override
-    public void newGame()
-    {
-        for (int i = 0; i < players.size(); i++) 
-        {
-            if (GamesRemaining > 0) 
-            {
+    public void newGame() {
+        for (int i = 0; i < players.size(); i++) {
+            if (GamesRemaining > 0) {
                 players.get(i).reset();
                 GamesRemaining--;
             }
@@ -121,5 +120,4 @@ public class NumberedSession extends BowlingSession {
 
     }
 
-    
 }

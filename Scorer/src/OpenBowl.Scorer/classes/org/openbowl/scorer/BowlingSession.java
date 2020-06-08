@@ -90,34 +90,36 @@ public abstract class BowlingSession implements Runnable, Comparable<BowlingSess
      * 10
      */
     protected void onBowlEvent() {
+        System.out.println("*** Bowling Event ***");
+        System.out.println("Player id: " + currentPlayer + " Ball # " + currentBall);
         boolean foul = lane.isLastBallFoul();
         double speed = lane.getLastBallSpeed();
         ArrayList<BowlingPins> pins = lane.getLastBallPins();
-        int currentFrame = players.get(currentBall).getFrameIndex();
+        int currentFrame = players.get(currentPlayer).getFrameIndex();
         players.get(currentPlayer).bowled(pins, foul, speed);
         display.setScore(players.get(currentPlayer), currentPlayer);
-        currentBall++;
-
+        
         if (foul) {
             display.showSplash(BowlingSplash.Foul);
         }
 
         if (currentFrame < 9) {
             if (currentBall == 1) {
-                if (players.get(currentBall).isStrikeSpare(10 - pins.size())) {
+                if (players.get(currentPlayer).isStrikeSpare(10 - pins.size())) {
                     display.showSplash(BowlingSplash.Spare);
                 }
                 incrementPlayer();
-            } else if (players.get(currentBall).isStrikeSpare(10 - pins.size())) {
+            } else if (players.get(currentPlayer).isStrikeSpare(10 - pins.size())) {
                 display.showSplash(BowlingSplash.Strike);
                 incrementPlayer();
                 lane.cycleNoScore();
             }
 
         }
-        if (currentFrame == 9) {
+        else if (currentFrame == 9) {
 
         }
+        currentBall++;
 
     }
 
@@ -153,7 +155,7 @@ public abstract class BowlingSession implements Runnable, Comparable<BowlingSess
     protected void incrementPlayer() {
         currentPlayer = (currentPlayer + 1) % players.size();
         display.setCurentPlayer(currentPlayer);
-        currentBall = 0;
+        currentBall = -1;
     }
 
     @Override
