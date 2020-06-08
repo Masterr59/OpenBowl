@@ -121,6 +121,7 @@ public class ScorerSystemHandler extends SystemHandler {
     @Override
     protected ArrayList<SystemStatus> getSystemStatus() {
         ArrayList<SystemStatus> status = super.getSystemStatus();
+        System.out.println("System Status: Session Running Check");
         if (oddRunningProperty.get()) {
             status.add(SystemStatus.ODD_GAME_RUNNING);
         } else {
