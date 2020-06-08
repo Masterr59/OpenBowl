@@ -62,8 +62,10 @@ public class DemoGame {
     }
 
     void runDemo() {
-        Thread evenThread = new Thread(new evenGame(this.displayAddress));
-        Thread oddThread = new Thread(new oddGame(this.displayAddress));
+        evenGame even = new evenGame(this.displayAddress);
+        Thread evenThread = new Thread(even);
+        oddGame odd = new oddGame(this.displayAddress);
+        Thread oddThread = new Thread(odd);
         evenThread.start();
         oddThread.start();
         try {
@@ -72,6 +74,10 @@ public class DemoGame {
         } catch (InterruptedException ex) {
             System.out.println("Demo Interupted");
         }
+        System.out.println("Even games:\n:");
+        even.showEnd();
+        System.out.println("\n games:\n:");
+        odd.showEnd();
 
     }
 
@@ -90,11 +96,10 @@ public class DemoGame {
             this.game = new HashMap<>();
             this.display = new DisplayConnector("even", "none");
             for (String s : players) {
-                int hdcp = s.equals(JANE)? 10 : 0;
-                hdcp = s.equals(ELROY)? 42 : 0;
-                this.game.put(s, new BowlingGame(s, hdcp, s));
+                int hdcp = s.equals(JANE) ? 10 : 0;
+                hdcp = s.equals(ELROY) ? 42 : 0;
+                this.game.put(s, new BowlingGame(s, hdcp, s, 10));
             }
-
 
             Map<String, Object> displaySettings = new HashMap<>();
             displaySettings.put(this.display.ADDRESS_SETTING, displayAddress);
@@ -105,6 +110,7 @@ public class DemoGame {
 
         @Override
         public void run() {
+            display.newGame();
             if (showSplash) {
                 display.showMessageCard("Welcome", -1);
                 sleep();
@@ -127,6 +133,7 @@ public class DemoGame {
                         ball2 = ball1;
                         ball1 = t;
                     }
+                    display.setCurentPlayer(j);
                     game.get(players[j]).bowled(STD_PINS[ball1], false, 25);
                     display.setScore(game.get(players[j]), j);
                     if (ball1 == 0) {
@@ -194,6 +201,12 @@ public class DemoGame {
             }
         }
 
+        public void showEnd() {
+            for (BowlingGame g : game.values()) {
+                System.out.println(g.toString());
+            }
+        }
+
     }
 
     private class oddGame implements Runnable {
@@ -204,10 +217,10 @@ public class DemoGame {
         public oddGame(String displayAddress) {
             this.game = new HashMap<>();
 
-            this.game.put(FRED, new BowlingGame(FRED, 0, FRED));
-            this.game.put(BARNEY, new BowlingGame(BARNEY, 0, BARNEY));
-            this.game.put(SLATE, new BowlingGame(SLATE, 19, SLATE));
-            this.game.put(GAZOO, new BowlingGame(GAZOO, 0, GAZOO));
+            this.game.put(FRED, new BowlingGame(FRED, 0, FRED, 10));
+            this.game.put(BARNEY, new BowlingGame(BARNEY, 0, BARNEY, 10));
+            this.game.put(SLATE, new BowlingGame(SLATE, 19, SLATE, 10));
+            this.game.put(GAZOO, new BowlingGame(GAZOO, 0, GAZOO, 10));
 
             this.game.get(SLATE).setHandicap(19);
 
@@ -244,146 +257,180 @@ public class DemoGame {
             //Fred X
             addBall(FRED, 0, 0, 0, false, false);
             showSplash(BowlingSplash.Strike);
-
+            display.setCurentPlayer(0);
             //Barney 7 /
             addBall(BARNEY, 1, 3, 0, false, false);
             showSplash(BowlingSplash.Spare);
-
+            display.setCurentPlayer(1);
             //Slate 5, f
             addBall(SLATE, 2, 5, 5, false, true);
-
+            display.setCurentPlayer(2);
             //GAZOO 0, /
+            display.setCurentPlayer(3);
             addBall(GAZOO, 3, 10, 0, false, false);
             showSplash(BowlingSplash.Spare);
 
             //Frame 2
             //Fred X
+            display.setCurentPlayer(0);
             addBall(FRED, 0, 0, 0, false, false);
             showSplash(BowlingSplash.Strike_2);
 
             //Barney 6 2
+            display.setCurentPlayer(1);
             addBall(BARNEY, 1, 4, 2, false, false);
 
             //Slate 0, 5
+            display.setCurentPlayer(2);
             addBall(SLATE, 2, 10, 5, false, false);
 
             //GAZOO X
+            display.setCurentPlayer(3);
             addBall(GAZOO, 3, 0, 0, false, false);
             showSplash(BowlingSplash.Strike);
 
             //Frame 3
             //Fred X
+            display.setCurentPlayer(0);
             addBall(FRED, 0, 0, 0, false, false);
             showSplash(BowlingSplash.Turkey);
 
             //Barney X
+            display.setCurentPlayer(1);
             addBall(BARNEY, 1, 0, 0, false, false);
             showSplash(BowlingSplash.Strike);
 
             //Slate 8, 1
+            display.setCurentPlayer(2);
             addBall(SLATE, 2, 2, 1, false, false);
 
             //GAZOO 6 /
+            display.setCurentPlayer(3);
             addBall(GAZOO, 3, 4, 0, false, false);
             showSplash(BowlingSplash.Spare);
 
             //Frame 4
             //Fred X
+            display.setCurentPlayer(0);
             addBall(FRED, 0, 0, 0, false, false);
             showSplash(BowlingSplash.Strike_4);
 
             //Barney X
+            display.setCurentPlayer(1);
             addBall(BARNEY, 1, 0, 0, false, false);
             showSplash(BowlingSplash.Strike_2);
 
             //Slate F, 5
+            display.setCurentPlayer(2);
             addBall(SLATE, 2, 5, 5, true, false);
 
             //GAZOO X
+            display.setCurentPlayer(3);
             addBall(GAZOO, 3, 0, 0, false, false);
             showSplash(BowlingSplash.Strike);
 
             //Frame 5
             //Fred X
+            display.setCurentPlayer(0);
             addBall(FRED, 0, 0, 0, false, false);
             showSplash(BowlingSplash.Strike_5);
 
             //Barney 7 /
+            display.setCurentPlayer(1);
             addBall(BARNEY, 1, 3, 0, false, false);
             showSplash(BowlingSplash.Spare);
 
             //Slate 2, 5
+            display.setCurentPlayer(2);
             addBall(SLATE, 2, 8, 5, false, false);
 
             //GAZOO X
+            display.setCurentPlayer(3);
             addBall(GAZOO, 3, 0, 0, false, false);
             showSplash(BowlingSplash.Strike_2);
 
             //Frame 6
             //Fred X
+            display.setCurentPlayer(0);
             addBall(FRED, 0, 0, 0, false, false);
             showSplash(BowlingSplash.Strike_6);
 
             //Barney X
+            display.setCurentPlayer(1);
             addBall(BARNEY, 1, 0, 0, false, false);
             showSplash(BowlingSplash.Strike);
 
             //Slate 7, 2
+            display.setCurentPlayer(2);
             addBall(SLATE, 2, 3, 1, false, false);
 
             //GAZOO 1 /
+            display.setCurentPlayer(3);
             addBall(GAZOO, 3, 9, 0, false, false);
             showSplash(BowlingSplash.Spare);
 
             //Frame 7
             //Fred X
+            display.setCurentPlayer(0);
             addBall(FRED, 0, 0, 0, false, false);
             showSplash(BowlingSplash.Strike_7);
 
             //Barney X
+            display.setCurentPlayer(1);
             addBall(BARNEY, 1, 0, 0, false, false);
             showSplash(BowlingSplash.Strike_2);
 
             //Slate 3, 5
+            display.setCurentPlayer(2);
             addBall(SLATE, 2, 7, 5, false, false);
 
             //GAZOO X
+            display.setCurentPlayer(3);
             addBall(GAZOO, 3, 0, 0, false, false);
             showSplash(BowlingSplash.Strike);
 
             //Frame 8
             //Fred X
+            display.setCurentPlayer(0);
             addBall(FRED, 0, 0, 0, false, false);
             showSplash(BowlingSplash.Strike_8);
 
             //Barney X
+            display.setCurentPlayer(1);
             addBall(BARNEY, 1, 0, 0, false, false);
             showSplash(BowlingSplash.Turkey);
 
             //Slate 7, 2
+            display.setCurentPlayer(2);
             addBall(SLATE, 2, 3, 1, false, false);
 
             //GAZOO 3 /
+            display.setCurentPlayer(3);
             addBall(GAZOO, 3, 7, 0, false, false);
             showSplash(BowlingSplash.Spare);
 
             //Frame 9
             //Fred X
+            display.setCurentPlayer(0);
             addBall(FRED, 0, 0, 0, false, false);
             showSplash(BowlingSplash.Strike_9);
 
             //Barney 9 0
+            display.setCurentPlayer(1);
             addBall(BARNEY, 1, 1, 1, false, false);
 
             //Slate F, F
+            display.setCurentPlayer(2);
             addBall(SLATE, 2, 3, 1, true, true);
 
             //GAZOO X
+            display.setCurentPlayer(3);
             addBall(GAZOO, 3, 0, 0, false, false);
             showSplash(BowlingSplash.Strike);
 
             //Frame 10
             //Fred X X X
+            display.setCurentPlayer(0);
             addBall(FRED, 0, 0, 0, false, false);
             showSplash(BowlingSplash.Strike_10);
 
@@ -404,12 +451,15 @@ public class DemoGame {
             sleep(2000);
 
             //Barney 7 0
+            display.setCurentPlayer(1);
             addBall(BARNEY, 1, 3, 3, false, false);
 
             //Slate 0, 5
+            display.setCurentPlayer(2);
             addBall(SLATE, 2, 10, 5, false, false);
 
             //GAZOO 5 / X
+            display.setCurentPlayer(3);
             addBall(GAZOO, 3, 5, 0, false, false);
             showSplash(BowlingSplash.Spare);
 
@@ -469,6 +519,12 @@ public class DemoGame {
             if (showSplash) {
                 display.showSplash(sp);
                 sleep();
+            }
+        }
+
+        public void showEnd() {
+            for (BowlingGame g : game.values()) {
+                System.out.println(g.toString());
             }
         }
     }

@@ -43,7 +43,7 @@ public class BowlingFrame {
         mFoul = new boolean[3];
         mPins = new ArrayList[3];
         mScoreType = new ScoreType[3];
-        mFrameScore = 0;
+        mFrameScore = -1;
         for (int i = 0; i < 3; i++) {
             mSpeed[i] = -1.0;
             mFoul[i] = false;
@@ -62,7 +62,7 @@ public class BowlingFrame {
         } else {
             throw new IllegalArgumentException("Adding Ball when fram is full");
         }
-        mBallIndex ++;
+        mBallIndex++;
     }
 
     @Override
@@ -104,5 +104,9 @@ public class BowlingFrame {
                 return 10 - this.mPins[2].size();
         }
         return ret;
+    }
+
+    void setFrameScore(int score) {
+        this.mFrameScore = score;
     }
 }

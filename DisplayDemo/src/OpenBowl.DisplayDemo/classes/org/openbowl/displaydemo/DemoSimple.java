@@ -29,6 +29,7 @@ import org.openbowl.scorer.DisplayConnector;
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
 public class DemoSimple {
+
     private final String FRED = "Fred F.";
     private final String BARNEY = "Barney R.";
     private final String SLATE = "Mr. Slate";
@@ -49,11 +50,10 @@ public class DemoSimple {
 
         this.game = new HashMap<>();
 
-        this.game.put(FRED, new BowlingGame(FRED, 0, FRED));
-        this.game.put(BARNEY, new BowlingGame(BARNEY, 0, BARNEY));
-        this.game.put(SLATE, new BowlingGame(SLATE, 19, SLATE));
-        this.game.put(GAZOO, new BowlingGame(GAZOO, 0, GAZOO));
-
+        this.game.put(FRED, new BowlingGame(FRED, 0, FRED, 10));
+        this.game.put(BARNEY, new BowlingGame(BARNEY, 0, BARNEY, 10));
+        this.game.put(SLATE, new BowlingGame(SLATE, 19, SLATE, 10));
+        this.game.put(GAZOO, new BowlingGame(GAZOO, 0, GAZOO, 10));
 
         this.display = new DisplayConnector("odd", "none");
 
@@ -81,18 +81,23 @@ public class DemoSimple {
             Thread.sleep(500);
             display.newPlayer(game.get(GAZOO));
             Thread.sleep(2000);
-            for(BowlingSplash sp : BowlingSplash.values()){
+            for (int i = 0; i < 4; i++) {
+                Thread.sleep(500);
+                display.setCurentPlayer(i);
+                System.out.println("Player " + i);
+            }
+            Thread.sleep(2000);
+            display.newGame();
+            for (BowlingSplash sp : BowlingSplash.values()) {
                 display.showSplash(sp);
                 long time = sp == BowlingSplash.PerfectGame ? 31000 : 5500;
                 time = sp == BowlingSplash.Foul ? 7000 : time;
                 Thread.sleep(time);
             }
-            
-            
-            
+
         } catch (InterruptedException ex) {
             System.out.println("Thread Interupted");
         }
     }
-    
+
 }

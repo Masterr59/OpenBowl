@@ -61,6 +61,7 @@ public class BowlingGame {
 
         }
         mBallIndex++;
+        scoreGame();
     }
 
     private void initFrame() {
@@ -89,6 +90,8 @@ public class BowlingGame {
         mPlayerName = bg.getPlayerName();
         mHandicap = bg.getHandicap();
         mPlayerUUID = bg.getPlayerUUID();
+        this.mTap = bg.mTap;
+        this.mGameScore = bg.getGameScore();
     }
 
     public BowlingFrame[] getFrames() {
@@ -109,6 +112,10 @@ public class BowlingGame {
 
     public String getPlayerUUID() {
         return mPlayerUUID;
+    }
+
+    public int getTap() {
+        return mTap;
     }
 
     @Override
@@ -149,9 +156,10 @@ public class BowlingGame {
 
             if (ball == 0) {
                 ret = isStrikeSpare(ball1) ? "X" : Integer.toString(ball1);
+                ret = ball1 == 0 ? "-" : ret;
             } else if (ball == 1) {
                 ret = isStrikeSpare(ball2) ? "/" : Integer.toString(ball2Diff);
-                ret = (isStrikeSpare(ball1) && frame < 9) ? "#" : ret;
+                ret = (isStrikeSpare(ball1) && frame < 9) ? " " : ret;
                 ret = (isStrikeSpare(ball2) && frame == 9) ? "X" : ret;
                 ret = ball1 == ball2 && !isStrikeSpare(ball1) ? "-" : ret;
             } else if (ball == 2) {
@@ -166,5 +174,84 @@ public class BowlingGame {
 
     private boolean isStrikeSpare(int rawScore) {
         return rawScore >= mTap;
+    }
+
+    public boolean isFrameScored(int frame) {
+        if (frame > mFrameIndex) {
+            return false;
+        }
+        return mFrames[frame].getFrameScore() > -1;
+    }
+
+    public void scoreGame() {
+        this.mGameScore = 0;
+        ArrayList<String> balls = new ArrayList<>();
+        for (int i = 0; i < mFrameIndex; i++) {
+            String ball = getBallStringValue(i, 0);         //Ball 1
+            if (ballStringtoInt(ball) >= 0) {
+                balls.add(ball);
+                ball = getBallStringValue(i, 1);            //Ball 2
+                if (ballStringtoInt(ball) >= 0) {
+                    balls.add(ball);
+                    ball = getBallStringValue(i, 2);        //Ball 3
+                    if (ballStringtoInt(ball) >= 0) {
+                        balls.add(ball);
+                    }
+                }
+            }
+        }// end collect balls
+        int ballIndex = 0;
+        for (int i = 0; i <= mFrameIndex; i++) {
+            int frameScore = 0;
+            if (ballIndex < balls.size()) {
+                int ball = ballStringtoInt(balls.get(ballIndex));
+                if (ball == 10) {
+                    if (ballIndex + 2 < balls.size()) {
+                        ball += ballStringtoInt(balls.get(ballIndex + 1));
+                        ball += ballStringtoInt(balls.get(ballIndex + 2));
+                    }
+                } else { //ball2
+                    ballIndex++;
+                    if (ballIndex < balls.size()) {
+                        int ball2 = ballStringtoInt(balls.get(ballIndex));
+                        if (ball2 == 10 && i < 9) {
+                            if (ballIndex + 1 < balls.size()) {
+                                ball2 = ballStringtoInt(balls.get(ballIndex + 1));
+                            }
+                        }
+                        ball += ball2;
+                    }
+                }
+                frameScore += ball;
+            }
+            if (frameScore > 0) {
+                this.mGameScore += frameScore;
+                if (this.mFrames[i] != null) {
+                    this.mFrames[i].setFrameScore(this.mGameScore);
+                }
+            }
+        }
+
+    }
+
+    private int ballStringtoInt(String s) {
+        switch (s) {
+            case "X":
+                return 10;
+            case "/":
+                return 10;
+            case "F":
+                return 0;
+            case " ":
+                return -1;
+            case "-":
+                return 0;
+            default:
+                try {
+                    return Integer.parseInt(s);
+                } catch (Exception e) {
+                    return 0;
+                }
+        }
     }
 }
