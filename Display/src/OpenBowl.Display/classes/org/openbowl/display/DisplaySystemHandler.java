@@ -43,6 +43,9 @@ public class DisplaySystemHandler extends SystemHandler {
             case "theme":
                 onGetTheme(map);
                 break;
+            case "status":
+                map.put("status", this.getSystemStatus());
+                break;
             default:
                 map.put(SUCCESS, false);
                 map.put(ERROR_MSG, "missing or unsupported request");

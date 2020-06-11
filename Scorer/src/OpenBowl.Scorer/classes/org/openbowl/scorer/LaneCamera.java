@@ -51,11 +51,16 @@ public class LaneCamera {
              *
              * No shutter speed option is used - the default lasts quite a while, which isn't an issue for what is mostly a still image. 
              */
-            ProcessBuilder raspistillProcessBuilder = new ProcessBuilder("./raspistillScript");
-            Process raspistillProcess = raspistillProcessBuilder.start();
-            raspistillProcess.waitFor(); // If the process never ends, then the program will hang. There is no simple way to make this time out.
-
-            currentCameraImage = ImageIO.read(new File("currentPinImage.png"));
+            File f = new File("./raspistillScript");
+            if (f.exists() && f.canExecute()) {
+                ProcessBuilder raspistillProcessBuilder = new ProcessBuilder("./raspistillScript");
+                Process raspistillProcess = raspistillProcessBuilder.start();
+                raspistillProcess.waitFor(); // If the process never ends, then the program will hang. There is no simple way to make this time out.
+            }
+            f = new File("currentPinImage.png");
+            if (f.exists() && f.canRead()) {
+                currentCameraImage = ImageIO.read(f);
+            }
         } catch (IOException e) {
             e.printStackTrace(System.out);
         }

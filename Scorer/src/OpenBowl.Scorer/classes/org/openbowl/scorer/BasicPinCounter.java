@@ -201,6 +201,7 @@ public class BasicPinCounter implements PinCounter {
      */
     @Override
     public Map<String, Object> getConfiguration() {
+        log("Get Configuration called");
         Map<String, Object> ret = new HashMap<>();
         ret.put("Type", this.getClass().getName());
         BowlingPins[] allPins = BowlingPins.values();
@@ -288,10 +289,10 @@ public class BasicPinCounter implements PinCounter {
                 for (BowlingPins p : allPins) {
                     int X, Y, R, level;
                     double r, g, b;
-                    X = (int) configuration.get(p.toString() + "-" + X_SETTING);
-                    Y = (int) configuration.get(p.toString() + "-" + Y_SETTING);
-                    R = (int) configuration.get(p.toString() + "-" + RADIUS_SETTING);
-                    level = (int) configuration.get(p.toString() + "-" + LEVEL_SETTING);
+                    X = (new Double((double) configuration.get(p.toString() + "-" + X_SETTING))).intValue();
+                    Y = (new Double((double) configuration.get(p.toString() + "-" + Y_SETTING))).intValue();
+                    R = (new Double((double) configuration.get(p.toString() + "-" + RADIUS_SETTING))).intValue();
+                    level = (new Double((double) configuration.get(p.toString() + "-" + LEVEL_SETTING))).intValue();
 
                     r = (double) configuration.get(p.toString() + "-" + RED_SETTING);
                     g = (double) configuration.get(p.toString() + "-" + GREEN_SETTING);
@@ -316,7 +317,7 @@ public class BasicPinCounter implements PinCounter {
         } catch (NullPointerException e) {
             results += "NullPointException: " + e.getMessage();
         }
-
+        log("Set configuration called: " + results);
         return results;
     }
 

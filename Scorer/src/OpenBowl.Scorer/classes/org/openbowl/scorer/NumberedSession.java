@@ -16,15 +16,12 @@
  */
 package org.openbowl.scorer;
 
-import java.util.ArrayList;
-import org.openbowl.common.BowlingFrame;
-import org.openbowl.common.BowlingFrame.BallNumber;
 import org.openbowl.common.BowlingGame;
 
 /**
  *
  * A bowling session with a number of games
- * 
+ *
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
 public class NumberedSession extends BowlingSession {
@@ -36,7 +33,6 @@ public class NumberedSession extends BowlingSession {
     public NumberedSession(Lane lane, int numGames) {
         super(lane);
         GamesRemaining = numGames;
-        currentBall = BallNumber.NONE;
         currentPlayer = 0;
         run = true;
     }
@@ -47,6 +43,7 @@ public class NumberedSession extends BowlingSession {
             this.players.add(g);
             display.newPlayer(g);
             GamesRemaining--;
+            display.setCurentPlayer(currentPlayer);
         }
         return GamesRemaining;
     }
@@ -68,6 +65,7 @@ public class NumberedSession extends BowlingSession {
     @Override
     protected void onBowlEvent() {
         super.onBowlEvent();
+        refreshDisplay();
         synchronized (frameInterupt) {
             frameInterupt.notifyAll();
         }
@@ -75,34 +73,22 @@ public class NumberedSession extends BowlingSession {
 
     @Override
     public void run() {
+        display.newGame();
         isRunning.setValue(true);
         lane.getPinSetter().setPower(true);
         boolean triggerDisplayRefresh = false;
         while (run && !Thread.currentThread().isInterrupted()) {
             try {
-                int framesLeft = 0;
                 if (triggerDisplayRefresh) {
                     refreshDisplay();
                 }
-                for (BowlingGame b : players) {
-                    ArrayList<BowlingFrame> frames = b.getFrames();
-                    framesLeft += (frames.size() == 11) ? 0 : 1;
-                }
-                if (framesLeft == 0 && GamesRemaining < 1) {
+                if (mSessionFinished && GamesRemaining < 1) {
                     run = false;
                     lane.getPinSetter().setPower(false);
-                } else if (framesLeft == 0 && GamesRemaining > 0) {
+                } else if (mSessionFinished && GamesRemaining > 0) {
                     //create new game
-                    for (int i = 0; i < players.size(); i++) {
-                        //reset Game
-                        if (GamesRemaining > 0) {
-                            players.get(i).reset();
-                            GamesRemaining--;
-                        }
-                        triggerDisplayRefresh = true;
-                    }
-                    currentBall = BallNumber.NONE;
-
+                    newGame();
+                    triggerDisplayRefresh = true;
                     currentPlayer = 0;
                 }
                 synchronized (frameInterupt) {
@@ -118,11 +104,20 @@ public class NumberedSession extends BowlingSession {
     }
 
     @Override
+    public void newGame() {
+        for (int i = 0; i < players.size(); i++) {
+            if (GamesRemaining > 0) {
+                players.get(i).reset();
+                GamesRemaining--;
+            }
+        }//end for
+    }
+
+    @Override
     public void resumeSession() {
         display.showMessageCard("NONE", -1);
         lane.getPinSetter().setPower(true);
 
     }
 
-    
 }

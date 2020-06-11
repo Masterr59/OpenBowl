@@ -22,7 +22,7 @@ import java.util.ArrayList;
  *
  * @author Open Bowl <http://www.openbowlscoring.org/>
  */
-public class BowlingFrame implements Comparable<BowlingFrame> {
+public class BowlingFrame {
 
     public enum ScoreType {
         NONE,
@@ -31,124 +31,82 @@ public class BowlingFrame implements Comparable<BowlingFrame> {
         ADMIN
     }
 
-    public enum BallNumber {
-        ONE,
-        TWO,
-        BONUS,
-        NONE
-    }
-
-    private final boolean[] isBallFoul;
-    private final ArrayList<BowlingPins>[] balls;
-    private int frameScore;
-    private BallNumber currentBall;
-    private final ScoreType ballType[];
-    private double speed[];
+    private final double[] mSpeed;
+    private final boolean[] mFoul;
+    private final ScoreType[] mScoreType;
+    private ArrayList<BowlingPins>[] mPins;
+    private int mBallIndex;
+    private int mFrameScore;
 
     public BowlingFrame() {
-        int numBalls = BallNumber.values().length;
-        isBallFoul = new boolean[numBalls];
-        balls = new ArrayList[numBalls];
-        ballType = new ScoreType[numBalls];
-        speed = new double[numBalls];
-        for (BallNumber b : BallNumber.values()) {
-            isBallFoul[b.ordinal()] = false;
-            balls[b.ordinal()] = new ArrayList<>();
-            ballType[b.ordinal()] = ScoreType.NONE;
-            speed[b.ordinal()] = 0;
+        mSpeed = new double[3];
+        mFoul = new boolean[3];
+        mPins = new ArrayList[3];
+        mScoreType = new ScoreType[3];
+        mFrameScore = -1;
+        for (int i = 0; i < 3; i++) {
+            mSpeed[i] = -1.0;
+            mFoul[i] = false;
+            mPins[i] = new ArrayList<>();
+            mScoreType[i] = ScoreType.NONE;
         }
-        this.frameScore = -1;
-        this.currentBall = BallNumber.NONE;
+        mBallIndex = 0;
     }
 
-    /**
-     *
-     * Adds a ball to the frame and sets the ScoreType to mechanical
-     * 
-     * @param p The pins that were still standing for this ball
-     * @param foul If this ball was foul
-     * @param speed The speed of the ball in fps
-     */
-    public void addBall(ArrayList<BowlingPins> p, boolean foul, double speed) {
-        switch (currentBall) {
-            case NONE:
-                setBall(p, foul, BallNumber.ONE, ScoreType.MECHANICAL, speed);
-                currentBall = BallNumber.ONE;
-                break;
-            case ONE:
-                setBall(p, foul, BallNumber.TWO, ScoreType.MECHANICAL, speed);
-                currentBall = BallNumber.TWO;
-                break;
-            case TWO:
-                setBall(p, foul, BallNumber.BONUS, ScoreType.MECHANICAL, speed);
-                currentBall = BallNumber.BONUS;
-                break;
+    public void addBall(ArrayList<BowlingPins> remainingPins, boolean foul, double speed) {
+        if (mBallIndex < 3) {
+            mFoul[mBallIndex] = foul;
+            mSpeed[mBallIndex] = speed;
+            mPins[mBallIndex] = remainingPins;
+            mScoreType[mBallIndex] = ScoreType.MECHANICAL;
+        } else {
+            throw new IllegalArgumentException("Adding Ball when fram is full");
         }
-    }
-
-    /**
-     *
-     * Manually sets a ball in the frame, should be used for changing a score 
-     * 
-     * @param p The pins that were still standing for this ball
-     * @param foul If this ball was foul
-     * @param b The ball number in the frame
-     * @param t The type of scoring for this ball
-     * @param speed The speed of the ball in fps
-     */
-    public void setBall(ArrayList<BowlingPins> p, boolean foul, BallNumber b, ScoreType t, double speed) {
-        int ballNum = b.ordinal();
-        balls[ballNum] = p;
-        isBallFoul[ballNum] = foul;
-        ballType[ballNum] = t;
-        this.speed[ballNum] = speed;
-    }
-
-    public boolean isBallFoul(BallNumber b) {
-        return isBallFoul[b.ordinal()];
-    }
-
-    public ArrayList<BowlingPins> getBallPins(BallNumber b) {
-        return balls[b.ordinal()];
-    }
-
-    public ScoreType getScoreType(BallNumber b) {
-        return ballType[b.ordinal()];
-    }
-
-    public int getFrameScore() {
-        return frameScore;
-    }
-
-    public void setFrameScore(int frameScore) {
-        this.frameScore = frameScore;
-    }
-
-    public BallNumber getCurrentBall() {
-        return currentBall;
-    }
-
-    @Override
-    public int compareTo(BowlingFrame t) {
-        for (BallNumber b : BallNumber.values()) {
-            if (!this.balls[b.ordinal()].equals(t.getBallPins(b))
-                    || this.isBallFoul[b.ordinal()] != t.isBallFoul(b)) {
-                return 1;
-            }
-        }
-        return 0;
+        mBallIndex++;
     }
 
     @Override
     public String toString() {
-        String ret = "Frame: ";
+        String result = "[";
         for (int i = 0; i < 3; i++) {
-            ret += "B" + i + " -> ";
-            ret += ballType[i];
-            ret += ": " + balls[i].size();
-            ret += " " ;
+
+        }
+
+        result += "]";
+
+        return result;
+    }
+
+    public double getSpeed(int index) {
+        return mSpeed[index];
+    }
+
+    public boolean isFoul(int index) {
+        return mFoul[index];
+    }
+
+    public int getFrameScore() {
+        return this.mFrameScore;
+    }
+
+    public ScoreType[] getScoreTypes() {
+        return mScoreType;
+    }
+
+    public int getBallRawScore(int b) {
+        int ret = 0;
+        switch (b) {
+            case 0:
+                return 10 - this.mPins[0].size();
+            case 1:
+                return 10 - this.mPins[1].size();
+            case 2:
+                return 10 - this.mPins[2].size();
         }
         return ret;
     }
 
+    void setFrameScore(int score) {
+        this.mFrameScore = score;
+    }
 }

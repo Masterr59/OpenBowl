@@ -1,0 +1,193 @@
+/*
+Copyright (C) 2020 Open Bowl <http://www.openbowlscoring.org/>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+/* 
+    Created on : May 2, 2020, 8:12:46 PM
+    Author     : Open Bowl <http://www.openbowlscoring.org/>
+*/
+
+.root{
+    -fx-font-family: "Arimo";
+    -fx-base: #3D3D3D;
+    -fx-background: #262626;
+}
+
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-opacity: 0;
+}
+
+.tab-pane .tab-header-area{
+    -fx-border-color: #232323;
+    -fx-border-width: 2;
+}
+
+.tab-pane
+{
+    -fx-tab-min-width:90px;
+    -fx-tab-min-height:90px;
+}
+
+.tab{
+    -fx-background-insets: 0 1 0 1,0,0;
+}
+
+.tab-pane .tab
+{
+    -fx-background-color: #3D3D3D;
+    -fx-border-color: #232323;
+    -fx-border-width: 2;
+    -fx-border-radius: 5;
+}
+
+.tab-pane .tab:selected
+{
+    -fx-background-color: #262626;
+}
+
+.tab .tab-label { 
+    -fx-alignment: CENTER;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-rotate: 90;
+}
+
+.tree-view {
+    -fx-font-family: "monospaced";
+    -fx-border-color: #212121;
+    -fx-border-width: 1;
+    -fx-border-radius: 3;
+}
+
+.tree-view, .tree-cell {
+    -fx-background-color: #FFFFFF ;
+    -fx-text-fill: #000000 ;
+    -fx-font-size: 10px;
+}
+.tree-cell:selected {
+    -fx-background-color: #080559 ;
+    -fx-text-fill: #FFFFFF ;
+}
+
+#submitBtn {
+    -fx-background-color: #5B8F5A;
+}
+
+#submitBtn:hover
+{
+    -fx-background-color: #71B46F;
+}
+
+#normalBtn #greenBtn #yellowBtn #purpleBtn #redBtn {
+    -fx-font-size: 10px;
+    -fx-alignment: CENTER;
+    -fx-min-height: 75;
+    -fx-pref-height: 75;
+    -fx-min-width: 75;
+    -fx-pref-width: 75;
+    -fx-margin: 5 5 5 5;
+    -fx-padding: 5 5 5 5;
+}
+
+#normalBtn{
+    -fx-background-color: #5A768F;
+}
+
+#normalBtn:hover{
+    -fx-background-color: #6B8FB0;
+}
+
+#greenBtn{
+    -fx-background-color: #5B8F5A;
+}
+
+#greenBtn:hover{
+    -fx-background-color: #71B46F;
+}
+
+#yellowBtn
+{
+    -fx-background-color: #AEAB58;
+}
+#yellowBtn:hover
+{
+    -fx-background-color: #C3C062;
+}
+#purpleBtn
+{
+    -fx-background-color: #AF9ACA;
+}
+#purpleBtn:hover
+{
+    -fx-background-color: #C2ABDE;
+}
+#redBtn
+{
+    -fx-background-color: #D04848;
+}
+#redBtn:hover
+{
+    -fx-background-color: #F25656;
+}
+
+#h2{
+    -fx-alignment: CENTER;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+#h3{
+    -fx-max-width: 9999999999999999999999999;
+    -fx-background-color: #303030;
+    -fx-alignment: CENTER;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+#product_panel{
+    -fx-background-color: #444444;
+}
+
+#laneNumText{
+    -fx-background-color: #333;
+    -fx-alignment: CENTER;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-margin: 5 5 5 5;
+}
+
+#dateTime{
+    -fx-background-color: #ffffff;
+    -fx-alignment: CENTER;
+    -fx-max-width: 9999999999999999999999999;
+    -fx-text-fill: #000000;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+}
+
+#receipt{
+    -fx-background-color: #ffffff;
+    -fx-border-color: #212121;
+    -fx-border-width: 1;
+    -fx-border-radius: 3;
+}
+
+#salesTax #saleTotal{
+    -fx-background-color: #ffffff;
+    -fx-border-color: #000000;
+    -fx-border-width: 2;
+    -fx-font-weight: bold;
+}

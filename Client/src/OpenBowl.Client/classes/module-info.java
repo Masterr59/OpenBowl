@@ -7,6 +7,12 @@
 module OpenBowl.Client {
     requires javafx.controls;
     requires OpenBowl.Common;
+    requires OpenBowl.Scorer;
+    requires java.prefs;
+    requires javafx.web;
+    requires javafx.fxml;
+    requires gson;
     
+    opens org.openbowl.client to javafx.fxml;
     exports org.openbowl.client;
 }

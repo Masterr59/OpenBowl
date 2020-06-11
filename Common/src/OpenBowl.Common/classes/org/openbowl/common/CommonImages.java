@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Open Bowl <http://www.openbowlscoring.org/>
+ * Copyright (C) 2020 patrick
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,12 +14,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.openbowl.scorer.remote;
+package org.openbowl.common;
+
+import javafx.scene.image.Image;
 
 /**
  *
- * @author Open Bowl <http://www.openbowlscoring.org/>
+ * @author patrick
  */
-public class Common {
+public class CommonImages {
+
+    public Image appIcon() {
+        return new Image(getClass().getResource("/org/openbowl/common/images/applogowebshort.png").toExternalForm());
+    }
 
 }
