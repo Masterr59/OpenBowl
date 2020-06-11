@@ -1,0 +1,26 @@
+.sidebar { width: 75px; }
+.separator .topline { width: 75px; }
+.separator .bottomline { width: 75px; }
+.header { left: 68px; }
+.pageBody { left: 75px; }
+.logo { left: 10px; height: 49px; }
+.linksection { width: 75px; }
+.linksection a { width: 75px; }
+.status { width: 20px; height: 20px; }
+
+.normalBtn, .yellowBtn, .greenBtn,
+.redBtn, .purpleBtn, .laneBtn,
+.laneBtnBlue, .normalBtnSelected,
+.greenBtnSelected, .purpleBtnSelected,
+.purpleBtnDisabled, .numBtn
+     { width: 4em; height: 4em; padding: 0px;}
+
+.laneBtn, .laneBtnBlue { height: 6em; }
+
+.laneNumText{ width: 4em; }
+
+.buttonTxtShort { display: inline-block; text-align: center;}
+.buttonTxtFull { display: none; }
+
+#logoIconShort { display: inline-block; }
+#logoIconFull { display: none; }
